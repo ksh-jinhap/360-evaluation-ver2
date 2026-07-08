@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>다면평가 개인결과 조회</title>
+<style>
+:root{--nv:#1a3a5c;--nv2:#2563a8;--bd:#d0d7e3;--bd2:#b0bcd0;--bg:#f4f6fb;--tx:#1a2a3a;--tx2:#3a5a7a;--tx3:#7a90a8;--r:10px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
+
+/* ── 로그인 ── */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a3a5c 0%,#2563a8 100%)}
+.login-box{background:#fff;border-radius:20px;padding:44px 38px 36px;width:100%;max-width:400px;box-shadow:0 8px 40px rgba(26,58,92,.18)}
+.login-logo{width:64px;height:64px;background:var(--nv2);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:32px}
+.login-title{text-align:center;font-size:24px;font-weight:800;color:var(--nv);margin-bottom:4px}
+.login-sub{text-align:center;font-size:14px;color:var(--tx3);margin-bottom:28px}
+.lfield{margin-bottom:14px}
+.lfield label{display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:5px}
+.lfield input{width:100%;padding:11px 14px;border:1.5px solid var(--bd);border-radius:8px;font-size:15px;font-family:inherit;outline:none;transition:.15s}
+.lfield input:focus{border-color:var(--nv2);box-shadow:0 0 0 3px rgba(37,99,168,.12)}
+.btn-login{width:100%;padding:13px;background:var(--nv2);color:#fff;border:none;border-radius:9px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:8px;transition:.15s}
+.btn-login:hover{background:#1a3a5c}
+.btn-login:disabled{opacity:.6;cursor:not-allowed}
+.login-err{color:#c62828;font-size:14px;text-align:center;margin-top:10px;min-height:20px}
+.login-notice{text-align:center;font-size:13px;color:var(--tx3);margin-top:16px;line-height:1.6}
+
+/* ── 결과 화면 ── */
+.result-wrap{display:none;min-height:100vh;background:var(--bg)}
+.topbar{background:var(--nv);color:#fff;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-l{display:flex;align-items:center;gap:12px;font-size:18px;font-weight:700}
+.topbar-badge{background:#fff2;padding:3px 10px;border-radius:20px;font-size:13px;font-weight:600}
+.topbar-r{display:flex;align-items:center;gap:12px;font-size:14px}
+.btn-out{background:#fff2;border:none;color:#fff;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:14px;font-family:inherit}
+.btn-out:hover{background:#fff3}
+
+.result-inner{max-width:900px;margin:0 auto;padding:28px 16px 60px}
+.result-name{font-size:22px;font-weight:800;color:var(--nv);margin-bottom:6px}
+.result-sub{font-size:14px;color:var(--tx3);margin-bottom:24px}
+
+/* 탭 */
+.tab-bar{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.tab-btn{padding:8px 18px;border:1.5px solid var(--bd);border-radius:20px;background:#fff;font-size:14px;font-weight:600;cursor:pointer;color:var(--tx2);transition:.15s}
+.tab-btn.on{background:var(--nv2);border-color:var(--nv2);color:#fff}
+
+/* 카드 */
+.card{background:#fff;border-radius:var(--r);box-shadow:0 2px 12px rgba(26,58,92,.07);padding:24px;margin-bottom:20px}
+.card h3{font-size:17px;font-weight:700;color:var(--nv);margin-bottom:16px}
+
+/* 레이더 */
+.radar-wrap{position:relative;width:100%;max-width:520px;margin:0 auto}
+.radar-legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;font-size:14px;justify-content:center}
+.radar-legend span{display:flex;align-items:center;gap:6px}
+.radar-legend i{display:inline-block;width:22px;height:3px;border-radius:2px}
+
+/* 점수표 */
+.score-tbl{width:100%;border-collapse:collapse;font-size:14px;margin-top:16px}
+.score-tbl th{background:#f0f4fa;color:var(--tx2);padding:9px 12px;text-align:left;font-weight:700;border-bottom:2px solid var(--bd)}
+.score-tbl td{padding:8px 12px;border-bottom:1px solid var(--bd);color:var(--tx)}
+.score-tbl tr:last-child td{border-bottom:none}
+.score-my{font-weight:700;color:#1565c0;text-align:center}
+.score-team{color:#2e7d52;text-align:center}
+.score-all{color:#e64a19;text-align:center}
+
+/* no-data */
+.no-data{text-align:center;padding:40px 20px;color:var(--tx3);font-size:15px}
+
+/* 척도 설명 */
+.scale-wrap{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px}
+.scale-chip{padding:5px 10px;border-radius:6px;font-size:12px;font-weight:700;color:#fff}
+.sc6{background:#1565c0}.sc5{background:#2e7d52}.sc4{background:#558b2f}
+.sc3{background:#f9a825;color:#333}.sc2{background:#e64a19}.sc1{background:#b71c1c}
+
+@media(max-width:600px){
+  .login-box{padding:32px 20px 28px;margin:16px}
+  .result-inner{padding:16px 10px 40px}
+  .score-tbl{font-size:13px}
+}
+</style>
+</head>
+<body>
+
+<!-- 로그인 화면 -->
+<div class="login-wrap" id="pg-login">
+  <div class="login-box">
+    <div class="login-logo">📊</div>
+    <div class="login-title">개인결과 조회</div>
+    <div class="login-sub">다면평가 2026</div>
+    <div class="lfield">
+      <label>이름</label>
+      <input type="text" id="li-name" placeholder="이름을 입력하세요" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="lfield">
+      <label>사번</label>
+      <input type="text" id="li-emp" placeholder="숫자 6자리" maxlength="6" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="lfield">
+      <label>주민번호 뒷 3자리</label>
+      <input type="password" id="li-jumin" placeholder="숫자 3자리" maxlength="3" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn-login" id="btn-login" onclick="doLogin()">조회하기</button>
+    <div class="login-err" id="li-err"></div>
+    <div class="login-notice">해당 평가는 모두 익명으로 진행되었습니다.<br>본인의 결과만 조회 가능합니다.</div>
+  </div>
+</div>
+
+<!-- 결과 화면 -->
+<div class="result-wrap" id="pg-result">
+  <div class="topbar">
+    <div class="topbar-l">
+      📊 <span>개인결과 조회</span>
+      <span class="topbar-badge">2026년도</span>
+    </div>
+    <div class="topbar-r">
+      <span id="top-name"></span>
+      <button class="btn-out" onclick="doLogout()">로그아웃</button>
+    </div>
+  </div>
+
+  <div class="result-inner">
+    <div class="result-name" id="res-name"></div>
+    <div class="result-sub" id="res-sub"></div>
+
+    <!-- 평가유형 탭 -->
+    <div class="tab-bar" id="type-tabs"></div>
+
+    <!-- 결과 카드 영역 -->
+    <div id="result-cards"></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// GAS URL 설정
+// ════════════════════════════════════════
+const GAS_URL = "https://script.google.com/macros/s/AKfycbypLDelQZKded7ikVlz4XOTlWz_PFSPVol3CHkFIDjDhoE2VWrRgZiMNoQ17Dvc5pDaWQ/exec";
+
+const FORM_LABEL = {
+  peer:      '동료평가',
+  collab:    '협업평가',
+  super_mgr: '상사평가 (상사용)',
+  super_ceo: '상사평가 (법인대표용)'
+};
+
+let CU = null; // 현재 로그인 사용자
+let ALL_SUBS = []; // 전체 제출 데이터 (팀/전체 평균용)
+let MY_SUBS  = []; // 내 피평가 데이터
+let CUR_TYPE = ''; // 현재 선택 탭
+
+// ── GAS 호출 ──
+async function gasGet(params) {
+  if (!GAS_URL || GAS_URL.includes('여기에')) return null;
+  try {
+    const url = GAS_URL + '?' + new URLSearchParams(params);
+    const res = await fetch(url);
+    return await res.json();
+  } catch(e) { console.warn('GAS GET 실패:', e); return null; }
+}
+async function gasPost(body) {
+  if (!GAS_URL || GAS_URL.includes('여기에')) return null;
+  try {
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(body)
+    });
+    return await res.json();
+  } catch(e) { console.warn('GAS POST 실패:', e); return null; }
+}
+
+// ── 로그인 ──
+async function doLogin() {
+  const name   = document.getElementById('li-name').value.trim();
+  const empNo  = document.getElementById('li-emp').value.trim();
+  const jumin3 = document.getElementById('li-jumin').value.trim();
+  const errEl  = document.getElementById('li-err');
+  const btn    = document.getElementById('btn-login');
+
+  if (!name || !empNo || !jumin3) {
+    errEl.textContent = '이름, 사번, 주민번호 뒷 3자리를 모두 입력해주세요.';
+    return;
+  }
+  if (empNo.length !== 6) { errEl.textContent = '사번은 6자리입니다.'; return; }
+  if (jumin3.length !== 3) { errEl.textContent = '주민번호 뒷 3자리를 입력해주세요.'; return; }
+
+  errEl.textContent = '';
+  btn.disabled = true;
+  btn.textContent = '⏳ 확인 중...';
+
+  const auth = await gasGet({ action: 'authMember', empNo: empNo, name: encodeURIComponent(name), jumin3: jumin3 });
+  if (!auth || !auth.ok) {
+    errEl.textContent = (auth && auth.error) || '인증 실패. 다시 확인해주세요.';
+    btn.disabled = false; btn.textContent = '조회하기';
+    return;
+  }
+
+  CU = { name: auth.name, empNo: auth.empNo };
+  btn.textContent = '⏳ 결과 불러오는 중...';
+
+  // 내 결과 + 전체 제출 로드
+  const [myRes, allRes] = await Promise.all([
+    gasGet({ action: 'getSubmissionsFor', empNo: empNo }),
+    gasGet({ action: 'getSubmissions' })
+  ]);
+
+  MY_SUBS  = (myRes && myRes.submissions)  || [];
+  ALL_SUBS = (allRes && allRes.submissions) || [];
+
+  btn.disabled = false; btn.textContent = '조회하기';
+  showResult();
+}
+
+function doLogout() {
+  CU = null; MY_SUBS = []; ALL_SUBS = []; CUR_TYPE = '';
+  document.getElementById('pg-login').style.display = 'flex';
+  document.getElementById('pg-result').style.display = 'none';
+  document.getElementById('li-name').value = '';
+  document.getElementById('li-emp').value = '';
+  document.getElementById('li-jumin').value = '';
+  document.getElementById('li-err').textContent = '';
+}
+
+// ── 결과 화면 표시 ──
+function showResult() {
+  document.getElementById('pg-login').style.display = 'none';
+  document.getElementById('pg-result').style.display = 'block';
+  document.getElementById('top-name').textContent = CU.name + '님';
+  document.getElementById('res-name').textContent = CU.name + '님의 평가 결과';
+  document.getElementById('res-sub').textContent = `사번: ${CU.empNo} | 총 ${MY_SUBS.length}건의 평가 결과`;
+
+  // 평가유형 탭 생성
+  const types = [...new Set(MY_SUBS.map(s => s.type))];
+  const tabBar = document.getElementById('type-tabs');
+  if (types.length === 0) {
+    tabBar.innerHTML = '';
+    document.getElementById('result-cards').innerHTML =
+      '<div class="no-data">아직 제출된 평가 결과가 없습니다.</div>';
+    return;
+  }
+
+  tabBar.innerHTML = types.map((t, i) =>
+    `<button class="tab-btn${i===0?' on':''}" onclick="selectTab('${t}',this)">${FORM_LABEL[t]||t}</button>`
+  ).join('');
+
+  CUR_TYPE = types[0];
+  renderCards(CUR_TYPE);
+}
+
+function selectTab(type, el) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  CUR_TYPE = type;
+  renderCards(type);
+}
+
+// ── 카드 렌더링 ──
+function renderCards(type) {
+  const mySubs  = MY_SUBS.filter(s => s.type === type);
+  const allSubs = ALL_SUBS.filter(s => s.type === type);
+  const container = document.getElementById('result-cards');
+
+  if (mySubs.length === 0) {
+    container.innerHTML = '<div class="no-data">해당 유형의 평가 결과가 없습니다.</div>';
+    return;
+  }
+
+  // 항목별 내 점수 집계
+  const myScores  = {}; // { 항목: [점수들] }
+  const allScores = {}; // 전체 평균
+  const teamScores = {}; // 팀 평균 (내 팀)
+  const myTeam = mySubs[0]?.team || '';
+
+  mySubs.forEach(sub => {
+    Object.entries(sub.scores).forEach(([item, score]) => {
+      if (score === null || score === undefined) return;
+      if (!myScores[item]) myScores[item] = [];
+      myScores[item].push(Number(score));
+    });
+  });
+
+  // 전체 / 팀 평균 (ALL_SUBS에서 같은 type의 scores 수집)
+  allSubs.forEach(sub => {
+    Object.entries(sub.scores || {}).forEach(([person, items]) => {
+      if (typeof items !== 'object') return;
+      Object.entries(items).forEach(([item, score]) => {
+        if (score === null || score === undefined) return;
+        if (!allScores[item]) allScores[item] = [];
+        allScores[item].push(Number(score));
+        if (sub.team === myTeam) {
+          if (!teamScores[item]) teamScores[item] = [];
+          teamScores[item].push(Number(score));
+        }
+      });
+    });
+    // 직접 scores가 항목:점수인 경우도 처리
+    const sc = sub.scores || {};
+    if (sc && typeof Object.values(sc)[0] === 'number') {
+      Object.entries(sc).forEach(([item, score]) => {
+        if (score === null || score === undefined) return;
+        if (!allScores[item]) allScores[item] = [];
+        allScores[item].push(Number(score));
+        if (sub.team === myTeam) {
+          if (!teamScores[item]) teamScores[item] = [];
+          teamScores[item].push(Number(score));
+        }
+      });
+    }
+  });
+
+  const avgArr = arr => arr && arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length) : 0;
+  const labels  = Object.keys(myScores);
+  const myAvgs  = labels.map(l => avgArr(myScores[l]));
+  const allAvgs = labels.map(l => avgArr(allScores[l]));
+  const teamAvgs= labels.map(l => avgArr(teamScores[l]));
+
+  container.innerHTML = `
+    <!-- 척도 설명 -->
+    <div class="card">
+      <h3>📊 ${FORM_LABEL[type]||type} 결과 <span style="font-size:13px;font-weight:400;color:var(--tx3)">(${mySubs.length}명 평가)</span></h3>
+      <div class="scale-wrap">
+        <div class="scale-chip sc6">6 매우긍정</div>
+        <div class="scale-chip sc5">5 긍정</div>
+        <div class="scale-chip sc4">4 약간긍정</div>
+        <div class="scale-chip sc3">3 약간부정</div>
+        <div class="scale-chip sc2">2 부정</div>
+        <div class="scale-chip sc1">1 매우부정</div>
+      </div>
+
+      <!-- 거미줄 차트 -->
+      <div class="radar-wrap">
+        <canvas id="radar-cv" width="520" height="420"></canvas>
+      </div>
+      <div class="radar-legend">
+        <span><i style="background:#1565c0"></i> 본인 평균</span>
+        <span><i style="background:#e64a19"></i> 전체 평균</span>
+        <span><i style="background:#2e7d52"></i> 팀 평균</span>
+      </div>
+    </div>
+
+    <!-- 점수표 -->
+    <div class="card">
+      <h3>📋 항목별 점수</h3>
+      <div style="overflow-x:auto">
+        <table class="score-tbl">
+          <thead>
+            <tr>
+              <th>평가 항목</th>
+              <th style="text-align:center;color:#1565c0">본인 평균</th>
+              <th style="text-align:center;color:#2e7d52">팀 평균</th>
+              <th style="text-align:center;color:#e64a19">전체 평균</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${labels.map((l,i) => `
+              <tr>
+                <td>${l}</td>
+                <td class="score-my">${myAvgs[i].toFixed(2)}</td>
+                <td class="score-team">${teamAvgs[i] ? teamAvgs[i].toFixed(2) : '-'}</td>
+                <td class="score-all">${allAvgs[i] ? allAvgs[i].toFixed(2) : '-'}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  // 차트 그리기
+  setTimeout(() => drawRadar('radar-cv', labels, [
+    { label:'본인', data: myAvgs,   color:'#1565c0' },
+    { label:'전체평균', data: allAvgs,  color:'#e64a19' },
+    { label:'팀평균',   data: teamAvgs, color:'#2e7d52' },
+  ]), 50);
+}
+
+// ── 레이더 차트 ──
+function drawRadar(canvasId, labels, datasets) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W/2, cy = H/2;
+  const R  = Math.min(W,H) * 0.36;
+  const N  = labels.length;
+  const maxVal = 6;
+  ctx.clearRect(0, 0, W, H);
+
+  if (N < 3) {
+    ctx.fillStyle = '#888'; ctx.font = '15px sans-serif';
+    ctx.fillText('항목이 3개 이상이어야 차트를 표시합니다.', 20, H/2);
+    return;
+  }
+
+  const angle = i => (Math.PI*2*i/N) - Math.PI/2;
+  const pt = (i, val) => ({
+    x: cx + R*(val/maxVal)*Math.cos(angle(i)),
+    y: cy + R*(val/maxVal)*Math.sin(angle(i))
+  });
+
+  // 배경 그물망
+  for (let r = 1; r <= maxVal; r++) {
+    ctx.beginPath();
+    ctx.strokeStyle = r === maxVal ? '#b0bcd0' : '#dde3ee';
+    ctx.lineWidth = r === maxVal ? 1.5 : 1;
+    for (let i = 0; i < N; i++) {
+      const p = pt(i, r);
+      i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+    }
+    ctx.closePath(); ctx.stroke();
+    // 눈금
+    ctx.fillStyle = '#aab'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(r, cx + 6, cy - R*(r/maxVal) + 4);
+  }
+
+  // 축 선
+  for (let i = 0; i < N; i++) {
+    const p = pt(i, maxVal);
+    ctx.beginPath(); ctx.strokeStyle = '#c8d0de'; ctx.lineWidth = 1;
+    ctx.moveTo(cx, cy); ctx.lineTo(p.x, p.y); ctx.stroke();
+  }
+
+  // 라벨
+  for (let i = 0; i < N; i++) {
+    const p = pt(i, maxVal * 1.2);
+    ctx.fillStyle = '#2a3a5a'; ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = p.x < cx-5 ? 'right' : p.x > cx+5 ? 'left' : 'center';
+    const lbl = labels[i].length > 12 ? labels[i].slice(0,12)+'…' : labels[i];
+    ctx.fillText(lbl, p.x, p.y + 4);
+  }
+
+  // 데이터
+  datasets.forEach(ds => {
+    if (!ds.data || ds.data.every(v => v===0)) return;
+    ctx.beginPath();
+    ds.data.forEach((v, i) => {
+      const p = pt(i, v);
+      i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+    });
+    ctx.closePath();
+    ctx.strokeStyle = ds.color; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.fillStyle = ds.color + '28'; ctx.fill();
+    ds.data.forEach((v, i) => {
+      const p = pt(i, v);
+      ctx.beginPath(); ctx.arc(p.x, p.y, 4.5, 0, Math.PI*2);
+      ctx.fillStyle = ds.color; ctx.fill();
+    });
+  });
+}
+</script>
+</body>
+</html>
