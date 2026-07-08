@@ -298,20 +298,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--tx);
     if(e.ctrlKey && e.key === 's') { e.preventDefault(); return false; }
   });
 
-  // 개발자도구 감지 시 경고
-  let devtools = false;
-  const threshold = 160;
-  setInterval(function(){
-    if(window.outerWidth - window.innerWidth > threshold ||
-       window.outerHeight - window.innerHeight > threshold){
-      if(!devtools){
-        devtools = true;
-        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#1a3a5c;color:#fff;font-size:20px;font-family:sans-serif;text-align:center;padding:20px">⚠️<br><br>보안 정책상 개발자 도구 사용이 제한됩니다.<br><br>페이지를 새로고침 해주세요.</div>';
-      }
-    } else {
-      devtools = false;
-    }
-  }, 500);
 })();
 </script>
 </head>
