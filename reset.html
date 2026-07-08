@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>평가 초기화</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  background:linear-gradient(135deg,#1a3a5c 0%,#2563a8 100%);
+  min-height:100vh;display:flex;align-items:center;justify-content:center}
+.box{background:#fff;border-radius:20px;padding:48px 36px;max-width:420px;width:100%;
+  text-align:center;box-shadow:0 8px 40px rgba(26,58,92,.2)}
+.ico{font-size:56px;margin-bottom:20px}
+h1{font-size:22px;font-weight:800;color:#1a3a5c;margin-bottom:12px}
+p{font-size:15px;color:#5a7a9a;line-height:1.7;margin-bottom:24px}
+.btn{display:inline-block;padding:14px 32px;background:#2563a8;color:#fff;
+  border:none;border-radius:10px;font-size:16px;font-weight:700;
+  font-family:inherit;cursor:pointer;text-decoration:none;transition:.15s}
+.btn:hover{background:#1a3a5c}
+.done{display:none}
+.done .ico-done{font-size:56px;margin-bottom:20px}
+.progress{width:100%;height:6px;background:#e8eef4;border-radius:3px;margin:20px 0;overflow:hidden}
+.progress-bar{height:100%;background:#2563a8;border-radius:3px;width:0;transition:width .5s}
+</style>
+</head>
+<body>
+<div class="box">
+  <!-- 초기화 전 -->
+  <div id="before">
+    <div class="ico">🔄</div>
+    <h1>평가 데이터 초기화</h1>
+    <p>기존 제출 내역을 초기화하고<br>평가를 다시 진행합니다.<br><br>
+    아래 버튼을 누르면 기존 데이터가 삭제되고<br>평가 사이트로 이동합니다.</p>
+    <button class="btn" onclick="doReset()">초기화 후 평가 시작</button>
+  </div>
+
+  <!-- 초기화 중 -->
+  <div id="doing" style="display:none">
+    <div class="ico">⏳</div>
+    <h1>초기화 중...</h1>
+    <p>잠시만 기다려주세요.</p>
+    <div class="progress"><div class="progress-bar" id="pbar"></div></div>
+  </div>
+
+  <!-- 완료 -->
+  <div id="after" style="display:none">
+    <div class="ico">✅</div>
+    <h1>초기화 완료!</h1>
+    <p>기존 평가 데이터가 삭제되었습니다.<br>평가 사이트로 이동합니다...</p>
+    <div class="progress"><div class="progress-bar" id="pbar2" style="width:100%;background:#2e7d52"></div></div>
+  </div>
+</div>
+
+<script>
+const SITE_URL = 'https://ksh-jinhap.github.io/360-evaluation-ver2/';
+
+function doReset() {
+  document.getElementById('before').style.display = 'none';
+  document.getElementById('doing').style.display = 'block';
+
+  // 프로그레스 바 애니메이션
+  const pbar = document.getElementById('pbar');
+  let w = 0;
+  const t = setInterval(() => {
+    w += 10;
+    pbar.style.width = w + '%';
+    if (w >= 90) clearInterval(t);
+  }, 80);
+
+  setTimeout(() => {
+    // localStorage에서 ev26_ 관련 데이터만 삭제
+    const keysToDelete = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('ev26_')) keysToDelete.push(k);
+    }
+    keysToDelete.forEach(k => localStorage.removeItem(k));
+
+    pbar.style.width = '100%';
+
+    setTimeout(() => {
+      document.getElementById('doing').style.display = 'none';
+      document.getElementById('after').style.display = 'block';
+
+      // 3초 후 평가 사이트로 이동
+      setTimeout(() => {
+        window.location.href = SITE_URL;
+      }, 2500);
+    }, 300);
+  }, 800);
+}
+</script>
+</body>
+</html>
