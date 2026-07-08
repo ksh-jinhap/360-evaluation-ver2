@@ -1,0 +1,2575 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>다면평가 2026</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap');
+:root{
+  --nv:#1a3a5c;--nv2:#2a5298;--gd:#c8973a;--gdf:#e8b84b;
+  --bg:#eef1f6;--wh:#fff;--sf:#f7f9fc;
+  --bd:#d0d8e8;--bd2:#b8c4d8;
+  --tx:#1a2332;--tx2:#4a5a72;--tx3:#8090a8;
+  --gr:#2e7d52;--rd:#c0392b;
+  --sh:0 2px 12px rgba(26,58,92,.09);--shl:0 8px 32px rgba(26,58,92,.15);
+  --r:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:17px}
+.dn{display:none!important}
+
+/* LOGIN */
+#pg-login{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(145deg,#0d2442 0%,#1a3a5c 45%,#2a5298 100%)}
+.lc{background:#fff;border-radius:16px;padding:48px 44px 40px;width:430px;box-shadow:var(--shl)}
+.lc-logo{text-align:center;margin-bottom:30px}
+.lc-ico{display:inline-flex;align-items:center;justify-content:center;width:62px;height:62px;
+  border-radius:14px;background:linear-gradient(135deg,var(--nv),var(--nv2));margin-bottom:13px}
+.lc-ico svg{width:32px;height:32px;fill:#fff}
+.lc-logo h1{font-size:26px;font-weight:700;color:var(--nv)}
+.ybadge{display:inline-block;background:var(--gd);color:#fff;font-size:14px;font-weight:700;padding:3px 12px;border-radius:20px;margin-top:6px}
+.fld{margin-bottom:18px}
+.fld label{display:block;font-size:15px;font-weight:600;color:var(--tx2);margin-bottom:7px}
+.fld input,.fld select{width:100%;padding:12px 14px;border:1.5px solid var(--bd);border-radius:var(--r);
+  font-size:17px;font-family:inherit;background:var(--sf);color:var(--tx);outline:none;transition:border .2s}
+.fld input:focus,.fld select:focus{border-color:var(--nv2);box-shadow:0 0 0 3px rgba(42,82,152,.08);background:#fff}
+.btn-login{width:100%;padding:14px;background:linear-gradient(135deg,var(--nv),var(--nv2));
+  color:#fff;border:none;border-radius:var(--r);font-size:17px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:4px}
+.btn-login:hover{opacity:.9}
+.lerr{background:#fdecea;color:var(--rd);border:1px solid #f5c6c2;border-radius:var(--r);
+  padding:10px 14px;font-size:15px;margin-top:12px;text-align:center}
+.lhint{font-size:14px;color:var(--tx3);text-align:center;margin-top:16px}
+
+/* TOPBAR */
+.tb{background:var(--nv);color:#fff;height:58px;padding:0 24px;display:flex;align-items:center;
+  justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.18);position:sticky;top:0;z-index:200}
+.tb-l{display:flex;align-items:center;gap:10px}
+.tb-logo{font-size:18px;font-weight:700}
+.tb-badge{font-size:14px;font-weight:700;padding:3px 10px;border-radius:20px}
+.tb-yr{background:var(--gd)}.tb-adm{background:var(--rd)}
+.tb-r{display:flex;align-items:center;gap:12px}
+.tb-user{font-size:15px;opacity:.9}.tb-user b{color:var(--gdf)}
+.btn-out{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.22);
+  padding:6px 14px;border-radius:6px;font-size:15px;font-family:inherit;cursor:pointer}
+.btn-out:hover{background:rgba(255,255,255,.22)}
+
+/* PAGE */
+.pw{min-height:100vh;display:flex;flex-direction:column}
+
+/* DASHBOARD */
+.mc{flex:1;padding:32px 28px;max-width:1060px;margin:0 auto;width:100%}
+.dh{margin-bottom:28px}
+.dh h2{font-size:23px;font-weight:700;color:var(--nv)}
+.dh p{font-size:16px;color:var(--tx2);margin-top:5px}
+.ecards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.ecard{background:#fff;border-radius:14px;padding:28px 22px 24px;box-shadow:var(--sh);
+  cursor:pointer;border:2px solid transparent;transition:all .2s;position:relative;overflow:hidden}
+.ecard::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--cc,var(--nv))}
+.ecard:hover{border-color:var(--cc,var(--nv));box-shadow:var(--shl);transform:translateY(-2px)}
+.ecard.off{opacity:.5;cursor:default;pointer-events:none}
+.ecard-ico{font-size:32px;margin-bottom:13px}
+.ecard h3{font-size:18px;font-weight:700;color:var(--nv);margin-bottom:7px}
+.ecard p{font-size:15px;color:var(--tx2);line-height:1.6}
+.estat{margin-top:16px;display:flex;align-items:center;gap:7px;font-size:15px;font-weight:600}
+.edot{width:8px;height:8px;border-radius:50%;background:#ccc}
+.edot.on{background:var(--gr)}
+.ecard-done{position:absolute;top:10px;right:12px;background:var(--gr);color:#fff;
+  font-size:13px;font-weight:700;padding:3px 10px;border-radius:20px}
+.ecard-draft{font-size:14px;color:#b07800;margin-top:6px}
+
+/* EVAL FORM */
+.ew{flex:1;padding:0;max-width:1380px;margin:0 auto;width:100%}
+.fhbar{
+  position:sticky;top:58px;z-index:150;
+  background:#fff;
+  border-bottom:2px solid var(--bd2);
+  box-shadow:0 3px 10px rgba(26,58,92,.10);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 22px;gap:10px;flex-wrap:wrap;
+}
+.fhbar h2{font-size:18px;font-weight:700;color:var(--nv)}
+.fhbar-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.btn-back{background:#fff;border:1.5px solid var(--bd);color:var(--tx2);padding:8px 16px;
+  border-radius:var(--r);font-size:15px;font-family:inherit;cursor:pointer}
+.btn-back:hover{border-color:var(--nv);color:var(--nv)}
+.btn-tmp{background:#e8f5e9;border:1.5px solid #66bb6a;color:#2e7d52;padding:8px 16px;
+  border-radius:var(--r);font-size:15px;font-family:inherit;cursor:pointer;font-weight:600}
+.btn-tmp:hover{background:#c8e6c9}
+.btn-sub-top{background:linear-gradient(135deg,var(--nv),var(--nv2));color:#fff;border:none;
+  padding:9px 22px;border-radius:var(--r);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap}
+.btn-sub-top:hover{opacity:.9}
+.tmp-lbl{font-size:13px;color:var(--tx3)}
+.ew-body{padding:20px 22px}
+
+/* EVAL PAPER */
+.epaper{background:#fff;border:1px solid var(--bd2);border-radius:10px;overflow:hidden;box-shadow:var(--sh);margin-bottom:24px}
+.eptitle{background:var(--nv);color:#fff;padding:13px 20px;font-size:17px;font-weight:700;
+  display:flex;align-items:center;justify-content:space-between}
+.eptitle .sub{font-size:14px;font-weight:400;opacity:.75}
+.itbl{width:100%;border-collapse:collapse;border-bottom:1px solid var(--bd)}
+.itbl td{padding:8px 14px;font-size:15px;border-right:1px solid var(--bd);border-bottom:1px solid var(--bd)}
+.itbl td.lb{background:#f0f3f8;font-weight:600;color:var(--tx2);white-space:nowrap}
+.stbl{width:100%;border-collapse:collapse;border-bottom:1px solid var(--bd)}
+.stbl th,.stbl td{padding:7px 10px;font-size:14px;border:1px solid var(--bd);text-align:center;vertical-align:top;line-height:1.55}
+.stbl th{font-weight:700}
+.sc5{background:#dce8ff;color:#1a3a5c}.sc4{background:#d8f0e2;color:#1b5e20}
+.sc3{background:#fff8dc;color:#7a5800}.sc2{background:#ffe8d0;color:#b94000}.sc1{background:#ffd8d8;color:#900}
+.req-note{background:#fff8f8;border-top:1px solid #fde8e8;padding:8px 14px;font-size:15px;color:var(--rd)}
+.etbl{width:100%;border-collapse:collapse}
+.etbl th{background:#1a3a5c;color:#fff;padding:10px 12px;font-size:15px;font-weight:600;
+  border:1px solid #2a4a6c;text-align:center}
+.etbl td{border:1px solid var(--bd);vertical-align:middle}
+.etbl tr:hover td{background:#fafbfd}
+.etbl tr:hover .cat-td{background:#e8eef7}
+.cat-td{background:#f0f3f8;font-weight:700;font-size:14px;text-align:center;color:var(--nv);
+  padding:10px 8px;width:82px;vertical-align:middle}
+.ind-td{padding:10px 13px;font-size:15px;line-height:1.65;min-width:200px}
+.ind-td strong{color:var(--nv)}
+.pname-th{text-align:center;min-width:98px;font-size:15px;font-weight:700;padding:10px 8px!important}
+.sv-td{text-align:center;padding:4px 5px;vertical-align:middle;min-width:62px}
+.sv-wrap{display:flex;flex-direction:column;align-items:stretch;gap:4px;width:100%}
+.sbtn{display:flex;align-items:center;justify-content:center;width:100%;min-width:52px;height:34px;
+  border-radius:5px;border:1.5px solid var(--bd2);cursor:pointer;font-size:16px;font-weight:700;
+  color:var(--tx2);transition:all .12s;user-select:none;background:#fff}
+.sbtn:hover{border-color:var(--nv2);color:var(--nv);background:#e8eef7}
+.sbtn.s5{background:#1a3a5c;border-color:#1a3a5c;color:#fff}
+.sbtn.s6{background:#1565c0;border-color:#1565c0;color:#fff}
+.sbtn.s5{background:#2e7d52;border-color:#2e7d52;color:#fff}
+.sbtn.s4{background:#558b2f;border-color:#558b2f;color:#fff}
+.sbtn.s3{background:#f9a825;border-color:#f9a825;color:#333}
+.sbtn.s2{background:#e64a19;border-color:#e64a19;color:#fff}
+.sbtn.s1{background:#b71c1c;border-color:#b71c1c;color:#fff}
+.sbtn.locked{pointer-events:none;opacity:.55;cursor:not-allowed}
+.sbtn.missing{border-color:#e53935!important;background:#fff8f8!important;animation:pulse .6s ease infinite alternate}
+@keyframes pulse{to{border-color:#b71c1c;background:#fdecea!important}}
+.sp-td{text-align:center;padding:4px 2px;width:46px}
+.sp-td .sbtn{width:100%;height:36px;font-size:16px}
+.sum-td{text-align:center;padding:5px 8px;font-weight:700;font-size:16px;color:var(--nv);background:#f0f3f8;width:60px}
+.sum-row td{background:#e8eef7;font-weight:700;font-size:15px;text-align:center;padding:8px 10px}
+.ro-td{background:#f5f7fa!important;cursor:default;pointer-events:none}
+.ta-wrap textarea{width:100%;min-height:72px;border:1px solid var(--bd);border-radius:6px;
+  padding:8px 10px;font-family:inherit;font-size:15px;resize:vertical;outline:none}
+.ta-wrap textarea:focus{border-color:var(--nv2)}
+.ta-wrap textarea:disabled{background:#f5f7fa;color:var(--tx3)}
+.sub-wrap{display:none!important}
+.btn-sub{display:none!important}
+.done-banner{background:#e0f2e9;border:1.5px solid #81c784;border-radius:10px;padding:16px 22px;
+  margin-bottom:18px;display:flex;align-items:center;gap:12px;font-size:16px;color:#1b5e20;font-weight:600}
+.missing-banner{background:#fdecea;border:1.5px solid #ef9a9a;border-radius:10px;padding:14px 20px;
+  margin-bottom:14px;font-size:15px;color:#c62828}
+.missing-banner strong{display:block;font-size:17px;margin-bottom:6px}
+.person-divider{text-align:center;padding:14px;background:#f0f3f8;border:1px solid var(--bd);
+  border-radius:8px;margin:20px 0;font-size:16px;font-weight:700;color:var(--nv)}
+
+/* ADMIN */
+.aw{display:flex;min-height:calc(100vh - 58px)}
+.aside{width:215px;background:var(--nv);flex-shrink:0;padding:12px 0;overflow-y:auto}
+.ns{padding:7px 18px 4px;font-size:13px;font-weight:700;color:rgba(255,255,255,.4);
+  text-transform:uppercase;letter-spacing:1px}
+.ni{padding:11px 18px;color:rgba(255,255,255,.75);font-size:15px;cursor:pointer;
+  display:flex;align-items:center;gap:8px;border-left:3px solid transparent;transition:all .14s}
+.ni:hover,.ni.on{background:rgba(255,255,255,.1);color:#fff;border-left-color:var(--gd)}
+.amid{flex:1;padding:24px;overflow-y:auto;background:var(--bg)}
+.asec{display:none}.asec.on{display:block}
+.acard{background:#fff;border-radius:10px;padding:20px 22px;box-shadow:var(--sh);margin-bottom:18px}
+.acard h3{font-size:17px;font-weight:700;color:var(--nv);margin-bottom:16px;padding-bottom:9px;border-bottom:1px solid var(--bd)}
+
+/* TABLE */
+.dtbl{width:100%;border-collapse:collapse;font-size:15px}
+.dtbl th{background:#f0f3f8;padding:10px 12px;font-weight:600;color:var(--tx2);border:1px solid var(--bd);text-align:left;white-space:nowrap}
+.dtbl td{padding:10px 12px;border:1px solid var(--bd);vertical-align:middle}
+.dtbl tr:hover td{background:#fafbfd}
+
+/* TAGS */
+.tag{display:inline-block;padding:3px 8px;border-radius:4px;font-size:14px;font-weight:600;margin:1px}
+.tp{background:#dce8ff;color:#1a3a5c}.tc{background:#d8f0e2;color:#2e7d52}
+.ts{background:#ffe8cc;color:#c05000}.tn{background:#f0f0f0;color:#888}.ta{background:#fdecea;color:#c0392b}
+.tag-done{background:#2e7d52;color:#fff}.tag-pend{background:#f0f0f0;color:#999;border:1px dashed #ccc}
+
+/* BUTTONS */
+.btn{padding:6px 13px;border-radius:5px;font-size:15px;font-family:inherit;cursor:pointer;
+  border:1.5px solid var(--bd);background:#fff;color:var(--tx2);transition:all .13s;margin:1px;
+  display:inline-flex;align-items:center;gap:4px}
+.btn:hover{border-color:var(--nv);color:var(--nv)}
+.btn.del:hover{border-color:var(--rd);color:var(--rd)}
+.btn.add{border-color:var(--gr);color:var(--gr)}
+.btn.add:hover{background:#e0f2e9}
+.btp{padding:8px 16px;border-radius:6px;font-size:15px;font-family:inherit;cursor:pointer;
+  border:none;background:var(--nv);color:#fff;transition:opacity .13s;display:inline-flex;align-items:center;gap:5px}
+.btp:hover{opacity:.85}
+.btg{padding:8px 16px;border-radius:6px;font-size:15px;font-family:inherit;cursor:pointer;
+  border:none;background:var(--gr);color:#fff;transition:opacity .13s;display:inline-flex;align-items:center;gap:5px}
+.btg:hover{opacity:.85}
+.bta{padding:8px 16px;border-radius:6px;font-size:15px;font-family:inherit;cursor:pointer;
+  border:none;background:var(--gd);color:#fff;transition:opacity .13s;display:inline-flex;align-items:center;gap:5px}
+.bta:hover{opacity:.85}
+.btr{padding:8px 16px;border-radius:6px;font-size:15px;font-family:inherit;cursor:pointer;
+  border:none;background:var(--rd);color:#fff;transition:opacity .13s;display:inline-flex;align-items:center;gap:5px}
+.btr:hover{opacity:.85}
+
+/* FORM ROWS */
+.fr{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.fr .fld{flex:1;min-width:130px;margin-bottom:0}
+.fr .fld label{font-size:14px;font-weight:600;color:var(--tx2);display:block;margin-bottom:5px}
+.fr .fld input,.fr .fld select,.fr .fld textarea{width:100%;padding:8px 10px;border:1.5px solid var(--bd);
+  border-radius:6px;font-size:15px;font-family:inherit;background:var(--sf);outline:none;transition:border .18s}
+.fr .fld input:focus,.fr .fld select:focus{border-color:var(--nv2);background:#fff}
+
+/* NOTICE */
+.notice{border-radius:7px;padding:11px 15px;font-size:15px;line-height:1.65;margin-bottom:12px}
+.nb{background:#e8eef7;border:1px solid #b8c8e8;color:#1a3a5c}
+.ng{background:#e0f2e9;border:1px solid #90c8a8;color:#1b5e20}
+.ny{background:#fff8dc;border:1px solid #ffe088;color:#7a5800}
+.nr{background:#fdecea;border:1px solid #f5c6c2;color:#c0392b}
+
+/* DROP */
+.drop{border:2px dashed var(--bd2);border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:all .18s}
+.drop:hover,.drop.drag{border-color:var(--nv2);background:#e8eef7}
+.drop input{display:none}
+
+/* STAT CARDS */
+.scards{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:20px}
+.scard{background:#fff;border-radius:10px;padding:16px 18px;box-shadow:var(--sh);text-align:center}
+.scard .sv{font-size:28px;font-weight:700;color:var(--nv)}
+.scard .sl{font-size:14px;color:var(--tx2);margin-top:3px}
+
+/* MODAL */
+.moverlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:1000}
+.mbox{background:#fff;border-radius:12px;padding:26px;width:540px;max-width:96vw;
+  box-shadow:0 16px 48px rgba(0,0,0,.2);max-height:90vh;overflow-y:auto}
+.mbox h3{font-size:19px;font-weight:700;color:var(--nv);margin-bottom:18px}
+.mft{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+
+/* FORM EDITOR */
+.cat-box{background:#f7f9fc;border:1px solid var(--bd);border-radius:8px;padding:13px;margin-top:9px}
+.cat-box-hd{display:flex;align-items:center;gap:7px;margin-bottom:9px}
+.cat-num{background:var(--nv);color:#fff;font-size:13px;font-weight:700;padding:3px 10px;border-radius:4px;white-space:nowrap}
+.ind-row{display:flex;gap:6px;align-items:center;margin-top:6px;padding:7px 10px;background:#fff;border:1px solid var(--bd);border-radius:6px}
+.ind-num{font-size:13px;color:var(--tx3);min-width:34px;flex-shrink:0}
+
+/* TEAM MEMBER */
+.member-chip{background:#fff;border:1px solid var(--bd);border-radius:6px;padding:6px 12px;
+  font-size:15px;display:inline-flex;align-items:center;gap:6px;margin:2px}
+
+/* TABS */
+.tabs{display:flex;gap:2px;border-bottom:2px solid var(--bd);margin-bottom:18px;flex-wrap:wrap}
+.tab{padding:8px 16px;font-size:15px;font-weight:600;color:var(--tx2);cursor:pointer;
+  border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s}
+.tab.on{color:var(--nv);border-bottom-color:var(--nv)}
+.tabp{display:none}.tabp.on{display:block}
+.ox{overflow-x:auto}
+
+.scale-desc-wrap{margin:10px 0 6px;overflow-x:auto}
+.scale-desc-tbl{width:100%;border-collapse:collapse;font-size:12px;text-align:center}
+.scale-desc-tbl td{padding:10px 6px;font-weight:700;color:#fff;border:1px solid rgba(255,255,255,.3);line-height:1.3;font-size:20px}
+.scale-desc-tbl td.desc{font-size:15px;font-weight:400}
+.scale-desc-tbl .sd6{background:#1565c0}
+.scale-desc-tbl .sd5{background:#2e7d52}
+.scale-desc-tbl .sd4{background:#558b2f}
+.scale-desc-tbl .sd3{background:#f9a825;color:#333}
+.scale-desc-tbl .sd2{background:#e64a19}
+.scale-desc-tbl .sd1{background:#b71c1c}
+/* 개인별 결과 거미줄 차트 */
+.indiv-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.indiv-chip{padding:7px 14px;border:1.5px solid var(--bd);border-radius:20px;cursor:pointer;font-size:15px;background:#fff;transition:.15s}
+.indiv-chip:hover{border-color:var(--nv);color:var(--nv);background:#f0f4ff}
+.indiv-chip.on{border-color:var(--nv);background:var(--nv);color:#fff}
+.radar-wrap{position:relative;width:100%;max-width:500px;margin:0 auto}
+.radar-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;font-size:14px}
+.radar-legend span{display:flex;align-items:center;gap:5px}
+.radar-legend i{display:inline-block;width:20px;height:3px;border-radius:2px}
+</style>
+</head>
+<body>
+
+<div id="pg-login">
+  <div class="lc">
+    <div class="lc-logo">
+      <div class="lc-ico"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div>
+      <h1>다면평가</h1>
+      <span class="ybadge" id="badge-login">2026년도</span>
+    </div>
+    <div class="fld"><label>이름</label><input id="li-name" placeholder="이름을 입력하세요" onkeydown="if(event.key==='Enter')document.getElementById('li-emp').focus()"></div>
+    <div class="fld"><label>사번</label><input id="li-emp" inputmode="numeric" placeholder="숫자 6자리" maxlength="6" onkeydown="if(event.key==='Enter')document.getElementById('li-phone4').focus()"></div>
+    <div class="fld"><label>휴대폰 뒷자리</label><input type="password" id="li-phone4" inputmode="numeric" placeholder="숫자 4자리" maxlength="4" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn-login" onclick="doLogin()">로그인</button>
+    <div id="li-err" class="lerr dn"></div>
+    <p class="lhint">해당 평가는 모두 익명으로 진행되오니, 안심하고 평가해주시기 바랍니다.</p>
+  </div>
+</div>
+
+<div id="pg-main" class="pw dn">
+  <div class="tb">
+    <div class="tb-l"><span class="tb-logo">다면평가</span><span class="tb-badge tb-yr" id="badge-main">2026</span></div>
+    <div class="tb-r"><span class="tb-user">안녕하세요, <b id="tu-nm"></b>님</span><button class="btn-out" onclick="doLogout()">로그아웃</button></div>
+  </div>
+  <div class="mc">
+    <div class="dh"><h2>📋 평가 선택</h2><p>배정된 평가 항목을 선택하여 진행해 주세요. 평가 내역은 철저히 비밀이 보장됩니다.</p></div>
+    <div class="ecards" id="ecards"></div>
+  </div>
+</div>
+
+<div id="pg-eval" class="pw dn">
+  <div class="tb">
+    <div class="tb-l"><span class="tb-logo">다면평가</span><span class="tb-badge tb-yr" id="badge-eval">2026</span></div>
+    <div class="tb-r"><span class="tb-user"><b id="eu-nm"></b>님</span><button class="btn-out" onclick="doLogout()">로그아웃</button></div>
+  </div>
+  <div class="ew">
+    <div class="fhbar">
+      <h2 id="ef-title"></h2>
+      <div class="fhbar-r">
+        <span class="tmp-lbl" id="tmp-lbl"></span>
+        <button class="btn-tmp" id="btn-tmp" onclick="saveTemp()">💾 임시저장</button>
+        <button class="btn-back" onclick="returnToMain()">← 뒤로가기</button>
+        <button class="btn-sub-top dn" id="btn-sub-top" onclick="doSubmitTop()">📨 제출하기</button>
+      </div>
+    </div>
+    <div class="ew-body" id="ef-body"></div>
+  </div>
+</div>
+
+<div id="pg-admin" class="dn">
+  <div class="tb">
+    <div class="tb-l"><span class="tb-logo">다면평가</span><span class="tb-badge tb-yr" id="badge-admin">2026</span><span class="tb-badge tb-adm">관리자</span></div>
+    <div class="tb-r"><span class="tb-user">관리자: <b id="au-nm"></b></span><button class="btn-out" onclick="doLogout()">로그아웃</button></div>
+  </div>
+  <div class="aw">
+    <div class="aside">
+      <div class="ns">사용자 관리</div>
+      <div class="ni on"  onclick="nav('users')">👥 사용자 목록</div>
+      <div class="ni"     onclick="nav('single')">➕ 개인 등록</div>
+      <div class="ni"     onclick="nav('bulk')">📤 일괄 등록</div>
+      <div class="ni"     onclick="nav('teams')">🏢 팀 관리</div>
+      <div class="ns">평가 양식</div>
+      <div class="ni"     onclick="nav('forms')">📝 팀별 양식 편집</div>
+      <div class="ni"     onclick="nav('pforms')">👤 개인별 양식 편집</div>
+      <div class="ns">결과</div>
+      <div class="ni"     onclick="nav('results')">📊 결과 / 엑셀</div>
+      <div class="ni"     onclick="nav('indiv')">🕸️ 개인별 결과</div>
+    </div>
+    <div class="amid">
+
+      <div id="as-users" class="asec on">
+        <div class="acard">
+          <h3>👥 사용자 목록</h3>
+          <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
+            <input id="usrq" placeholder="이름·팀 검색..." style="padding:7px 11px;border:1.5px solid var(--bd);border-radius:6px;font-size:15px;font-family:inherit;outline:none;width:190px" oninput="renderUsers()">
+            <select id="usrtf" style="padding:7px 10px;border:1.5px solid var(--bd);border-radius:6px;font-size:15px;font-family:inherit;outline:none" onchange="renderUsers()"><option value="">전체 팀</option></select>
+            <button class="btp" onclick="nav('single')">➕ 개인 등록</button>
+            <button class="btp" style="background:#555" onclick="nav('bulk')">📤 일괄 등록</button>
+          </div>
+          <div id="users-wrap" class="ox"></div>
+        </div>
+      </div>
+
+      <div id="as-single" class="asec">
+        <div class="acard">
+          <h3>➕ 개인 사용자 등록</h3>
+          <div class="notice nb">개인별로 직접 입력하여 등록합니다. 로그인은 이름 + 사번 6자리 + 휴대폰 뒷자리 4자리로 진행됩니다.</div>
+          <div class="fr">
+            <div class="fld"><label>이름 *</label><input id="si-name" placeholder="홍길동"></div>
+            <div class="fld">
+              <label style="display:flex;align-items:center;justify-content:space-between">
+                직책
+                <span style="display:flex;gap:4px">
+                  <button type="button" class="btn add" style="padding:2px 8px;font-size:13px" onclick="addRoleOption()">+ 추가</button>
+                  <button type="button" class="btn del" style="padding:2px 8px;font-size:13px" onclick="delRoleOption()">- 삭제</button>
+                </span>
+              </label>
+              <select id="si-role">
+                <option value="">직책 선택</option>
+              </select>
+            </div>
+          </div>
+          <div class="fr">
+            <div class="fld">
+              <label style="display:flex;align-items:center;justify-content:space-between">
+                팀 *
+                <span style="display:flex;gap:4px">
+                  <button type="button" class="btn add" style="padding:2px 8px;font-size:13px" onclick="addTeamFromSingle()">+ 추가</button>
+                  <button type="button" class="btn del" style="padding:2px 8px;font-size:13px" onclick="delTeamFromSingle()">- 삭제</button>
+                </span>
+              </label>
+              <select id="si-team"><option value="">팀 선택</option></select>
+            </div>
+            <div class="fld"><label>권한</label><select id="si-admin"><option value="false">일반 사용자</option><option value="true">관리자</option></select></div>
+          </div>
+          <div class="fr">
+            <div class="fld"><label>사번 * <span style="font-size:13px;color:var(--tx3);font-weight:400">(숫자 6자리)</span></label>
+              <input id="si-emp" inputmode="numeric" placeholder="6자리" maxlength="6" style="letter-spacing:2px;font-family:monospace"></div>
+            <div class="fld"><label>휴대폰 뒷자리 * <span style="font-size:13px;color:var(--tx3);font-weight:400">(숫자 4자리)</span></label>
+              <input type="password" id="si-phone4" inputmode="numeric" placeholder="4자리" maxlength="4" style="letter-spacing:2px;font-family:monospace"></div>
+          </div>
+          <div class="fr">
+            <div class="fld" style="flex:unset"><label>배정 평가 양식</label>
+              <div style="display:flex;gap:18px;margin-top:8px;flex-wrap:wrap">
+                <label style="font-size:16px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="si-peer"> 동료평가</label>
+                <label style="font-size:16px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="si-collab"> 협업평가</label>
+                <label style="font-size:16px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="si-super_mgr"> 상사평가(상사용)</label>
+                <label style="font-size:16px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="si-super_ceo"> 상사평가(법인대표용)</label>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:6px">
+            <button class="btp" onclick="registerSingle()">👤 등록하기</button>
+            <button class="btn" onclick="clearSingle()">초기화</button>
+          </div>
+          <div id="si-msg" style="margin-top:14px"></div>
+        </div>
+      </div>
+
+      <div id="as-bulk" class="asec">
+        <div class="acard">
+          <h3>📤 사용자 일괄 등록</h3>
+          <div class="tabs">
+            <div class="tab on" onclick="switchBulkTab('excel')">📊 엑셀 붙여넣기</div>
+            <div class="tab" onclick="switchBulkTab('csv')">📄 CSV 업로드</div>
+            <div class="tab" onclick="switchBulkTab('text')">✏️ 직접 입력</div>
+          </div>
+          <div id="btab-excel" class="tabp on">
+            <div class="notice nb"><strong>엑셀에서 바로 붙여넣기</strong><br>
+              열 순서: <code>이름 | 사번 | 휴대폰뒷자리 | 팀명 | 직책 | 관리자(0/1) | 동료(0/1) | 협업(0/1) | 상사_상사용(0/1) | 상사_법인대표용(0/1)</code></div>
+            <button class="bta" style="margin-bottom:12px" onclick="dlExcelTemplate()">⬇ 엑셀 양식 다운로드</button>
+            <textarea id="paste-area" rows="8" placeholder="엑셀에서 복사(Ctrl+C) 후 여기에 붙여넣기(Ctrl+V)..."
+              style="width:100%;padding:11px;border:1.5px solid var(--bd);border-radius:8px;font-size:15px;font-family:monospace;resize:vertical;outline:none"></textarea>
+            <div style="margin-top:10px;display:flex;gap:8px">
+              <button class="btp" onclick="parsePaste()">👁 미리보기</button>
+              <button class="btn" onclick="document.getElementById('paste-area').value=''">초기화</button>
+            </div>
+            <div id="paste-preview" style="margin-top:14px"></div>
+          </div>
+          <div id="btab-csv" class="tabp">
+            <div class="notice nb">헤더: <code>이름,사번,휴대폰뒷자리,팀명,직책,관리자(0/1),동료평가(0/1),협업평가(0/1),상사평가_상사용(0/1),상사평가_법인대표용(0/1)</code></div>
+            <button class="bta" style="margin-bottom:12px" onclick="dlCSVTemplate()">⬇ CSV 양식 다운로드</button>
+            <div class="drop" id="drop-area" onclick="document.getElementById('csv-input').click()"
+              ondragover="event.preventDefault();this.classList.add('drag')"
+              ondragleave="this.classList.remove('drag')" ondrop="onDrop(event)">
+              <div style="font-size:40px">📁</div>
+              <p style="margin-top:9px;font-size:16px"><strong>클릭하거나 파일을 드래그</strong>하여 CSV 업로드</p>
+              <p style="font-size:14px;margin-top:4px;color:var(--tx3)">UTF-8 인코딩 CSV</p>
+              <input type="file" id="csv-input" accept=".csv" onchange="onCSV(this.files[0])">
+            </div>
+            <div id="csv-preview" style="margin-top:14px"></div>
+          </div>
+          <div id="btab-text" class="tabp">
+            <div class="notice nb">한 줄에 한 명씩 입력. 구분자: 탭 또는 쉼표<br>
+              형식: <code>이름,사번,휴대폰뒷자리,팀명,직책,관리자,동료,협업,상사_상사용,상사_법인대표용</code></div>
+            <textarea id="text-input" rows="10" placeholder="홍길동,123456,7890,해외영업팀,팀원,0,1,1,0,0"
+              style="width:100%;padding:11px;border:1.5px solid var(--bd);border-radius:8px;font-size:15px;font-family:monospace;resize:vertical;outline:none"></textarea>
+            <div style="margin-top:10px;display:flex;gap:8px">
+              <button class="btp" onclick="parseTextInput()">👁 미리보기</button>
+              <button class="btn" onclick="document.getElementById('text-input').value=''">초기화</button>
+            </div>
+            <div id="text-preview" style="margin-top:14px"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="as-teams" class="asec">
+        <div class="acard">
+          <h3>🏢 팀 관리</h3>
+          <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+            <input id="new-team" placeholder="새 팀명 입력" style="padding:8px 11px;border:1.5px solid var(--bd);border-radius:6px;font-size:15px;font-family:inherit;outline:none;width:190px" onkeydown="if(event.key==='Enter')addTeam()">
+            <button class="btp" onclick="addTeam()">팀 추가</button>
+          </div>
+          <div id="team-wrap"></div>
+        </div>
+      </div>
+
+      <div id="as-forms" class="asec">
+        <div class="acard">
+          <h3>📝 팀별 평가 양식 편집</h3>
+          <div class="notice ny">팀마다 <strong>동료평가</strong>·<strong>상사평가</strong> 양식이 다릅니다. 협업평가는 전사 공통입니다.<br>
+            ※ <strong>상사평가(상사용)</strong>은 최대 5명의 피평가자(상사)를 각각의 소속/직책과 함께 지정할 수 있습니다.</div>
+          <div class="fr">
+            <div class="fld" style="max-width:210px"><label>팀 선택</label><select id="fe-team" onchange="renderFE()"></select></div>
+            <div class="fld" style="max-width:240px"><label>양식 유형</label>
+              <select id="fe-type" onchange="renderFE()">
+                <option value="peer">동료평가</option>
+                <option value="collab">협업평가 (전사 공통)</option>
+                <option value="super_mgr">상사평가 (상사용)</option>
+                <option value="super_ceo">상사평가 (법인대표용)</option>
+              </select>
+            </div>
+          </div>
+          <div id="fe-body"></div>
+          <div style="margin-top:16px;display:flex;gap:8px">
+            <button class="btp" onclick="saveForm()">💾 저장</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="as-pforms" class="asec">
+        <div class="acard">
+          <h3>👤 개인별 평가 양식 편집</h3>
+          <div class="notice nb">
+            특정 개인에게만 적용되는 별도 양식을 설정합니다. 개인 양식이 없으면 팀 양식이 사용됩니다.<br>
+            ※ <strong>상사평가(상사용)</strong>은 최대 5명의 피평가자(상사)를 각각의 소속/직책과 함께 지정할 수 있습니다.
+          </div>
+          <div class="fr">
+            <div class="fld" style="max-width:200px"><label>팀 선택</label>
+              <select id="pfe-team" onchange="pfeOnTeamChange()"></select>
+            </div>
+            <div class="fld" style="max-width:200px"><label>개인 선택</label>
+              <select id="pfe-user" onchange="renderPFE()"><option value="">개인 선택</option></select>
+            </div>
+            <div class="fld" style="max-width:240px"><label>양식 유형</label>
+              <select id="pfe-type" onchange="renderPFE()">
+                <option value="peer">동료평가</option>
+                <option value="collab">협업평가</option>
+                <option value="super_mgr">상사평가 (상사용)</option>
+                <option value="super_ceo">상사평가 (법인대표용)</option>
+              </select>
+            </div>
+          </div>
+          <div id="pfe-body"></div>
+          <div style="margin-top:16px;display:flex;gap:8px" id="pfe-actions" class="dn">
+            <button class="btp" onclick="savePForm()">💾 저장</button>
+            <button class="btn" onclick="resetPForm()" style="color:var(--rd);border-color:var(--rd)">🔄 팀 양식으로 초기화</button>
+          </div>
+        </div>
+      </div>
+      <div id="as-results" class="asec">
+        <div class="acard">
+          <h3>⚙️ 시스템 연도 설정</h3>
+          <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+            <span style="font-size:16px;color:var(--tx2)">현재 평가 연도:</span>
+            <input id="sys-year" type="number" min="2020" max="2099" style="width:95px;padding:8px 11px;border:1.5px solid var(--bd);border-radius:6px;font-size:17px;font-weight:700;font-family:inherit;outline:none;color:var(--nv)" onkeydown="if(event.key==='Enter')saveYear()">
+            <button class="btp" onclick="saveYear()">저장</button>
+            <span style="font-size:14px;color:var(--tx3)">저장하면 모든 화면의 연도가 일괄 변경됩니다.</span>
+          </div>
+        </div>
+        <div class="acard">
+          <h3>📊 평가 결과 조회</h3>
+          <div class="scards" id="r-stats"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px">
+            <select id="rf-team" onchange="renderResults()" style="padding:7px 10px;border:1.5px solid var(--bd);border-radius:6px;font-size:15px;font-family:inherit;outline:none"><option value="">전체 팀</option></select>
+            <select id="rf-type" onchange="renderResults()" style="padding:7px 10px;border:1.5px solid var(--bd);border-radius:6px;font-size:15px;font-family:inherit;outline:none">
+              <option value="">전체 유형</option>
+              <option value="peer">동료평가</option>
+              <option value="collab">협업평가</option>
+              <option value="super_mgr">상사평가(상사용)</option>
+              <option value="super_ceo">상사평가(법인대표용)</option>
+            </select>
+            <input id="rf-q" placeholder="이름 검색..." oninput="renderResults()" style="padding:7px 10px;border:1.5px solid var(--bd);border-radius:6px;font-size:15px;font-family:inherit;outline:none;width:160px">
+            <button class="btg" onclick="exportExcel()">📥 엑셀 다운로드</button>
+          </div>
+          <div id="r-wrap" class="ox"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+      <div id="as-indiv" class="asec">
+        <div class="acard">
+          <h3>🕸️ 개인별 평가 결과</h3>
+          <p style="font-size:14px;color:var(--tx3);margin-bottom:14px">이름을 클릭하면 해당 인원의 평가 결과를 거미줄 차트로 볼 수 있습니다.</p>
+          <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
+            <input id="indiv-q" placeholder="이름 검색..." oninput="renderIndivList()"
+              style="padding:7px 11px;border:1.5px solid var(--bd);border-radius:6px;font-size:15px;font-family:inherit;outline:none;width:180px">
+            <select id="indiv-team" onchange="renderIndivList()"
+              style="padding:7px 10px;border:1.5px solid var(--bd);border-radius:6px;font-size:15px;font-family:inherit;outline:none">
+              <option value="">전체 팀</option>
+            </select>
+          </div>
+          <div id="indiv-list-wrap" class="indiv-list"></div>
+        </div>
+        <div id="indiv-chart-card" class="acard" style="display:none">
+          <div id="indiv-chart-content"></div>
+        </div>
+      </div>
+
+      <div id="as-indiv" class="asec">
+        <div class="acard">
+          <h3>🕸️ 개인별 평가 결과</h3>
+          <p style="font-size:14px;color:var(--tx3);margin-bottom:14px">이름을 클릭하면 해당 인원의 평가 결과를 거미줄 차트로 볼 수 있습니다.</p>
+          <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
+            <input id="indiv-q" placeholder="이름 검색..." oninput="renderIndivList()"
+              style="padding:7px 11px;border:1.5px solid var(--bd);border-radius:6px;font-size:15px;font-family:inherit;outline:none;width:180px">
+            <select id="indiv-team" onchange="renderIndivList()"
+              style="padding:7px 10px;border:1.5px solid var(--bd);border-radius:6px;font-size:15px;font-family:inherit;outline:none">
+              <option value="">전체 팀</option>
+            </select>
+          </div>
+          <div id="indiv-list-wrap" class="indiv-list"></div>
+        </div>
+        <div id="indiv-chart-card" class="acard" style="display:none">
+          <div id="indiv-chart-content"></div>
+        </div>
+      </div>
+
+<div id="modal" class="moverlay dn">
+  <div class="mbox">
+    <h3 id="m-title"></h3>
+    <div id="m-body"></div>
+    <div class="mft">
+      <button class="btn" onclick="closeModal()">취소</button>
+      <button class="btp" id="m-ok">확인</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════ DB (localStorage — 로컬 캐시) ════
+const DB={
+  g(k,d){try{const v=localStorage.getItem('ev26_'+k);return v?JSON.parse(v):d}catch{return d}},
+  s(k,v){localStorage.setItem('ev26_'+k,JSON.stringify(v))},
+  del(k){localStorage.removeItem('ev26_'+k)}
+};
+// ════════════════════════════════════════════════════════
+// ██  Google Apps Script 연동 설정  ██
+// Apps Script 배포 후 아래 URL을 교체하세요
+// ════════════════════════════════════════════════════════
+const GAS_URL = "https://script.google.com/macros/s/AKfycbypLDelQZKded7ikVlz4XOTlWz_PFSPVol3CHkFIDjDhoE2VWrRgZiMNoQ17Dvc5pDaWQ/exec";
+
+// GAS 호출 헬퍼
+async function gasGet(params) {
+  if (!GAS_URL || GAS_URL.includes('여기에')) return null;
+  try {
+    const url = GAS_URL + '?' + new URLSearchParams(params);
+    const res = await fetch(url);
+    return await res.json();
+  } catch(e) { console.warn('GAS GET 실패:', e); return null; }
+}
+async function gasPost(body) {
+  if (!GAS_URL || GAS_URL.includes('여기에')) return null;
+  try {
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(body)
+    });
+    return await res.json();
+  } catch(e) { console.warn('GAS POST 실패:', e); return null; }
+}
+
+// ── 피평가자 로드 (로그인 후 호출) ──
+// 구글 시트 evaluatees 시트에서 해당 사번의 피평가자 데이터를 가져와
+// user_forms 에 자동 반영합니다
+async function loadEvaluateesFromGAS(empNo, userId, team) {
+  const data = await gasGet({ action: 'getEvaluatees', empNo });
+  if (!data || !data.rows || data.rows.length === 0) return false;
+
+  const uf = DB.g('user_forms', {});
+  if (!uf[userId]) uf[userId] = {};
+
+  // 팀 양식 준비 (없으면 기본값으로 생성)
+  const tf = DB.g('team_forms', {});
+  ensureTF(tf, team);
+  DB.s('team_forms', tf);
+
+  // GAS rows: 같은 유형이 여러 개 와도 합산 (이미 GAS에서 합쳐져 오지만 이중 방어)
+  const mergedRows = {};
+  data.rows.forEach(({ evalType, evList }) => {
+    if (!evList || evList.length === 0) return;
+    if (!mergedRows[evalType]) mergedRows[evalType] = [];
+    mergedRows[evalType] = mergedRows[evalType].concat(evList);
+  });
+
+  Object.entries(mergedRows).forEach(([evalType, evList]) => {
+    if (!evList || evList.length === 0) return;
+
+    // 기존 개인양식 유지하되 피평가자만 덮어쓰기
+    let base = null;
+    if (uf[userId] && uf[userId][evalType]) {
+      base = uf[userId][evalType];
+    } else if (tf[team] && tf[team][evalType]) {
+      base = tf[team][evalType];
+    } else {
+      if (evalType === 'peer')           base = peerDef(team);
+      else if (evalType === 'collab')    base = collabDef();
+      else if (evalType === 'super_mgr') base = superMgrDef(team);
+      else if (evalType === 'super_ceo') base = superCeoDef(team);
+      else base = { cats: [], div: 1 };
+    }
+
+    let fd = JSON.parse(JSON.stringify(base));
+    if (!fd.cats) fd.cats = [];
+    if (!fd.div)  fd.div  = 1;
+
+    // 피평가자 덮어쓰기 (최대 인원 제한)
+    if (evalType === 'peer' || evalType === 'collab') {
+      fd.evs = evList.slice(0, 30).map(e => e.name);
+    } else if (evalType === 'super_mgr') {
+      const list = evList.slice(0, 5);
+      fd.evNames = list.map(e => e.name);
+      fd.evDepts = list.map(e => e.dept || '');
+      fd.evRoles = list.map(e => e.role || '');
+    } else if (evalType === 'super_ceo') {
+      fd.evName = evList[0] ? evList[0].name : '';
+      fd.evDept = evList[0] ? (evList[0].dept || '') : '';
+      fd.evRole = evList[0] ? (evList[0].role || '') : '';
+    }
+
+    uf[userId][evalType] = fd;
+  });
+
+  DB.s('user_forms', uf);
+  console.log('GAS 피평가자 로드 완료:', empNo, data.rows.map(r=>r.evalType));
+  return true;
+}
+
+// ── 제출 저장 (GAS + localStorage) ──
+async function gasSaveSubmission(sub) {
+  // 로컬 먼저
+  const subs = DB.g('submissions', []);
+  subs.push(sub);
+  DB.s('submissions', subs);
+  if (!GAS_URL || GAS_URL.includes('여기에')) return;
+  // GAS 서버 — Form 방식으로 전송 (CORS 완전 우회)
+  try {
+    const form = new FormData();
+    form.append('action', 'saveSubmission');
+    form.append('subJson', JSON.stringify(sub));
+    await fetch(GAS_URL, { method: 'POST', body: form, mode: 'no-cors' });
+    console.log('GAS 제출 전송 완료:', sub.id);
+  } catch(e) { console.warn('GAS 저장 오류:', e); }
+}
+
+// ── 제출 결과 로드 (관리자 전용) ──
+async function gasLoadSubmissions() {
+  const r = await gasGet({ action: 'getSubmissions' });
+  if (r && r.submissions) {
+    DB.s('submissions', r.submissions);
+    return r.submissions;
+  }
+  return DB.g('submissions', []);
+}
+
+// ── 제출 삭제 ──
+async function gasDeleteSub(subId) {
+  const subs = DB.g('submissions', []).filter(s => s.id !== subId);
+  DB.s('submissions', subs);
+  if (!GAS_URL || GAS_URL.includes('여기에')) return;
+  try {
+    const form = new FormData();
+    form.append('action', 'deleteSubmission');
+    form.append('subId', subId);
+    await fetch(GAS_URL, { method: 'POST', body: form, mode: 'no-cors' });
+  } catch(e) { console.warn('GAS 삭제 오류:', e); }
+}
+
+// ── 연도 설정 로드 ──
+async function loadConfigFromGAS() {
+  const r = await gasGet({ action: 'getConfig' });
+  if (r && r.config && r.config.sysYear) {
+    // 로컬에 없을 때만 GAS 값 사용
+    if (!DB.g('sysYear', null)) DB.s('sysYear', r.config.sysYear);
+  }
+}
+
+function hp(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0}return String(h)}
+function digits(s){return String(s||'').replace(/\D/g,'')}
+function authKey(empNo,phone4){return hp(digits(empNo).padStart(6,'0')+'|'+digits(phone4).padStart(4,'0'))}
+
+// ════ YEAR ════
+function getYear(){return DB.g('sysYear','2026')}
+function applyYear(){
+  const yr=getYear();
+  document.querySelectorAll('[id^="badge-"]').forEach(el=>{el.textContent=el.id==='badge-login'?yr+'년도':yr;});
+}
+function saveYear(){
+  const v=(document.getElementById('sys-year').value||'').trim();
+  if(!v||isNaN(+v)||+v<2000){alert('올바른 연도를 입력하세요.');return}
+  DB.s('sysYear',v);applyYear();alert(`연도가 ${v}년으로 변경되었습니다.`);
+}
+
+// ════ CONSTANTS ════
+const FORM_KEYS=['peer','collab','super_mgr','super_ceo'];
+const FORM_LABEL={peer:'동료평가',collab:'협업평가',super_mgr:'상사평가(상사용)',super_ceo:'상사평가(법인대표용)'};
+const TAG_CLS={peer:'tp',collab:'tc',super_mgr:'ts',super_ceo:'ts'};
+
+// ════ DEFAULT DATA ════
+function peerCats(){return[
+  {name:'적극성',rows:[{ind:'업무에 임하는 자세가 긍정적이고, 의욕적이며, 자진하여 새로운 목표를 설정하고 도전한다.'}]},
+  {name:'책임감',rows:[{ind:'맡은 일은 끝까지 완수하며, 업무수행상의 문제 및 결과에 대하여 책임을 진다.'}]},
+  {name:'협조성',rows:[{ind:'소속부서 및 타부서에 대한 업무지원에 적극적이며, 동료의 의견을 존중하며 이해하려 한다.'}]},
+  {name:'규율성',rows:[{ind:'조직의 규정과 규칙을 준수하며, 상사의 지시와 명령을 충실히 이행한다.'}]},
+  {name:'업무지식',rows:[{ind:'담당업무 지식 및 관련 업무 지식이 풍부하고, 업무에 대한 이해와 습득이 빠르다.'}]},
+  {name:'실행력',rows:[{ind:'난관에 부딪히면 해결방안을 모색하여 대처하고, 목표달성을 위한 구체적인 추진방법과 일정을 작성한다.'}]},
+  {name:'업무수행능력',rows:[
+    {sub:'이해판단력',ind:'업무방침이나 상사의 지시를 정확히 이해하고, 문제를 보는 시야가 넓으며, 업무의 우선 순위를 판단할 수 있다.'},
+    {sub:'의사소통',ind:'조직내 상사, 동료간 의사소통이 원활하고, 자신의 의견을 타인에게 논리적으로 설득, 전달한다.'},
+    {sub:'창의력',ind:'업무구상이나 계획이 치밀하고 짜임새가 있고, 담당업무의 처리 방법 등을 효율적으로 개선한다.'},
+    {sub:'업무수행',ind:'규정과 지시에 따라 업무를 충실히 처리하며, 어떠한 업무를 맡겨도 문제없이 업무를 수행한다.'},
+  ]},
+  {name:'대인관계',rows:[{ind:'매사 표정이 밝고, 언행이 부드러워 상대를 편하게 해준다.'}]},
+];}
+function superCats(){return[
+  {name:'조직관리\n및 소통',rows:[
+    {ind:'충고와 조언, 질책을 적절히 사용하여 <strong>부하직원을 지도한다.</strong>'},
+    {ind:'면담 또는 관찰을 통해 <strong>부하직원을 충분히 파악</strong>하고 있다.'},
+    {ind:'조직내 상사, 동료, 부하직원 간 소통이 <strong>원활</strong>하다.'},
+  ]},
+  {name:'솔선수범\n및 책임감',rows:[
+    {ind:'평소 말과 행동이 일치하며 성실하고 진지한 태도로 <strong>솔선수범</strong>한다.'},
+    {ind:'선택과 결정에 합리적인 기준이 있으며 자기 잘못을 합리화시키려 하지 않는다.'},
+    {ind:'조직의 발전을 위해 <strong>공과 사를 구별</strong>할 줄 알고 주어진 업무에 대한 <strong>책임감</strong>이 투철하다.'},
+  ]},
+  {name:'목표설정\n및 판단력',rows:[
+    {ind:'<strong>목적과 목표를 정확하게 설정</strong>하고 전략적인 사고와 안목을 가지고 일관성있게 계획/판단할 줄 안다.'},
+    {ind:'상황의 핵심을 정확하게 판단하여 <strong>복잡한 사안을 간결하게 정리</strong>할 줄 안다.'},
+    {ind:'전문지식과 정보를 상황에 맞게 활용하여 <strong>균형감각</strong>을 가지고 적정한 선택방안을 찾을 줄 안다.'},
+  ]},
+  {name:'결단력',rows:[
+    {ind:'여러 가지 상황을 종합적으로 판단하여 <strong>우유부단하지 않고 선택의 결단</strong>을 한다.'},
+    {ind:'문제해결을 위한 선택과 결단의 시기를 놓치지 않고 <strong>적기</strong>에 한다.'},
+  ]},
+  {name:'업무추진력',rows:[
+    {ind:'목표달성을 위한 집념을 가지고 일에 대한 <strong>열정과 적극적인 자세</strong>로 조직을 이끌 줄 안다.'},
+    {ind:'어려운 목표를 포기하지 않고 <strong>기필코 달성</strong>하려고 한다.'},
+  ]},
+];}
+function collabCats(){return[
+  {name:'목적과 방향',ind:'팀장 본인 업무수행의 목적과 방향을 명확히 알고 있는가?'},
+  {name:'시스템적 사고',ind:'문제 해결을 위해서 시스템적으로 사고하고 이에 대한 체계를 구축하는가?'},
+  {name:'문제해결 대응',ind:'문제 발생시 책임있는 대응과 신속한 문제해결을 위해 노력하는가?'},
+  {name:'업무처리 결과',ind:'업무 처리과정 및 결과가 신뢰할 만한가?'},
+  {name:'신 속 성',ind:'업무 수행을 정해진 기일내에 신속하게 처리하는가?'},
+];}
+
+function peerDef(t){return{title:'다면평가표 (동료평가용)',orgName:t,div:11,evs:[],cats:peerCats()}}
+function superMgrDef(t){return{title:'다면평가표 (상사평가용)',div:13,evNames:[],evDepts:[],evRoles:[],evDept:t,evRole:'팀장',cats:superCats()}}
+function superCeoDef(t){return{title:'다면평가표 (상사평가용) – 법인대표',div:13,evName:'',evDept:t,evRole:'대표',cats:superCats()}}
+function collabDef(){return{title:'다면평가표 (팀장간 협업평가용)',sheets:28,div:5,evs:[],cats:collabCats()}}
+
+function ensureTF(tf,t){
+  if(!tf[t])tf[t]={};
+  if(!tf[t].peer||!tf[t].peer.cats||!tf[t].peer.cats.length)tf[t].peer=peerDef(t);
+  if(!tf[t].super_mgr||!tf[t].super_mgr.cats||!tf[t].super_mgr.cats.length)tf[t].super_mgr=superMgrDef(t);
+  
+  if(tf[t].super_mgr.evName&&!tf[t].super_mgr.evNames){tf[t].super_mgr.evNames=[tf[t].super_mgr.evName];delete tf[t].super_mgr.evName;}
+  if(!tf[t].super_mgr.evNames)tf[t].super_mgr.evNames=[];
+  
+  // 마이그레이션: 기존 데이터에 Depts/Roles 배열이 없는 경우 생성
+  if(!tf[t].super_mgr.evDepts) tf[t].super_mgr.evDepts = tf[t].super_mgr.evNames.map(() => tf[t].super_mgr.evDept || '');
+  if(!tf[t].super_mgr.evRoles) tf[t].super_mgr.evRoles = tf[t].super_mgr.evNames.map(() => tf[t].super_mgr.evRole || '팀장');
+  
+  if(!tf[t].super_ceo||!tf[t].super_ceo.cats||!tf[t].super_ceo.cats.length)tf[t].super_ceo=superCeoDef(t);
+}
+
+function initData(){
+  if(!DB.g('users',null)){
+    DB.s('users',[
+      {id:'1',name:'관리자',empNo:'000000',auth:authKey('000000','0000'),team:'인사총무팀',role:'관리자',isAdmin:true,forms:['peer','collab','super_mgr','super_ceo']},
+      {id:'2',name:"김선민",empNo:'200401',auth:authKey('200401','6736'),team:"연구개발본부장",role:"부사장",isAdmin:false,forms:["super_ceo"]},
+      {id:'3',name:"유재준",empNo:'170701',auth:authKey('170701','9633'),team:"품질본부장",role:"본부장",isAdmin:false,forms:["super_ceo"]},
+      {id:'4',name:"권영현",empNo:'240108',auth:authKey('240108','2081'),team:"경영기획본부장",role:"본부장",isAdmin:false,forms:["super_ceo"]},
+      {id:'5',name:"김언규",empNo:'231001',auth:authKey('231001','4698'),team:"제조본부장",role:"본부장",isAdmin:false,forms:["super_ceo"]},
+      {id:'6',name:"이근창",empNo:'250602',auth:authKey('250602','8772'),team:"영업본부장",role:"본부장",isAdmin:false,forms:["super_ceo"]},
+      {id:'7',name:"전병원",empNo:'190301',auth:authKey('190301','7759'),team:"경영지원본부장",role:"본부장",isAdmin:false,forms:["super_ceo"]},
+      {id:'8',name:"김영수",empNo:'010206',auth:authKey('010206','7591'),team:"표면처리사업부장",role:"사업부장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'9',name:"김호현",empNo:'961101',auth:authKey('961101','1725'),team:"영업품질부문장",role:"부문장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'10',name:"유호상",empNo:'160101',auth:authKey('160101','6185'),team:"재정팀 담당임원",role:"담당임원",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'11',name:"배성준",empNo:'250601',auth:authKey('250601','4764'),team:"옥천공장장",role:"공장장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'12',name:"정택범",empNo:'021202',auth:authKey('021202','5854'),team:"대화공장장",role:"공장장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'13',name:"권경수",empNo:'000723',auth:authKey('000723','0206'),team:"사업개발실장",role:"실장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'14',name:"김병기",empNo:'950203',auth:authKey('950203','0711'),team:"제조혁신실장",role:"실장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'15',name:"김수한",empNo:'260301',auth:authKey('260301','5412'),team:"정밀부품생산실장",role:"실장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'16',name:"김영기",empNo:'250904',auth:authKey('250904','2665'),team:"통합구매실장",role:"실장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'17',name:"김윤광",empNo:'010903',auth:authKey('010903','0597'),team:"생산운영실장",role:"실장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'18',name:"박민흥",empNo:'121202',auth:authKey('121202','3571'),team:"부품연구실장",role:"실장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'19',name:"박흥범",empNo:'220101',auth:authKey('220101','8638'),team:"생산기술실장",role:"실장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'20',name:"전인식",empNo:'910905',auth:authKey('910905','3923'),team:"화스너생산실장",role:"실장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'21',name:"최정묵",empNo:'080302',auth:authKey('080302','2854'),team:"선행연구실장",role:"실장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'22',name:"김덕수",empNo:'110112',auth:authKey('110112','8183'),team:"정밀생산팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'23',name:"김성실",empNo:'120701',auth:authKey('120701','6628'),team:"구매외주팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'24',name:"김영효",empNo:'250502',auth:authKey('250502','3824'),team:"옥천 생산팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'25',name:"김용갑",empNo:'110604',auth:authKey('110604','9981'),team:"옥천 관리팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'26',name:"김재훈",empNo:'190101',auth:authKey('190101','2355'),team:"사업개발2팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'27',name:"김철영",empNo:'030306',auth:authKey('030306','7856'),team:"경영기획팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'28',name:"배웅",empNo:'110201',auth:authKey('110201','5908'),team:"물류운영팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'29',name:"백승범",empNo:'100445',auth:authKey('100445','7891'),team:"고객지원팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'30',name:"백필수",empNo:'010201',auth:authKey('010201','0665'),team:"선행생산기술팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'31',name:"변영준",empNo:'180104',auth:authKey('180104','6647'),team:"생산/기술팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'32',name:"복기전",empNo:'170101',auth:authKey('170101','2607'),team:"회계팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'33',name:"성형식",empNo:'020305',auth:authKey('020305','5895'),team:"개발품질팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'34',name:"손용준",empNo:'040302',auth:authKey('040302','0046'),team:"자재조달팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'35',name:"신준선",empNo:'130901',auth:authKey('130901','8518'),team:"연구개발팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'36',name:"옥진규",empNo:'260302',auth:authKey('260302','1108'),team:"MPA팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'37',name:"원승욱",empNo:'040201',auth:authKey('040201','9559'),team:"안전보건추진팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'38',name:"이규학",empNo:'031103',auth:authKey('031103','0316'),team:"양산생산기술팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'39',name:"이동렬",empNo:'950001',auth:authKey('950001','3263'),team:"DX팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'40',name:"이상규",empNo:'000202',auth:authKey('000202','0577'),team:"대화 관리팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'41',name:"이장희",empNo:'000003',auth:authKey('000003','9938'),team:"품질보증팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'42',name:"이재봉",empNo:'060633',auth:authKey('060633','9466'),team:"생산2팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'43',name:"이준서",empNo:'110110',auth:authKey('110110','2592'),team:"대화 생산팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'44',name:"이중배",empNo:'040702',auth:authKey('040702','3275'),team:"품질관리팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'45',name:"이호재",empNo:'970601',auth:authKey('970601','9753'),team:"생산관리팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'46',name:"전승희",empNo:'060503',auth:authKey('060503','3577'),team:"생산1팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'47',name:"전장수",empNo:'020302',auth:authKey('020302','3102'),team:"안전환경팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'48',name:"허숭욱",empNo:'240109',auth:authKey('240109','9384'),team:"사업개발1팀",role:"팀장",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'49',name:"강봉수",empNo:'240702',auth:authKey('240702','9658'),team:"구매외주팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'50',name:"고경영",empNo:'061002',auth:authKey('061002','6022'),team:"안전환경팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'51',name:"고산",empNo:'110207',auth:authKey('110207','3902'),team:"대화 생산팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'52',name:"곽희만",empNo:'080701',auth:authKey('080701','5960'),team:"선행연구실",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'53',name:"김구철",empNo:'190502',auth:authKey('190502','3870'),team:"제조혁신실",role:"팀원",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'54',name:"김도연",empNo:'120212',auth:authKey('120212','1842'),team:"연구개발팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'55',name:"김동일",empNo:'151023',auth:authKey('151023','9376'),team:"옥천 생산팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'56',name:"김동진",empNo:'160102',auth:authKey('160102','5050'),team:"MPA팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'57',name:"김동현",empNo:'250301',auth:authKey('250301','3647'),team:"생산/기술팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'58',name:"김미애",empNo:'130805',auth:authKey('130805','2430'),team:"(표면)연구개발팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'59',name:"김민주",empNo:'110115',auth:authKey('110115','4763'),team:"품질보증팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'60',name:"김영득",empNo:'090712',auth:authKey('090712','2454'),team:"영업본부",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'61',name:"김용남",empNo:'070701',auth:authKey('070701','0930'),team:"DX팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'62',name:"김정은",empNo:'091102',auth:authKey('091102','0913'),team:"DX팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'63',name:"김지남",empNo:'130810',auth:authKey('130810','9952'),team:"(U볼트)생산팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'64',name:"김창수",empNo:'260402',auth:authKey('260402','3229'),team:"품질관리팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'65',name:"김철",empNo:'050605',auth:authKey('050605','1832'),team:"울산영업소",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'66',name:"김태연",empNo:'000802',auth:authKey('000802','9563'),team:"생산관리팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'67',name:"박우신",empNo:'010403',auth:authKey('010403','1465'),team:"광주영업소",role:"팀원",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'68',name:"박은기",empNo:'110205',auth:authKey('110205','8160'),team:"선행연구실",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'69',name:"박은정",empNo:'130109',auth:authKey('130109','0600'),team:"경영기획팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'70',name:"박준식",empNo:'050801',auth:authKey('050801','8411'),team:"양산생산기술팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'71',name:"성상묵",empNo:'120203',auth:authKey('120203','7845'),team:"옥천 생산팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'72',name:"손근석",empNo:'100709',auth:authKey('100709','7502'),team:"영업본부",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'73',name:"손원형",empNo:'091105',auth:authKey('091105','9001'),team:"연구개발팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'74',name:"승민경",empNo:'040703',auth:authKey('040703','1266'),team:"중부영업소",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'75',name:"신기후",empNo:'060302',auth:authKey('060302','4595'),team:"연구개발팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'76',name:"심봉섭",empNo:'181202',auth:authKey('181202','1897'),team:"품질관리팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'77',name:"양지현",empNo:'131201',auth:authKey('131201','0227'),team:"사업개발1팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'78',name:"엄정혜",empNo:'060703',auth:authKey('060703','1841'),team:"고객지원팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'79',name:"여인욱",empNo:'161106',auth:authKey('161106','0569'),team:"연구개발팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'80',name:"오상우",empNo:'180102',auth:authKey('180102','3416'),team:"선행생산기술팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'81',name:"우상욱",empNo:'110113',auth:authKey('110113','2784'),team:"경영기획팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'82',name:"유세호",empNo:'100702',auth:authKey('100702','5578'),team:"창원영업소",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'83',name:"이근식",empNo:'190201',auth:authKey('190201','3252'),team:"FA팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'84',name:"이남용",empNo:'071001',auth:authKey('071001','3179'),team:"생산1팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'85',name:"이범규",empNo:'020201',auth:authKey('020201','5871'),team:"FA팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'86',name:"이상엽",empNo:'130501',auth:authKey('130501','8047'),team:"정밀생산팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'87',name:"이재득",empNo:'151002',auth:authKey('151002','7216'),team:"대화 관리팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'88',name:"이준형",empNo:'060501',auth:authKey('060501','0218'),team:"양산생산기술팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'89',name:"이진석",empNo:'110210',auth:authKey('110210','0307'),team:"DX팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'90',name:"임용수",empNo:'230905',auth:authKey('230905','3789'),team:"FA팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'91',name:"장우혁",empNo:'191001',auth:authKey('191001','7085'),team:"대화 생산팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'92',name:"전병민",empNo:'060602',auth:authKey('060602','0888'),team:"인사총무팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'93',name:"전유석",empNo:'220405',auth:authKey('220405','7032'),team:"개발품질팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'94',name:"정성훈",empNo:'101001',auth:authKey('101001','8335'),team:"구매외주팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'95',name:"정수빈",empNo:'131001',auth:authKey('131001','0424'),team:"안전보건추진팀",role:"팀원",isAdmin:false,forms:["super_mgr", "super_ceo"]},
+      {id:'96',name:"정일록",empNo:'190503',auth:authKey('190503','3215'),team:"생산1팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'97',name:"정필영",empNo:'001101',auth:authKey('001101','8718'),team:"경영기획팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'98',name:"조민구",empNo:'230605',auth:authKey('230605','1138'),team:"생산2팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'99',name:"천덕상",empNo:'060701',auth:authKey('060701','0504'),team:"안전환경팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'100',name:"최기성",empNo:'151005',auth:authKey('151005','6339'),team:"옥천 관리팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'101',name:"최병윤",empNo:'020402',auth:authKey('020402','5232'),team:"물류운영팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'102',name:"최태훈",empNo:'050702',auth:authKey('050702','1665'),team:"품질관리팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'103',name:"한영석",empNo:'090102',auth:authKey('090102','6899'),team:"생산1팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'104',name:"한창희",empNo:'080702',auth:authKey('080702','5578'),team:"사업개발1팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'105',name:"황채주",empNo:'240701',auth:authKey('240701','6682'),team:"선행생산기술팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'106',name:"강인모",empNo:'060502',auth:authKey('060502','9815'),team:"영업본부",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'107',name:"권순환",empNo:'201204',auth:authKey('201204','2574'),team:"인사총무팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'108',name:"권자근",empNo:'211102',auth:authKey('211102','5542'),team:"연구개발팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'109',name:"기홍성",empNo:'110105',auth:authKey('110105','2162'),team:"전주영업소",role:"팀원",isAdmin:false,forms:["super_mgr"]},
+      {id:'110',name:"김기덕",empNo:'231003',auth:authKey('231003','4180'),team:"품질관리팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'111',name:"김대훈",empNo:'060704',auth:authKey('060704','4697'),team:"고객지원팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'112',name:"김덕현",empNo:'120801',auth:authKey('120801','0901'),team:"울산영업소",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'113',name:"김도훈",empNo:'220103',auth:authKey('220103','8179'),team:"연구개발팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'114',name:"김동욱",empNo:'230701',auth:authKey('230701','5183'),team:"고객지원팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'115',name:"김문권",empNo:'140208',auth:authKey('140208','2523'),team:"구매외주팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'116',name:"김민오",empNo:'160901',auth:authKey('160901','1551'),team:"연구개발팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'117',name:"김상철",empNo:'181210',auth:authKey('181210','3878'),team:"재정팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'118',name:"김신혜",empNo:'130108',auth:authKey('130108','9011'),team:"재정팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'119',name:"김용규",empNo:'250302',auth:authKey('250302','1029'),team:"FA팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'120',name:"김재훈",empNo:'210104',auth:authKey('210104','8276'),team:"연구개발팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'121',name:"김정수",empNo:'220904',auth:authKey('220904','8644'),team:"정밀생산팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'122',name:"김지훈",empNo:'150902',auth:authKey('150902','3351'),team:"선행연구실",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'123',name:"김진석",empNo:'251102',auth:authKey('251102','5914'),team:"사업개발1팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'124',name:"김태형",empNo:'221105',auth:authKey('221105','7238'),team:"양산생산기술팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'125',name:"김현기",empNo:'211201',auth:authKey('211201','1550'),team:"회계팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'126',name:"김현성",empNo:'240602',auth:authKey('240602','1047'),team:"광주영업소",role:"팀원",isAdmin:false,forms:["super_mgr"]},
+      {id:'127',name:"나종훈",empNo:'160803',auth:authKey('160803','5190'),team:"생산관리팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'128',name:"남가람",empNo:'220402',auth:authKey('220402','1015'),team:"사업개발2팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'129',name:"남현우",empNo:'240901',auth:authKey('240901','8526'),team:"개발품질팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'130',name:"목진호",empNo:'161101',auth:authKey('161101','1794'),team:"중부영업소",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'131',name:"박미현",empNo:'220165',auth:authKey('220165','0245'),team:"인사총무팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'132',name:"박왕우",empNo:'130111',auth:authKey('130111','8525'),team:"대화 생산팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'133',name:"박정훈",empNo:'260202',auth:authKey('260202','2369'),team:"물류운영팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'134',name:"박종률",empNo:'170503',auth:authKey('170503','5640'),team:"연구개발팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'135',name:"박종우",empNo:'170401',auth:authKey('170401','9973'),team:"정밀생산팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'136',name:"배종혁",empNo:'120403',auth:authKey('120403','6566'),team:"울산영업소",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'137',name:"백민기",empNo:'221102',auth:authKey('221102','8180'),team:"연구개발팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'138',name:"송근승",empNo:'230301',auth:authKey('230301','5670'),team:"개발품질팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'139',name:"신관수",empNo:'100648',auth:authKey('100648','8768'),team:"품질관리팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'140',name:"신수현",empNo:'220501',auth:authKey('220501','0343'),team:"생산관리팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'141',name:"신예슬",empNo:'220903',auth:authKey('220903','1882'),team:"개발품질팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'142',name:"신현중",empNo:'171201',auth:authKey('171201','0649'),team:"DX팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'143',name:"안도혁",empNo:'120210',auth:authKey('120210','6798'),team:"양산생산기술팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'144',name:"안종근",empNo:'231002',auth:authKey('231002','5602'),team:"사업개발1팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'145',name:"오유진",empNo:'210701',auth:authKey('210701','4960'),team:"품질관리팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'146',name:"우현기",empNo:'110114',auth:authKey('110114','0627'),team:"양산생산기술팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'147',name:"윤녕준",empNo:'170301',auth:authKey('170301','1858'),team:"창원영업소",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'148',name:"윤지환",empNo:'150502',auth:authKey('150502','3825'),team:"연구개발팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'149',name:"이기표",empNo:'110116',auth:authKey('110116','0625'),team:"선행생산기술팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'150',name:"이민규",empNo:'240103',auth:authKey('240103','3352'),team:"회계팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'151',name:"이상일",empNo:'211003',auth:authKey('211003','5181'),team:"사업개발1팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'152',name:"이신우",empNo:'110215',auth:authKey('110215','4571'),team:"연구개발팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'153',name:"이영섭",empNo:'171202',auth:authKey('171202','2729'),team:"연구개발팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'154',name:"이재걸",empNo:'120501',auth:authKey('120501','2815'),team:"울산영업소",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'155',name:"이정엽",empNo:'190801',auth:authKey('190801','7757'),team:"재정팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'156',name:"이정현",empNo:'130101',auth:authKey('130101','2091'),team:"구매외주팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'157',name:"이정현",empNo:'140803',auth:authKey('140803','0981'),team:"사업개발1팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'158',name:"이정호",empNo:'110701',auth:authKey('110701','9187'),team:"품질관리팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'159',name:"이준성",empNo:'220906',auth:authKey('220906','9164'),team:"옥천 관리팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'160',name:"이중수",empNo:'170404',auth:authKey('170404','7362'),team:"구매외주팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'161',name:"임구환",empNo:'240102',auth:authKey('240102','7654'),team:"품질보증팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'162',name:"임지훈",empNo:'130803',auth:authKey('130803','9072'),team:"DX팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'163',name:"장성진",empNo:'230904',auth:authKey('230904','8495'),team:"안전환경팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'164',name:"장택수",empNo:'120402',auth:authKey('120402','1857'),team:"중부영업소",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'165',name:"전유성",empNo:'140201',auth:authKey('140201','7332'),team:"생산2팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'166',name:"정성필",empNo:'211004',auth:authKey('211004','7230'),team:"안전환경팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'167',name:"정재민",empNo:'150403',auth:authKey('150403','8815'),team:"연구개발팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'168',name:"정재원",empNo:'240805',auth:authKey('240805','0727'),team:"대화 생산팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'169',name:"조문현",empNo:'220403',auth:authKey('220403','1026'),team:"사업개발2팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'170',name:"조문형",empNo:'171103',auth:authKey('171103','2078'),team:"대화 관리팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'171',name:"조이재",empNo:'160601',auth:authKey('160601','9990'),team:"(U볼트)생산팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'172',name:"조정희",empNo:'120201',auth:authKey('120201','9455'),team:"인사총무팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'173',name:"조준희",empNo:'170209',auth:authKey('170209','3650'),team:"경영기획팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'174',name:"주상훈",empNo:'110708',auth:authKey('110708','3103'),team:"개발품질팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'175',name:"최예동",empNo:'150104',auth:authKey('150104','3293'),team:"품질관리팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'176',name:"최정수",empNo:'150501',auth:authKey('150501','9235'),team:"경영기획팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'177',name:"하수지",empNo:'230602',auth:authKey('230602','3749'),team:"품질보증팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'178',name:"한상욱",empNo:'240502',auth:authKey('240502','9961'),team:"품질보증팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'179',name:"한찬희",empNo:'230505',auth:authKey('230505','6517'),team:"인사총무팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'180',name:"한형덕",empNo:'210402',auth:authKey('210402','6470'),team:"생산1팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'181',name:"허창훈",empNo:'050602',auth:authKey('050602','8055'),team:"사업개발1팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'182',name:"황서하",empNo:'160402',auth:authKey('160402','7804'),team:"품질관리팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'183',name:"황준하",empNo:'190904',auth:authKey('190904','3018'),team:"물류운영팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'184',name:"황진한",empNo:'160202',auth:authKey('160202','4399'),team:"양산생산기술팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'185',name:"강소형",empNo:'221262',auth:authKey('221262','4479'),team:"구매외주팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'186',name:"강용인",empNo:'240501',auth:authKey('240501','8261'),team:"품질관리팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'187',name:"강필주",empNo:'251101',auth:authKey('251101','0736'),team:"연구개발팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'188',name:"고어진",empNo:'230603',auth:authKey('230603','7671'),team:"연구개발팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'189',name:"곽진솔",empNo:'240601',auth:authKey('240601','1645'),team:"안전환경팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'190',name:"권도현",empNo:'230704',auth:authKey('230704','1997'),team:"대화 관리팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'191',name:"김경익",empNo:'230507',auth:authKey('230507','3193'),team:"선행생산기술팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'192',name:"김범진",empNo:'231005',auth:authKey('231005','8539'),team:"MPA팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'193',name:"김수연",empNo:'240802',auth:authKey('240802','1332'),team:"사업개발2팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'194',name:"김영남",empNo:'251201',auth:authKey('251201','4839'),team:"연구개발팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'195',name:"김충열",empNo:'250801',auth:authKey('250801','7625'),team:"품질관리팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'196',name:"김태헌",empNo:'231004',auth:authKey('231004','6855'),team:"자재조달팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'197',name:"김현중",empNo:'231101',auth:authKey('231101','2212'),team:"연구개발팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'198',name:"김형원",empNo:'210703',auth:authKey('210703','2530'),team:"(U볼트)생산팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr", "super_ceo"]},
+      {id:'199',name:"나웅비",empNo:'251002',auth:authKey('251002','9210'),team:"옥천 생산팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'200',name:"남양호",empNo:'221103',auth:authKey('221103','5058'),team:"옥천 관리팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'201',name:"니에",empNo:'221261',auth:authKey('221261','7909'),team:"사업개발2팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'202',name:"박범준",empNo:'240704',auth:authKey('240704','5304'),team:"선행생산기술팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'203',name:"박성현",empNo:'250202',auth:authKey('250202','5747'),team:"생산관리팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'204',name:"백승훈",empNo:'241203',auth:authKey('241203','1150'),team:"개발품질팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'205',name:"송보인",empNo:'231201',auth:authKey('231201','9495'),team:"DX팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'206',name:"송채영",empNo:'231202',auth:authKey('231202','3652'),team:"회계팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'207',name:"신동우",empNo:'250901',auth:authKey('250901','1701'),team:"사업개발1팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'208',name:"신우석",empNo:'250803',auth:authKey('250803','7413'),team:"연구개발팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'209',name:"안상혁",empNo:'240106',auth:authKey('240106','0778'),team:"연구개발팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'210',name:"안서진",empNo:'251202',auth:authKey('251202','6313'),team:"인사총무팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'211',name:"안희창",empNo:'241202',auth:authKey('241202','6137'),team:"생산1팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'212',name:"오대영",empNo:'250903',auth:authKey('250903','2878'),team:"연구개발팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'213',name:"오정석",empNo:'250905',auth:authKey('250905','7994'),team:"선행연구실",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'214',name:"원왕재",empNo:'241002',auth:authKey('241002','4551'),team:"생산2팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'215',name:"유미종",empNo:'221232',auth:authKey('221232','3778'),team:"대화 생산팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'216',name:"유필선",empNo:'250204',auth:authKey('250204','0405'),team:"FA팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'217',name:"윤선진",empNo:'240401',auth:authKey('240401','2615'),team:"안전환경팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'218',name:"윤태수",empNo:'240705',auth:authKey('240705','4311'),team:"품질관리팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'219',name:"이문수",empNo:'230903',auth:authKey('230903','5834'),team:"연구개발팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'220',name:"이승우",empNo:'230501',auth:authKey('230501','6810'),team:"구매외주팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'221',name:"이연진",empNo:'241101',auth:authKey('241101','3931'),team:"인사총무팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'222',name:"이재우",empNo:'220901',auth:authKey('220901','5361'),team:"FA팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'223',name:"이진선",empNo:'230504',auth:authKey('230504','7419'),team:"대화 생산팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'224',name:"이진섭",empNo:'230801',auth:authKey('230801','5578'),team:"고객지원팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'225',name:"이헌용",empNo:'241001',auth:authKey('241001','6391'),team:"개발품질팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'226',name:"임호균",empNo:'250102',auth:authKey('250102','7491'),team:"품질보증팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'227',name:"조황희",empNo:'240801',auth:authKey('240801','9023'),team:"생산1팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'228',name:"천웅희",empNo:'251001',auth:authKey('251001','7630'),team:"품질관리팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'229',name:"최은정",empNo:'230502',auth:authKey('230502','4282'),team:"울산영업소",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'230',name:"표세직",empNo:'231103',auth:authKey('231103','0727'),team:"정밀생산팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'231',name:"허지훈",empNo:'240706',auth:authKey('240706','6562'),team:"안전환경팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]},
+      {id:'232',name:"홍영은",empNo:'240703',auth:authKey('240703','4180'),team:"회계팀",role:"팀원",isAdmin:false,forms:["peer", "super_mgr"]}
+    ]);
+  }
+  const musers=DB.g('users',[]);let userChanged=false;
+  musers.forEach(u=>{
+    if(!u.auth){
+      if(u.empNo&&u.phone4){u.auth=authKey(u.empNo,u.phone4);userChanged=true;}
+    }
+    if(u.pid){delete u.pid;userChanged=true;}
+    if(u.phone4){delete u.phone4;userChanged=true;}
+  });
+  if(userChanged)DB.s('users',musers);
+  if(!DB.g('teams',null))DB.s('teams',["(U볼트)생산팀", "(표면)연구개발팀", "DX팀", "FA팀", "MPA팀", "개발품질팀", "경영기획본부장", "경영기획팀", "경영지원본부장", "고객지원팀", "광주영업소", "구매외주팀", "대화 관리팀", "대화 생산팀", "대화공장장", "물류운영팀", "부품연구실장", "사업개발1팀", "사업개발2팀", "사업개발실장", "생산/기술팀", "생산1팀", "생산2팀", "생산관리팀", "생산기술실장", "생산운영실장", "선행생산기술팀", "선행연구실", "선행연구실장", "안전보건추진팀", "안전환경팀", "양산생산기술팀", "연구개발본부장", "연구개발팀", "영업본부", "영업본부장", "영업품질부문장", "옥천 관리팀", "옥천 생산팀", "옥천공장장", "울산영업소", "인사총무팀", "자재조달팀", "재정팀", "재정팀 담당임원", "전주영업소", "정밀부품생산실장", "정밀생산팀", "제조본부장", "제조혁신실", "제조혁신실장", "중부영업소", "창원영업소", "통합구매실장", "표면처리사업부장", "품질관리팀", "품질보증팀", "품질본부장", "화스너생산실장", "회계팀"]);
+  if(!DB.g('roles',null))DB.s('roles',['대표이사','부사장','본부장','사업부장','부문장','담당임원','공장장','실장','팀장','팀원']);
+  const teams=DB.g('teams',[]),tf=DB.g('team_forms',{});let ch=false;
+  teams.forEach(t=>{const b=JSON.stringify(tf[t]||{});ensureTF(tf,t);if(JSON.stringify(tf[t])!==b)ch=true;});
+  if(ch)DB.s('team_forms',tf);
+}
+// ════ AUTH ════
+let CU=null;
+function doLogin(){
+  const name=document.getElementById('li-name').value.trim();
+  const empNo=digits(document.getElementById('li-emp').value);
+  const phone4=digits(document.getElementById('li-phone4').value);
+  if(!name||empNo.length!==6||phone4.length!==4){showErr('이름, 사번 6자리, 휴대폰 뒷자리 4자리를 모두 입력해주세요.');return}
+  const key=authKey(empNo,phone4);
+  const u=DB.g('users',[]).find(u=>u.name===name&&u.auth===key);
+  if(!u){showErr('로그인 정보가 일치하지 않습니다.');return}
+  document.getElementById('li-err').classList.add('dn');
+  document.getElementById('li-emp').value='';
+  document.getElementById('li-phone4').value='';CU=u;
+  if (!u.isAdmin) {
+    // 로그인 버튼 로딩 표시
+    const loginBtn = document.querySelector('.btn-login');
+    if(loginBtn){ loginBtn.disabled=true; loginBtn.textContent='⏳ 불러오는 중...'; }
+    // GAS에서 최신 피평가자 데이터 로드 후 화면 표시
+    loadEvaluateesFromGAS(u.empNo, u.id, u.team||'').then(()=>{
+      if(loginBtn){ loginBtn.disabled=false; loginBtn.textContent='로그인'; }
+      showMain();
+    }).catch(()=>{
+      if(loginBtn){ loginBtn.disabled=false; loginBtn.textContent='로그인'; }
+      showMain();
+    });
+  } else {
+    showAdmin();
+  }
+}
+function showErr(m){const e=document.getElementById('li-err');e.textContent=m;e.classList.remove('dn')}
+function doLogout(){CU=null;stopAutoSave();showPg('pg-login')}
+function showPg(id){['pg-login','pg-main','pg-eval','pg-admin'].forEach(p=>document.getElementById(p).classList.toggle('dn',p!==id));applyYear();}
+
+// ════ MAIN ════
+function showMain(){
+  document.getElementById('tu-nm').textContent=CU.name;
+  showPg('pg-main');
+  const forms=CU.forms||[];
+  const subs=DB.g('submissions',[]);
+  const defs=[
+    {key:'peer',title:'동료평가',ico:'👥',desc:'동료의 업무능력, 협조성, 책임감 등을 평가합니다.',cc:'#1a3a5c'},
+    {key:'collab',title:'팀장간 협업평가',ico:'🤝',desc:'팀장 간 협업 실태 및 업무 수행 방향성을 평가합니다.',cc:'#2e7d52'},
+    {key:'super_mgr',title:'상사평가 (상사용)',ico:'⭐',desc:'조직관리, 솔선수범, 결단력 등 리더십을 평가합니다.',cc:'#c05000'},
+    {key:'super_ceo',title:'상사평가 (법인대표용)',ico:'🏆',desc:'법인대표의 리더십과 업무추진력을 평가합니다.',cc:'#8b0000'},
+  ];
+  document.getElementById('ecards').innerHTML=defs.map(d=>{
+    const ok=forms.includes(d.key);
+    const done=ok&&subs.some(s=>s.uid===CU.id&&s.type===d.key);
+    const draft=ok&&!done&&!!DB.g('draft_'+CU.id+'_'+d.key,null);
+    return `<div class="ecard${(ok&&!done)?'':' off'}" style="--cc:${d.cc}" onclick="${(ok&&!done)?`openEval('${d.key}')`:''}" >
+      ${done?'<div class="ecard-done">✓ 제출완료</div>':''}
+      <div class="ecard-ico">${d.ico}</div>
+      <h3>${d.title}</h3><p>${d.desc}</p>
+      ${draft?'<div class="ecard-draft">💾 임시저장 있음</div>':''}
+      <div class="estat"><div class="edot${ok?' on':''}"></div>
+        <span style="color:${done?'#2e7d52':ok?'#1a3a5c':'#999'}">${done?'제출 완료':ok?'평가 가능':'미배정'}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ════ TEMP SAVE ════
+let _autoTimer=null, _evalType=null;
+function saveTemp(){
+  if(!CU||!_evalType)return;
+  const state={scores:{},texts:[]};
+  document.querySelectorAll('.sbtn').forEach(b=>{
+    const m=b.className.match(/\bs(\d)\b/);if(m)state.scores[b.dataset.nm]=+m[1];
+  });
+  document.querySelectorAll('textarea').forEach((ta,i)=>{state.texts[i]=ta.value;});
+  DB.s('draft_'+CU.id+'_'+_evalType,{state,time:new Date().toISOString()});
+  const lbl=document.getElementById('tmp-lbl');
+  if(lbl)lbl.textContent='저장: '+new Date().toLocaleTimeString('ko-KR');
+}
+function stopAutoSave(){if(_autoTimer){clearInterval(_autoTimer);_autoTimer=null;}}
+function startAutoSave(type){
+  stopAutoSave();_evalType=type;
+  _autoTimer=setInterval(saveTemp,30000);
+}
+function restoreDraft(state){
+  if(!state)return;
+  Object.entries(state.scores||{}).forEach(([nm,v])=>{
+    document.querySelectorAll(`.sbtn[data-nm="${nm}"]`).forEach(b=>b.className=b.className.replace(/\bs\d\b/,'').trim());
+    const b=document.querySelector(`.sbtn[data-nm="${nm}"][data-v="${v}"]`);if(b)b.classList.add('s'+v);
+  });
+  document.querySelectorAll('textarea').forEach((ta,i)=>{if(state.texts&&state.texts[i]!==undefined)ta.value=state.texts[i];});
+  calcSums();
+}
+
+// ════ EVAL ════
+function doSubmitTop(){if(_evalType)submitEval(_evalType);}
+function openEval(type){
+  document.getElementById('eu-nm').textContent=CU.name;
+  _evalType=type;
+  const subs=DB.g('submissions',[]);
+  const locked=subs.some(s=>s.uid===CU.id&&s.type===type);
+  showPg('pg-eval');
+  const titles={peer:'동료평가표',collab:'팀장간 협업평가표',super_mgr:'상사평가표 (상사용)',super_ceo:'상사평가표 (법인대표용)'};
+  document.getElementById('ef-title').textContent=titles[type];
+  const btnTmp=document.getElementById('btn-tmp');
+  const lbl=document.getElementById('tmp-lbl');
+  const btnSubTop=document.getElementById('btn-sub-top');
+  if(locked){
+    if(btnTmp)btnTmp.classList.add('dn');
+    if(lbl)lbl.textContent='';
+    if(btnSubTop)btnSubTop.classList.add('dn');
+  } else {
+    if(btnTmp)btnTmp.classList.remove('dn');
+    if(btnSubTop)btnSubTop.classList.remove('dn');
+  }
+  const body=document.getElementById('ef-body');
+  if(type==='peer')body.innerHTML=buildPeer(locked);
+  else if(type==='collab')body.innerHTML=buildCollab(locked);
+  else body.innerHTML=buildSuper(type,locked);
+  if(!locked){
+    attachBtns();startAutoSave(type);
+    const draft=DB.g('draft_'+CU.id+'_'+type,null);
+    if(draft&&draft.state){
+      restoreDraft(draft.state);
+      if(lbl)lbl.textContent='복원: '+new Date(draft.time).toLocaleTimeString('ko-KR');
+    }
+  }
+}
+function getFD(type){
+  if(type==='collab'){
+    const uf=DB.g('user_forms',{});
+    if(CU&&uf[CU.id]&&uf[CU.id][type])return uf[CU.id][type];
+    return DB.g('collab_form',collabDef());
+  }
+  const uf=DB.g('user_forms',{});
+  if(CU&&uf[CU.id]&&uf[CU.id][type])return uf[CU.id][type];
+  const tf=DB.g('team_forms',{}),t=CU.team||'';ensureTF(tf,t);return tf[t][type];
+}
+
+function scaleHTML(collab){
+  return `<div class="scale-desc-wrap"><table class="scale-desc-tbl">
+    <tr>
+      <td class="sd6">6<br><small>매우 긍정</small></td>
+      <td class="sd5">5<br><small>긍정</small></td>
+      <td class="sd4">4<br><small>약간 긍정</small></td>
+      <td class="sd3">3<br><small>약간 부정</small></td>
+      <td class="sd2">2<br><small>부정</small></td>
+      <td class="sd1">1<br><small>매우 부정</small></td>
+    </tr>
+    <tr>
+      <td class="sd6 desc">해당자질이 탁월하며, 조직성과 향상에 늘 긍정적으로 영향을 미침.</td>
+      <td class="sd5 desc">해당자질이 기대수준 이상으로 조직성과에 긍정적 영향을 기대할 수 있음.</td>
+      <td class="sd4 desc">해당 자질이 기대수준을 다소 충족하며, 조직성과에 약간 긍정적 영향을 미침.</td>
+      <td class="sd3 desc">해당 자질이 기대수준에 다소 미치지 못하며, 조직성과에 약간 부정적 영향을 미침.</td>
+      <td class="sd2 desc">해당자질이 기대수준에 미치지 못하며 다소 지장을 초래할 우려가 있음.</td>
+      <td class="sd1 desc">해당자질이 기대수준에 크게 미달되며, 조직 성과에 부정적영향을 미침.</td>
+    </tr>
+  </table></div>`;
+}
+
+function scoreCell(rid,pi,locked){
+  const nm=`r${rid}_p${pi}`;
+  return `<td class="sv-td"><div class="sv-wrap">${[6,5,4,3,2,1].map(v=>
+    `<span class="sbtn${locked?' locked':''}" data-nm="${nm}" data-pi="${pi}" data-v="${v}">${v}</span>`).join('')}</div></td>`;
+}
+function doneBanner(){return`<div class="done-banner">✅ 이미 제출된 평가입니다. 수정이 불가합니다.</div>`;}
+function reqNote(){return`<div class="req-note">※ 6점 척도 항목은 <strong>필수 항목</strong>입니다. 모든 항목에 점수를 입력해야 제출할 수 있습니다. (주관식 항목은 선택사항)</div>`;}
+
+// ── PEER ──
+function buildPeer(locked){
+  const fd=getFD('peer');const evs=fd.evs||[];const cats=fd.cats||[];const yr=getYear();
+  const noEvs=evs.length===0;let ri=0,rows='';
+  cats.forEach(cat=>{
+    (cat.rows||[]).forEach((row,ii)=>{
+      const lbl=row.sub?`<strong>${row.sub}</strong>: ${row.ind}`:row.ind;
+      rows+=`<tr>${ii===0?`<td class="cat-td" rowspan="${cat.rows.length}">${cat.name}</td>`:''}<td class="ind-td">${lbl}</td>
+        ${noEvs?'<td class="ind-td ro-td" style="color:var(--tx3);text-align:center">피평가자 미등록</td>':evs.map((_,pi)=>scoreCell(ri,pi,locked)).join('')}
+        <td class="sum-td ro-td"><span class="rsum" data-ri="${ri}"></span></td></tr>`;ri++;
+    });
+  });
+  const sumR=noEvs?'':
+    `<tr class="sum-row"><td colspan="2">계</td>${evs.map((_,pi)=>`<td><span class="csum" data-pi="${pi}" data-form="peer"></span></td>`).join('')}<td class="ro-td"></td></tr>`;
+  const avgR=noEvs?'':
+    `<tr class="sum-row"><td colspan="2">평균 (계÷${fd.div||11}) × 소수점 첫째자리</td>${evs.map((_,pi)=>`<td><span class="cavg" data-pi="${pi}" data-form="peer" data-div="${fd.div||11}"></span></td>`).join('')}<td class="ro-td"></td></tr>`;
+  return `${locked?doneBanner():''}<div class="epaper">
+    <div class="eptitle">■ ${fd.title||'다면평가표 (동료평가용)'}<span class="sub">평가 대상년도 ${yr}년 | 합계÷${fd.div||11}</span></div>
+    <table class="itbl"><tr><td class="lb">평가조직명</td><td>${fd.orgName||CU.team||''}</td><td class="lb">평가 대상년도</td><td>${yr}년</td></tr></table>
+    ${scaleHTML(false)}${reqNote()}
+    ${noEvs?`<div class="notice ny" style="margin:10px 14px">⚠️ 피평가자가 등록되지 않았습니다.</div>`:''}
+    <div class="ox"><table class="etbl">
+      <thead><tr><th style="width:82px">평가항목</th><th style="min-width:220px">평가지표</th>
+        ${noEvs?'<th>피평가자</th>':evs.map(n=>`<th class="pname-th">${n}</th>`).join('')}
+        <th style="width:60px">계</th></tr></thead>
+      <tbody>${rows}${sumR}${avgR}</tbody>
+    </table></div>
+    <div style="padding:9px 14px;font-size:15px;color:var(--tx2)">※ 작성 후 인사부서에 제출해 주시기 바랍니다.</div>
+  </div>
+  ${!locked?`<div class="sub-wrap"><button class="btn-sub" onclick="submitEval('peer')">📨 평가 제출하기</button></div>`:''}`;
+}
+
+// ── COLLAB ──
+function buildCollab(locked){
+  const fd=getFD('collab');const evs=fd.evs||[];const cats=fd.cats||[];const yr=getYear();
+  const noEvs=evs.length===0;let rows='';
+  cats.forEach((cat,ri)=>{
+    rows+=`<tr><td class="cat-td">${cat.name}</td><td class="ind-td">${cat.ind}</td>
+      ${noEvs?'<td class="ind-td ro-td" style="color:var(--tx3);text-align:center">피평가자 미등록</td>':evs.map((_,pi)=>scoreCell(ri,pi,locked)).join('')}</tr>`;
+  });
+  const sumR=noEvs?'':
+    `<tr class="sum-row"><td colspan="2">계</td>${evs.map((_,pi)=>`<td><span class="csum" data-pi="${pi}" data-form="collab"></span></td>`).join('')}</tr>`;
+  const avgR=noEvs?'':
+    `<tr class="sum-row"><td colspan="2">평균 (계÷${fd.div||5}) × 소수점 첫째자리</td>${evs.map((_,pi)=>`<td><span class="cavg" data-pi="${pi}" data-form="collab" data-div="${fd.div||5}"></span></td>`).join('')}</tr>`;
+  return `${locked?doneBanner():''}<div class="epaper">
+    <div class="eptitle">■ ${fd.title||'다면평가표 (팀장간 협업평가용)'}<span class="sub">평가 대상년도 ${yr}년</span></div>
+    <table class="itbl"><tr><td class="lb">배포 매수</td><td>총 ${fd.sheets||''}매</td><td class="lb">평가 대상년도</td><td>${yr}년</td></tr></table>
+    ${scaleHTML(true)}${reqNote()}
+    <div class="ox"><table class="etbl">
+      <thead><tr><th style="width:90px">평가항목</th><th style="min-width:210px">평가지표</th>
+        ${noEvs?'<th>피평가자</th>':evs.map(n=>`<th class="pname-th">${n}<br><span style="font-size:14px;font-weight:400">팀장</span></th>`).join('')}
+      </tr></thead>
+      <tbody>${rows}${sumR}${avgR}</tbody>
+    </table></div>
+    <div style="padding:9px 14px;font-size:15px;color:var(--tx2)">※ 본 평가는 전사 팀장 협업의 정도를 평가합니다.</div>
+  </div>
+  ${!locked?`<div class="sub-wrap"><button class="btn-sub" onclick="submitEval('collab')">📨 평가 제출하기</button></div>`:''}`;
+}
+
+// ── SUPER ──
+function buildSuperPaper(fd, evName, personIdx, locked){
+  const cats=fd.cats||[];const yr=getYear();const pfx=`s${personIdx}_`;
+  let ri=0,rows='';
+  
+  // 개별 상사의 소속/직책 추출 (마이그레이션 호환 처리 포함)
+  const dept = (fd.evDepts && fd.evDepts[personIdx] !== undefined) ? fd.evDepts[personIdx] : (fd.evDept||'');
+  const role = (fd.evRoles && fd.evRoles[personIdx] !== undefined) ? fd.evRoles[personIdx] : (fd.evRole||'');
+
+  cats.forEach(cat=>{
+    (cat.rows||[]).forEach((row,ii)=>{
+      rows+=`<tr>${ii===0?`<td class="cat-td" rowspan="${cat.rows.length}">${cat.name}</td>`:''}
+        <td class="ind-td">${row.ind}</td>
+        ${[6,5,4,3,2,1].map(v=>`<td class="sp-td"><span class="sbtn${locked?' locked':''}" data-nm="${pfx}${ri}" data-pi="${personIdx}" data-v="${v}">${v}</span></td>`).join('')}
+        <td class="sum-td ro-td"><span class="rsum" data-ri="${pfx}${ri}"></span></td></tr>`;ri++;
+    });
+  });
+  return `<div class="epaper">
+    <div class="eptitle">■ ${fd.title||'다면평가표 (상사평가용)'}<span class="sub">평가 대상년도 ${yr}년 | 합계÷${fd.div||13}</span></div>
+    <table class="itbl"><tr>
+      <td class="lb">피평가자</td><td><strong style="font-size:16px">${evName}</strong></td>
+      <td class="lb">소속</td><td>${dept}</td>
+      <td class="lb">직책</td><td>${role}</td>
+      <td class="lb">평가년도</td><td>${yr}년</td>
+    </tr></table>
+    ${scaleHTML(false)}${reqNote()}
+    <table class="etbl">
+      <thead><tr><th style="width:90px">평가항목</th><th style="min-width:290px">평가지표</th>
+        <th style="width:46px">6</th><th style="width:46px">5</th><th style="width:46px">4</th><th style="width:46px">3</th><th style="width:46px">2</th><th style="width:46px">1</th>
+        <th style="width:60px">계</th></tr></thead>
+      <tbody>${rows}
+        <tr class="sum-row"><td colspan="2">총계 (합계÷${fd.div||13})</td><td colspan="5"></td><td><span id="sp-tot-${personIdx}"></span></td></tr>
+        <tr class="sum-row"><td colspan="2">평균 (계÷${fd.div||13}) × 소수점 첫째자리</td><td colspan="5"></td><td><span id="sp-avg-${personIdx}" data-div="${fd.div||13}"></span></td></tr>
+      </tbody>
+    </table>
+    <table class="etbl" style="border-top:0"><tr>
+      <td style="width:50%;padding:11px 14px;vertical-align:top"><strong style="font-size:15px">• 리더로서의 장점:</strong>
+        <div class="ta-wrap" style="margin-top:8px">
+          ① <textarea rows="2" placeholder="장점 1" style="margin-bottom:5px" ${locked?'disabled':''}></textarea>
+          ② <textarea rows="2" placeholder="장점 2" style="margin-bottom:5px" ${locked?'disabled':''}></textarea>
+          ③ <textarea rows="2" placeholder="장점 3" ${locked?'disabled':''}></textarea>
+        </div>
+      </td>
+      <td style="width:50%;padding:11px 14px;vertical-align:top"><strong style="font-size:15px">• 리더로서의 보완점:</strong>
+        <div class="ta-wrap" style="margin-top:8px">
+          ① <textarea rows="2" placeholder="보완점 1" style="margin-bottom:5px" ${locked?'disabled':''}></textarea>
+          ② <textarea rows="2" placeholder="보완점 2" style="margin-bottom:5px" ${locked?'disabled':''}></textarea>
+          ③ <textarea rows="2" placeholder="보완점 3" ${locked?'disabled':''}></textarea>
+        </div>
+      </td>
+    </tr></table>
+  </div>`;
+}
+
+function buildSuper(type,locked){
+  const fd=getFD(type);const yr=getYear();
+  if(type==='super_mgr'){
+    const evNames=fd.evNames||[];
+    if(evNames.length===0)
+      return `${locked?doneBanner():''}<div class="notice ny">⚠️ 피평가자(상사)가 등록되지 않았습니다. 관리자에게 문의해 주세요.</div>
+        ${!locked?`<div class="sub-wrap"><button class="btn-sub" onclick="submitEval('${type}')">📨 평가 제출하기</button></div>`:''}`;
+    const papers=evNames.map((name,idx)=>buildSuperPaper(fd,name,idx,locked));
+    const joined=papers.map((p,i)=>
+      i===0?p:`<div class="person-divider">▼ 다음 상사 평가 (${evNames[i]}) ▼</div>${p}`
+    ).join('');
+    return `${locked?doneBanner():''}${joined}
+      ${!locked?`<div class="sub-wrap"><button class="btn-sub" onclick="submitEval('${type}')">📨 전체 평가 제출하기</button></div>`:''}`;
+  } else {
+    const paper=buildSuperPaper(fd,fd.evName||'',0,locked);
+    return `${locked?doneBanner():''}${paper}
+      ${!locked?`<div class="sub-wrap"><button class="btn-sub" onclick="submitEval('${type}')">📨 평가 제출하기</button></div>`:''}`;
+  }
+}
+
+// ── SCORE HANDLERS ──
+function attachBtns(){
+  document.querySelectorAll('.sbtn:not(.locked)').forEach(b=>{
+    b.addEventListener('click',function(){
+      const nm=this.dataset.nm;
+      document.querySelectorAll(`.sbtn[data-nm="${nm}"]`).forEach(x=>x.className=x.className.replace(/\bs\d\b/,'').replace('missing','').trim());
+      this.classList.add('s'+this.dataset.v);
+      calcSums();
+    });
+  });
+}
+function gv(b){const m=b.className.match(/\bs(\d)\b/);return m?+m[1]:0}
+function calcSums(){
+  const piMap={};
+  document.querySelectorAll('.sbtn:not([data-nm^="s"][data-nm*="_"])').forEach(b=>{
+    if(!b.dataset.nm.match(/^r\d+_p\d+$/))return;
+    const v=gv(b);if(!v)return;
+    const pi=b.dataset.pi;piMap[pi]=(piMap[pi]||0)+v;
+  });
+  document.querySelectorAll('.csum').forEach(el=>{
+    const pi=el.dataset.pi,t=piMap[pi]||0;el.textContent=t||'';
+    const av=document.querySelector(`.cavg[data-pi="${pi}"]`);
+    if(av){const d=+av.dataset.div||1;av.textContent=t?(t/d).toFixed(1):'';}
+  });
+  document.querySelectorAll('.rsum[data-ri]').forEach(el=>{
+    const ri=el.dataset.ri;let t=0;
+    if(ri.match(/^[rs]\d+_\d+$/)){const b=document.querySelector(`.sbtn[data-nm="${ri}"]`);if(b)t=gv(b);}
+    else document.querySelectorAll(`.sbtn[data-nm^="r${ri}_p"]`).forEach(b=>t+=gv(b));
+    el.textContent=t||'';
+  });
+  document.querySelectorAll('[id^="sp-tot-"]').forEach(el=>{
+    const idx=el.id.replace('sp-tot-','');let t=0;
+    document.querySelectorAll(`.sbtn[data-nm^="s${idx}_"]`).forEach(b=>t+=gv(b));
+    el.textContent=t||'';
+    const sa=document.getElementById('sp-avg-'+idx);
+    if(sa){const d=+sa.dataset.div||13;sa.textContent=t?(t/d).toFixed(1):'';}
+  });
+}
+
+// ── VALIDATION ──
+function validateScores(type){
+  const fd=getFD(type);const missing=[];
+  const chk=(nm,label)=>{
+    const sel=document.querySelector([1,2,3,4,5,6].map(v=>`.sbtn[data-nm="${nm}"].s${v}`).join(','));
+    if(!sel){missing.push({nm,label});return false;}return true;
+  };
+  if(type==='peer'){
+    const evs=fd.evs||[];let ri=0;
+    (fd.cats||[]).forEach(cat=>{
+      (cat.rows||[]).forEach(row=>{
+        evs.forEach((ev,pi)=>chk(`r${ri}_p${pi}`,`${ev} / ${cat.name} / ${row.sub||row.ind.slice(0,12)}`));ri++;
+      });
+    });
+  } else if(type==='collab'){
+    const evs=fd.evs||[];
+    (fd.cats||[]).forEach((cat,ri)=>{
+      evs.forEach((ev,pi)=>chk(`r${ri}_p${pi}`,`${ev} / ${cat.name}`));
+    });
+  } else if(type==='super_mgr'){
+    (fd.evNames||[]).forEach((name,pi)=>{
+      let ri=0;(fd.cats||[]).forEach(cat=>{(cat.rows||[]).forEach(row=>{chk(`s${pi}_${ri}`,`[${name}] ${cat.name}`);ri++;});});
+    });
+  } else {
+    let ri=0;(fd.cats||[]).forEach(cat=>{(cat.rows||[]).forEach(row=>{chk(`s0_${ri}`,`${cat.name}`);ri++;});});
+  }
+  missing.forEach(({nm})=>{
+    const first=document.querySelector(`.sbtn[data-nm="${nm}"]`);
+    if(first){const cell=first.closest('.sv-td,.sp-td');if(cell)cell.querySelectorAll('.sbtn').forEach(b=>b.classList.add('missing'));}
+  });
+  return missing;
+}
+
+// ── SUBMIT ──
+async function submitEval(type){
+  const missing=validateScores(type);
+  if(missing.length>0){
+    let banner=document.getElementById('miss-banner');
+    if(banner)banner.remove();
+    banner=document.createElement('div');
+    banner.id='miss-banner';banner.className='missing-banner';
+    banner.innerHTML=`<strong>⚠️ 미입력 항목이 있습니다 (${missing.length}개)</strong>
+      6점 척도 항목은 필수 항목입니다. 빨간색으로 표시된 항목을 모두 체크해 주세요.<br>
+      <span style="font-size:14px;opacity:.8">(주관식 서술 항목은 선택사항입니다)</span>`;
+    document.getElementById('ef-body').prepend(banner);
+    banner.scrollIntoView({behavior:'smooth',block:'start'});return;
+  }
+  if(!confirm('평가를 제출하겠습니까?\n\n제출 후에는 수정이 불가합니다.'))return;
+  const fd=getFD(type);const scores={};
+  if(type==='peer'){
+    const evs=fd.evs||[];evs.forEach((ev,pi)=>{scores[ev]={};let ri=0;
+      (fd.cats||[]).forEach(cat=>{(cat.rows||[]).forEach(row=>{
+        const b=document.querySelector([1,2,3,4,5,6].map(v=>`.sbtn[data-nm="r${ri}_p${pi}"].s${v}`).join(','));
+        scores[ev][`${cat.name}/${row.sub||row.ind.slice(0,12)}`]=b?gv(b):null;ri++;
+      });});
+    });
+  } else if(type==='collab'){
+    const evs=fd.evs||[];evs.forEach((ev,pi)=>{scores[ev]={};
+      (fd.cats||[]).forEach((cat,ri)=>{
+        const b=document.querySelector([1,2,3,4,5,6].map(v=>`.sbtn[data-nm="r${ri}_p${pi}"].s${v}`).join(','));
+        scores[ev][cat.name]=b?gv(b):null;
+      });
+    });
+  } else if(type==='super_mgr'){
+    (fd.evNames||[]).forEach((name,pi)=>{scores[name]={};let ri=0;
+      (fd.cats||[]).forEach(cat=>{(cat.rows||[]).forEach(row=>{
+        const b=document.querySelector([1,2,3,4,5,6].map(v=>`.sbtn[data-nm="s${pi}_${ri}"].s${v}`).join(','));
+        scores[name][`${cat.name}/${row.ind.replace(/<[^>]*>/g,'').slice(0,15)}`]=b?gv(b):null;ri++;
+      });});
+    });
+  } else {
+    const evName=fd.evName||'피평가자';scores[evName]={};let ri=0;
+    (fd.cats||[]).forEach(cat=>{(cat.rows||[]).forEach(row=>{
+      const b=document.querySelector([1,2,3,4,5,6].map(v=>`.sbtn[data-nm="s0_${ri}"].s${v}`).join(','));
+      scores[evName][`${cat.name}/${row.ind.replace(/<[^>]*>/g,'').slice(0,15)}`]=b?gv(b):null;ri++;
+    });});
+  }
+  const sub = {id:Date.now().toString(),uid:CU.id,name:CU.name,team:CU.team||'',type,time:new Date().toISOString(),scores,div:fd.div||1};
+  await gasSaveSubmission(sub);
+  DB.del('draft_'+CU.id+'_'+type);
+  stopAutoSave();
+  alert('평가가 성공적으로 제출되었습니다.');
+  goBack();
+}
+
+// ════ 뒤로가기 ════
+function goBack(){
+  stopAutoSave();
+  if(CU&&CU.isAdmin) showAdmin();
+  else showMain();
+}
+function returnToMain(){
+  stopAutoSave();
+  showMain();
+}
+
+// ════ ADMIN ════
+function showAdmin(){
+  document.getElementById('au-nm').textContent=CU.name;
+  showPg('pg-admin');fillSelects();nav('users');
+}
+const NI={users:0,single:1,bulk:2,teams:3,forms:4,pforms:5,results:6,indiv:7};
+function nav(sec){
+  document.querySelectorAll('.ni').forEach(el=>el.classList.remove('on'));
+  const items=document.querySelectorAll('.ni');
+  if(NI[sec]!==undefined)items[NI[sec]].classList.add('on');
+  document.querySelectorAll('.asec').forEach(el=>el.classList.remove('on'));
+  const el=document.getElementById('as-'+sec);if(el)el.classList.add('on');
+  if(sec==='users'){fillSelects();renderUsers()}
+  if(sec==='single')fillSingleSel();
+  if(sec==='teams')renderTeams();
+  if(sec==='forms'){fillSelects();renderFE();}
+  if(sec==='pforms'){fillSelects();pfeOnTeamChange();}
+  if(sec==='results'){fillSelects();renderRStats();renderResults();const sy=document.getElementById('sys-year');if(sy)sy.value=getYear();}
+  if(sec==='indiv'){fillIndivSelects();renderIndivList();}
+}
+function fillSelects(){
+  const teams=DB.g('teams',[]);
+  ['usrtf','rf-team','fe-team','pfe-team'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    const cur=el.value;while(el.options.length>1)el.remove(1);
+    teams.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;el.appendChild(o)});
+    if(cur)el.value=cur;
+  });
+}
+
+// ── 사용자 ──
+function renderUsers(){
+  const users=DB.g('users',[]);
+  const q=(document.getElementById('usrq')||{value:''}).value.toLowerCase();
+  const tf=(document.getElementById('usrtf')||{value:''}).value;
+  const list=users.filter(u=>{
+    if(q&&!u.name.toLowerCase().includes(q)&&!(u.team||'').includes(q))return false;
+    if(tf&&u.team!==tf)return false;return true;
+  });
+  let h=`<div style="font-size:15px;color:var(--tx2);margin-bottom:8px">총 ${list.length}명</div>
+  <table class="dtbl"><thead><tr><th>이름</th><th>사번</th><th>팀</th><th>직책</th><th>권한</th><th>배정 양식</th><th>관리</th></tr></thead><tbody>`;
+  list.forEach(u=>{
+    const tags=(u.forms||[]).map(f=>`<span class="tag ${TAG_CLS[f]||'tn'}">${FORM_LABEL[f]||f}</span>`).join('');
+    h+=`<tr><td><strong>${u.name}</strong></td><td>${u.empNo||'-'}</td><td>${u.team||'-'}</td><td>${u.role||'-'}</td>
+      <td>${u.isAdmin?'<span class="tag ta">관리자</span>':'<span class="tag tn">일반</span>'}</td>
+      <td>${tags||'<span class="tag tn">미배정</span>'}</td>
+      <td><button class="btn" onclick="editUser('${u.id}')">✏ 편집</button><button class="btn del" onclick="delUser('${u.id}')">삭제</button></td></tr>`;
+  });
+  document.getElementById('users-wrap').innerHTML=h+'</tbody></table>';
+}
+function editUser(uid){
+  const users=DB.g('users',[]);const u=users.find(x=>x.id===uid);if(!u)return;
+  const teams=DB.g('teams',[]);
+  const ROLES=DB.g('roles',['대표이사','본부장','실장','팀장','팀원']);
+  document.getElementById('m-title').textContent=`사용자 편집: ${u.name}`;
+  document.getElementById('m-body').innerHTML=`
+    <div class="fr"><div class="fld"><label>이름</label><input id="eu-n" value="${u.name}"></div>
+      <div class="fld"><label>직책</label><select id="eu-r">
+        <option value="">직책 선택</option>
+        ${ROLES.map(r=>`<option value="${r}"${u.role===r?' selected':''}>${r}</option>`).join('')}
+        ${u.role&&!ROLES.includes(u.role)?`<option value="${u.role}" selected>${u.role}</option>`:''}
+      </select></div>
+    </div>
+    <div class="fr">
+      <div class="fld"><label>팀</label><select id="eu-t">${teams.map(t=>`<option value="${t}"${u.team===t?' selected':''}>${t}</option>`).join('')}</select></div>
+      <div class="fld"><label>권한</label><select id="eu-a"><option value="false"${!u.isAdmin?' selected':''}>일반</option><option value="true"${u.isAdmin?' selected':''}>관리자</option></select></div>
+    </div>
+    <div class="fr">
+      <div class="fld"><label>사번 <span style="font-size:13px;color:var(--tx3);font-weight:400">(숫자 6자리)</span></label>
+        <input id="eu-emp" inputmode="numeric" value="${u.empNo||''}" placeholder="6자리" maxlength="6" style="font-family:monospace;letter-spacing:1px"></div>
+      <div class="fld"><label>휴대폰 뒷자리 변경 <span style="font-size:13px;color:var(--tx3);font-weight:400">(변경 시만 입력)</span></label>
+        <input type="password" id="eu-phone4" inputmode="numeric" placeholder="4자리" maxlength="4" style="font-family:monospace;letter-spacing:1px"></div>
+    </div>
+    <div style="margin-bottom:10px"><label style="font-size:14px;font-weight:600;color:var(--tx2);display:block;margin-bottom:8px">배정 양식</label>
+      ${FORM_KEYS.map(f=>`<label style="margin-right:14px;font-size:15px"><input type="checkbox" id="eu-f-${f}" ${(u.forms||[]).includes(f)?'checked':''}> ${FORM_LABEL[f]}</label>`).join('')}
+    </div>`;
+  document.getElementById('m-ok').onclick=()=>{
+    u.name=document.getElementById('eu-n').value.trim()||u.name;
+    u.role=document.getElementById('eu-r').value;
+    u.team=document.getElementById('eu-t').value;
+    u.isAdmin=document.getElementById('eu-a').value==='true';
+    u.forms=FORM_KEYS.filter(f=>document.getElementById('eu-f-'+f).checked);
+    const emp=digits(document.getElementById('eu-emp').value);
+    const ph=digits(document.getElementById('eu-phone4').value);
+    if(emp.length!==6){alert('사번은 6자리 숫자여야 합니다.');return}
+    u.empNo=emp;
+    if(ph.length===4)u.auth=authKey(emp,ph);
+    else if(ph.length>0){alert('휴대폰 뒷자리는 4자리 숫자여야 합니다.');return}
+    else if(!u.auth){alert('휴대폰 뒷자리를 입력해 로그인 정보를 설정하세요.');return}
+    DB.s('users',users);closeModal();renderUsers();
+  };openModal();
+}
+function delUser(uid){if(!confirm('삭제하시겠습니까?'))return;DB.s('users',DB.g('users',[]).filter(u=>u.id!==uid));renderUsers();}
+
+// ── 개인 등록 ──
+function fillSingleSel(){
+  const teams=DB.g('teams',[]);
+  const tSel=document.getElementById('si-team');if(!tSel)return;
+  const curT=tSel.value;while(tSel.options.length>1)tSel.remove(1);
+  teams.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;tSel.appendChild(o)});
+  if(curT)tSel.value=curT;
+  const roles=DB.g('roles',['대표이사','본부장','실장','팀장','팀원']);
+  const rSel=document.getElementById('si-role');if(!rSel)return;
+  const curR=rSel.value;while(rSel.options.length>1)rSel.remove(1);
+  roles.forEach(r=>{const o=document.createElement('option');o.value=r;o.textContent=r;rSel.appendChild(o)});
+  if(curR)rSel.value=curR;
+}
+function addRoleOption(){
+  const name=prompt('추가할 직책명을 입력하세요:','');
+  if(!name||!name.trim())return;
+  const roles=DB.g('roles',[]);
+  if(roles.includes(name.trim())){alert('이미 존재하는 직책입니다.');return}
+  roles.push(name.trim());DB.s('roles',roles);fillSingleSel();
+  document.getElementById('si-role').value=name.trim();
+}
+function delRoleOption(){
+  const sel=document.getElementById('si-role');
+  const val=sel.value;
+  if(!val){alert('삭제할 직책을 먼저 선택하세요.');return}
+  const cnt=DB.g('users',[]).filter(u=>u.role===val).length;
+  const msg=cnt>0?`"${val}" 직책을 삭제하시겠습니까?\n(현재 이 직책을 가진 사용자 ${cnt}명 — 사용자 정보는 유지됩니다)`:
+    `"${val}" 직책을 삭제하시겠습니까?`;
+  if(!confirm(msg))return;
+  const roles=DB.g('roles',[]).filter(r=>r!==val);
+  DB.s('roles',roles);fillSingleSel();
+}
+function addTeamFromSingle(){
+  const name=prompt('추가할 팀명을 입력하세요:','');
+  if(!name||!name.trim())return;
+  const teams=DB.g('teams',[]);
+  if(teams.includes(name.trim())){alert('이미 존재하는 팀입니다.');return}
+  teams.push(name.trim());DB.s('teams',teams);
+  const tf=DB.g('team_forms',{});ensureTF(tf,name.trim());DB.s('team_forms',tf);
+  fillSingleSel();fillSelects();
+  document.getElementById('si-team').value=name.trim();
+}
+function delTeamFromSingle(){
+  const sel=document.getElementById('si-team');
+  const val=sel.value;
+  if(!val){alert('삭제할 팀을 먼저 선택하세요.');return}
+  const cnt=DB.g('users',[]).filter(u=>u.team===val).length;
+  if(!confirm(`"${val}" 팀을 삭제하시겠습니까?\n(소속 인원: ${cnt}명 — 사용자 정보는 유지됩니다)`))return;
+  DB.s('teams',DB.g('teams',[]).filter(t=>t!==val));
+  fillSingleSel();fillSelects();renderTeams&&renderTeams();
+}
+function registerSingle(){
+  const name=document.getElementById('si-name').value.trim();
+  const role=document.getElementById('si-role').value;
+  const team=document.getElementById('si-team').value;
+  const isAdmin=document.getElementById('si-admin').value==='true';
+  const empNo=digits(document.getElementById('si-emp').value);
+  const phone4=digits(document.getElementById('si-phone4').value);
+  const msg=document.getElementById('si-msg');
+  const err=m=>{msg.innerHTML=`<div class="notice nr">${m}</div>`};
+  if(!name)return err('이름을 입력해주세요.');
+  if(!team)return err('팀을 선택해주세요.');
+  if(empNo.length!==6)return err('사번은 6자리 숫자여야 합니다.');
+  if(phone4.length!==4)return err('휴대폰 뒷자리는 4자리 숫자여야 합니다.');
+  const users=DB.g('users',[]);
+  if(users.find(u=>u.name===name&&u.team===team))return err('동일한 이름·팀의 사용자가 이미 존재합니다.');
+  if(users.find(u=>u.empNo===empNo))return err('동일한 사번의 사용자가 이미 존재합니다.');
+  const forms=FORM_KEYS.filter(f=>document.getElementById('si-'+f)?.checked);
+  users.push({id:Date.now().toString()+Math.random().toString(36).slice(2),name,empNo,auth:authKey(empNo,phone4),team,role,isAdmin,forms});
+  DB.s('users',users);
+  msg.innerHTML=`<div class="notice ng">✅ <strong>${name}</strong>님이 성공적으로 등록되었습니다.</div>`;clearSingle();
+}
+function clearSingle(){
+  ['si-name','si-emp','si-phone4'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});
+  FORM_KEYS.forEach(f=>{const e=document.getElementById('si-'+f);if(e)e.checked=false});
+  const t=document.getElementById('si-team');if(t)t.value='';
+  const r=document.getElementById('si-role');if(r)r.value='';
+  const a=document.getElementById('si-admin');if(a)a.value='false';
+}
+
+// ── 일괄 등록 ──
+function switchBulkTab(tab){
+  document.querySelectorAll('#as-bulk .tab').forEach(el=>el.classList.remove('on'));
+  document.querySelectorAll('#as-bulk .tabp').forEach(el=>el.classList.remove('on'));
+  const tabs={excel:0,csv:1,text:2};
+  document.querySelectorAll('#as-bulk .tab')[tabs[tab]].classList.add('on');
+  document.getElementById('btab-'+tab).classList.add('on');
+}
+function dlExcelTemplate(){
+  loadXLSX(()=>{
+    const XLSX=window.XLSX;
+    const ws=XLSX.utils.aoa_to_sheet([
+      ['이름','사번','휴대폰뒷자리','팀명','직책','관리자(0/1)','동료평가(0/1)','협업평가(0/1)','상사평가_상사용(0/1)','상사평가_법인대표용(0/1)'],
+      ['홍길동','123456','7890','해외영업팀','팀원',0,1,1,0,0],
+      ['김영희','234567','1234','마케팅팀','팀장',0,1,0,0,1],
+    ]);
+    const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'사용자등록양식');
+    XLSX.writeFile(wb,'다면평가_등록양식.xlsx');
+  });
+}
+function dlCSVTemplate(){
+  const csv='\uFEFF이름,사번,휴대폰뒷자리,팀명,직책,관리자(0/1),동료평가(0/1),협업평가(0/1),상사평가_상사용(0/1),상사평가_법인대표용(0/1)\n홍길동,123456,7890,해외영업팀,팀원,0,1,1,0,0\n';
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='다면평가_등록양식.csv';a.click();
+}
+function parsePaste(){
+  const text=document.getElementById('paste-area').value.trim();
+  if(!text){alert('붙여넣은 데이터가 없습니다.');return}
+  showBulkPreview(text.split(/\r?\n/).map(l=>l.split(/\t|,/).map(s=>s.trim())).filter(r=>r.length>=3&&r[0]),'paste-preview');
+}
+function parseTextInput(){
+  const text=document.getElementById('text-input').value.trim();
+  if(!text){alert('입력된 데이터가 없습니다.');return}
+  showBulkPreview(text.split(/\r?\n/).map(l=>l.split(/\t|,/).map(s=>s.trim())).filter(r=>r.length>=3&&r[0]),'text-preview');
+}
+function showBulkPreview(rows,targetId){
+  const el=document.getElementById(targetId);if(!el)return;
+  let h=`<div class="notice ng">총 <strong>${rows.length}명</strong> 감지됨.</div>
+  <table class="dtbl" style="margin-bottom:14px"><thead><tr>
+    <th>이름</th><th>사번</th><th>휴대폰뒷자리</th><th>팀</th><th>직책</th><th>관리자</th><th>동료</th><th>협업</th><th>상사(상사)</th><th>상사(대표)</th>
+  </tr></thead><tbody>`;
+  rows.slice(0,8).forEach(r=>{h+=`<tr>${r.slice(0,10).map((c,i)=>i===2?`<td>****</td>`:`<td>${c}</td>`).join('')}</tr>`;});
+  if(rows.length>8)h+=`<tr><td colspan="10" style="text-align:center;color:var(--tx3)">... 외 ${rows.length-8}명</td></tr>`;
+  h+=`</tbody></table><button class="btp" onclick='importRows(${JSON.stringify(JSON.stringify(rows))})'>✅ ${rows.length}명 등록</button>`;
+  el.innerHTML=h;
+}
+function onDrop(e){e.preventDefault();document.getElementById('drop-area').classList.remove('drag');const f=e.dataTransfer.files[0];if(f)onCSV(f);}
+function onCSV(file){const r=new FileReader();r.onload=e=>showBulkPreview(e.target.result.trim().split(/\r?\n/).slice(1).map(l=>l.split(',').map(s=>s.trim())),'csv-preview');r.readAsText(file,'UTF-8');}
+function importRows(rowsJSON){
+  const rows=JSON.parse(rowsJSON);const users=DB.g('users',[]);const teamSet=new Set(DB.g('teams',[]));
+  let added=0,skipped=0;
+  rows.forEach(r=>{
+    if(r.length<3)return;
+    const [name,empRaw,phoneRaw,team,role='',adm='0',peer='0',collab='0',smgr='0',sceo='0']=r;
+    const empNo=digits(empRaw),phone4=digits(phoneRaw);
+    if(!name||empNo.length!==6||phone4.length!==4){skipped++;return}
+    if(users.find(u=>u.name===name&&u.team===team)){skipped++;return}
+    if(users.find(u=>u.empNo===empNo)){skipped++;return}
+    const forms=[];if(peer==='1')forms.push('peer');if(collab==='1')forms.push('collab');if(smgr==='1')forms.push('super_mgr');if(sceo==='1')forms.push('super_ceo');
+    users.push({id:Date.now().toString()+Math.random().toString(36).slice(2),name,empNo,auth:authKey(empNo,phone4),team:team||'',role,isAdmin:adm==='1',forms});
+    if(team)teamSet.add(team);added++;
+  });
+  const allTeams=[...teamSet];DB.s('teams',allTeams);
+  const tf=DB.g('team_forms',{});allTeams.forEach(t=>ensureTF(tf,t));DB.s('team_forms',tf);DB.s('users',users);
+  fillSelects();alert(`등록 완료!\n추가: ${added}명 / 건너뜀: ${skipped}명`);
+  ['paste-preview','csv-preview','text-preview'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
+  nav('users');
+}
+
+// ── 팀 관리 ──
+function renderTeams(){
+  const teams=DB.g('teams',[]);const users=DB.g('users',[]);const subs=DB.g('submissions',[]);
+  let h=`<table class="dtbl"><thead><tr><th>팀명</th><th>인원 / 현황</th><th>관리</th></tr></thead><tbody>`;
+  teams.forEach(t=>{
+    const members=users.filter(u=>u.team===t);
+    const key='tm_'+t.replace(/[^\w가-힣]/g,'X');
+    h+=`<tr>
+      <td><strong>${t}</strong> <button class="btn" style="font-size:13px;padding:3px 9px;margin-left:6px" onclick="editTeamName('${t}')">✏ 팀명수정</button></td>
+      <td><span onclick="toggleMembers('${key}')" style="cursor:pointer;color:var(--nv);font-weight:700;text-decoration:underline;user-select:none">${members.length}명 👁</span></td>
+      <td><button class="btn del" onclick="delTeam('${t}')">삭제</button></td>
+    </tr>
+    <tr id="${key}" class="dn">
+      <td colspan="3" style="padding:12px 16px;background:#f7f9fc">
+        ${members.length===0?'<span style="font-size:15px;color:var(--tx3)">등록된 인원이 없습니다.</span>':`
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          ${members.map(m=>{
+            const mForms=m.forms||[];
+            const formTags=FORM_KEYS.filter(f=>mForms.includes(f)).map(f=>{
+              const done=subs.some(s=>s.uid===m.id&&s.type===f);
+              return `<span class="tag${done?' tag-done':' tag-pend'}" title="${done?'제출완료':'미제출'}">${FORM_LABEL[f].replace('평가','').trim()}${done?' ✓':' -'}</span>`;
+            }).join('');
+            return `<div class="member-chip">
+              <span style="font-weight:600">${m.name}</span>
+              <span style="color:var(--tx3);font-size:14px">${m.role||''}</span>
+              ${m.isAdmin?'<span class="tag ta" style="font-size:13px">관리자</span>':''}
+              <span style="margin-left:3px">${formTags}</span>
+            </div>`;
+          }).join('')}
+        </div>`}
+      </td>
+    </tr>`;
+  });
+  h+=`</tbody></table>`;
+  document.getElementById('team-wrap').innerHTML=h;
+}
+function toggleMembers(key){const row=document.getElementById(key);if(row)row.classList.toggle('dn');}
+function addTeam(){
+  const name=document.getElementById('new-team').value.trim();if(!name)return;
+  const teams=DB.g('teams',[]);if(teams.includes(name)){alert('이미 존재합니다.');return}
+  teams.push(name);DB.s('teams',teams);
+  const tf=DB.g('team_forms',{});ensureTF(tf,name);DB.s('team_forms',tf);
+  document.getElementById('new-team').value='';renderTeams();fillSelects();
+}
+function editTeamName(oldName){
+  document.getElementById('m-title').textContent='팀명 수정';
+  document.getElementById('m-body').innerHTML=`<div class="fld"><label>새 팀명</label><input id="new-tname" value="${oldName}"></div>`;
+  document.getElementById('m-ok').onclick=()=>{
+    const newName=document.getElementById('new-tname').value.trim();
+    if(!newName){alert('팀명을 입력하세요.');return}
+    if(newName===oldName){closeModal();return}
+    const teams=DB.g('teams',[]);if(teams.includes(newName)){alert('이미 존재하는 팀명입니다.');return}
+    const idx=teams.indexOf(oldName);if(idx>=0)teams[idx]=newName;DB.s('teams',teams);
+    const users=DB.g('users',[]);users.forEach(u=>{if(u.team===oldName)u.team=newName;});DB.s('users',users);
+    const tf=DB.g('team_forms',{});if(tf[oldName]){tf[newName]=tf[oldName];delete tf[oldName];}DB.s('team_forms',tf);
+    closeModal();renderTeams();fillSelects();
+  };openModal();
+}
+function delTeam(name){if(!confirm(`"${name}" 팀을 삭제하시겠습니까?`))return;DB.s('teams',DB.g('teams',[]).filter(t=>t!==name));renderTeams();fillSelects();}
+
+// ── 양식 편집 ──
+function getEF(team,type){
+  if(type==='collab')return DB.g('collab_form',collabDef());
+  const tf=DB.g('team_forms',{});ensureTF(tf,team);return tf[team][type];
+}
+let _et=null,_eteam=null;
+function renderFE(){
+  const team=(document.getElementById('fe-team')||{value:''}).value;
+  const type=(document.getElementById('fe-type')||{value:'peer'}).value;
+  const el=document.getElementById('fe-body');if(!el)return;
+  if(!team&&type!=='collab'){el.innerHTML='<p style="font-size:16px;color:var(--tx2);padding:8px 0">팀을 먼저 선택하세요.</p>';return}
+  const fd=getEF(team,type);const cats=fd.cats||[];
+  let h=`<div style="background:#f7f9fc;border:1px solid var(--bd);border-radius:8px;padding:15px;margin-bottom:16px">`;
+  h+=`<div class="fr"><div class="fld"><label>양식 제목</label><input id="fe-title" value="${fd.title||''}"></div>
+    <div class="fld" style="max-width:100px"><label>합계 나누기</label><input id="fe-div" type="number" value="${fd.div||''}"></div></div>`;
+  if(type==='peer'){
+    h+=`<div class="fr">
+      <div class="fld" style="max-width:190px"><label>조직명</label><input id="fe-org" value="${fd.orgName||team}"></div>
+      <div class="fld"><label>피평가자 목록 <span style="font-weight:400;color:var(--tx3)">(쉼표 구분)</span></label>
+        <input id="fe-evs" value="${(fd.evs||[]).join(',')}" placeholder="홍길동,김영희"></div></div>`;
+  }
+  
+  if(type==='super_mgr'){
+    h+=`<div class="notice nb" style="margin-top:6px;margin-bottom:6px">최대 5명까지 피평가자(상사)를 소속/직책과 함께 개별 지정할 수 있습니다. (이름이 없는 칸은 무시됨)</div>`;
+    for(let i=0; i<5; i++){
+      const n = fd.evNames && fd.evNames[i] ? fd.evNames[i] : '';
+      const d = fd.evDepts && fd.evDepts[i] !== undefined ? fd.evDepts[i] : (i===0? (fd.evDept||team) : '');
+      const r = fd.evRoles && fd.evRoles[i] !== undefined ? fd.evRoles[i] : (i===0? (fd.evRole||'팀장') : '');
+      h+=`<div class="fr">
+        <div class="fld"><label>${i+1}. 이름</label><input id="fe-evn-${i}" value="${n}" placeholder="이름"></div>
+        <div class="fld"><label>소속</label><input id="fe-evd-${i}" value="${d}" placeholder="소속"></div>
+        <div class="fld"><label>직책</label><input id="fe-evr-${i}" value="${r}" placeholder="직책"></div>
+      </div>`;
+    }
+  }
+  
+  if(type==='super_ceo'){
+    h+=`<div class="fr">
+      <div class="fld"><label>피평가자 이름</label><input id="fe-evn" value="${fd.evName||''}" placeholder="이름"></div>
+      <div class="fld"><label>소속</label><input id="fe-evd" value="${fd.evDept||team}"></div>
+      <div class="fld"><label>직책</label><input id="fe-evr" value="${fd.evRole||'대표'}"></div></div>`;
+  }
+  if(type==='collab'){
+    h+=`<div class="fr"><div class="fld"><label>피평가 팀장 목록 <span style="font-weight:400;color:var(--tx3)">(쉼표 구분)</span></label>
+      <input id="fe-evs" value="${(fd.evs||[]).join(',')}" placeholder="김철수,이영희"></div></div>
+    <div class="notice nb" style="margin:4px 0 0">협업평가는 전사 공통 양식입니다.</div>`;
+  }
+  h+=`</div>`;
+  h+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+    <strong style="font-size:16px;color:var(--nv)">평가항목 · 지표 편집 <span style="font-size:14px;color:var(--tx3);font-weight:400">(${cats.length}개 항목)</span></strong>
+    <button class="btn add" onclick="addCat()">+ 항목 추가</button>
+  </div>`;
+  if(type==='collab'){
+    cats.forEach((cat,ci)=>{
+      h+=`<div class="cat-box"><div class="cat-box-hd">
+        <span class="cat-num">항목 ${ci+1}</span>
+        <input id="fc-${ci}-name" value="${(cat.name||'').replace(/\n/g,' ')}" placeholder="항목명"
+          style="flex:1;padding:6px 9px;border:1.5px solid var(--bd);border-radius:5px;font-size:15px;font-weight:600;font-family:inherit;outline:none;color:var(--nv)">
+        <button class="btn del" onclick="delCat(${ci})">✕ 삭제</button>
+      </div>
+      <div class="fr" style="margin-bottom:0"><div class="fld"><label>평가 지표</label>
+        <input id="fc-${ci}-ind" value="${cat.ind||''}" placeholder="평가 지표 내용"></div></div>
+      </div>`;
+    });
+  } else {
+    cats.forEach((cat,ci)=>{
+      h+=`<div class="cat-box"><div class="cat-box-hd">
+        <span class="cat-num">항목 ${ci+1}</span>
+        <input id="fc-${ci}-name" value="${(cat.name||'').replace(/\n/g,' ')}" placeholder="항목명"
+          style="flex:1;padding:6px 9px;border:1.5px solid var(--bd);border-radius:5px;font-size:15px;font-weight:600;font-family:inherit;outline:none;color:var(--nv)">
+        <button class="btn add" onclick="addRow(${ci})">+ 지표 추가</button>
+        <button class="btn del" onclick="delCat(${ci})">✕ 항목삭제</button>
+      </div>`;
+      (cat.rows||[]).forEach((row,ri)=>{
+        const hasSub=row.sub!==undefined&&row.sub!==null;
+        h+=`<div class="ind-row">
+          <span class="ind-num">지표 ${ri+1}</span>
+          ${hasSub?`<input id="fc-${ci}-r${ri}-sub" value="${row.sub||''}" placeholder="소항목명" style="width:100px;flex-shrink:0;padding:5px 8px;border:1.5px solid var(--bd);border-radius:5px;font-size:15px;font-family:inherit;outline:none">`:''}
+          <input id="fc-${ci}-r${ri}-ind" value="${(row.ind||'').replace(/<[^>]*>/g,'')}" placeholder="지표 내용"
+            style="flex:1;padding:5px 8px;border:1.5px solid var(--bd);border-radius:5px;font-size:15px;font-family:inherit;outline:none">
+          <button class="btn del" style="flex-shrink:0;padding:4px 8px" onclick="delRow(${ci},${ri})">✕</button>
+        </div>`;
+      });
+      h+=`</div>`;
+    });
+  }
+  el.innerHTML=h;
+}
+function addCat(){saveForm(true);const team=_eteam||'',type=_et||'peer';const fd=getEF(team,type);
+  if(type==='collab')fd.cats.push({name:'새 항목',ind:''});else fd.cats.push({name:'새 항목',rows:[{ind:''}]});
+  if(type==='collab')DB.s('collab_form',fd);else{const tf=DB.g('team_forms',{});if(!tf[team])tf[team]={};tf[team][type]=fd;DB.s('team_forms',tf);}renderFE();}
+function delCat(ci){if(!confirm('이 항목을 삭제하시겠습니까?'))return;saveForm(true);const team=_eteam||'',type=_et||'peer';const fd=getEF(team,type);fd.cats.splice(ci,1);
+  if(type==='collab')DB.s('collab_form',fd);else{const tf=DB.g('team_forms',{});if(!tf[team])tf[team]={};tf[team][type]=fd;DB.s('team_forms',tf);}renderFE();}
+function addRow(ci){saveForm(true);const team=_eteam||'',type=_et||'peer';const fd=getEF(team,type);if(!fd.cats[ci].rows)fd.cats[ci].rows=[];fd.cats[ci].rows.push({ind:''});
+  const tf=DB.g('team_forms',{});if(!tf[team])tf[team]={};tf[team][type]=fd;DB.s('team_forms',tf);renderFE();}
+function delRow(ci,ri){if(!confirm('이 지표를 삭제하시겠습니까?'))return;saveForm(true);const team=_eteam||'',type=_et||'peer';const fd=getEF(team,type);fd.cats[ci].rows.splice(ri,1);
+  const tf=DB.g('team_forms',{});if(!tf[team])tf[team]={};tf[team][type]=fd;DB.s('team_forms',tf);renderFE();}
+
+function saveForm(silent){
+  const team=(document.getElementById('fe-team')||{value:''}).value;
+  const type=(document.getElementById('fe-type')||{value:'peer'}).value;
+  _eteam=team;_et=type;
+  if(!team&&type!=='collab'){if(!silent)alert('팀을 선택하세요.');return}
+  const fd=getEF(team,type);const tf=DB.g('team_forms',{});
+  const t=document.getElementById('fe-title');if(t)fd.title=t.value;
+  const d=document.getElementById('fe-div');if(d)fd.div=+d.value||fd.div;
+  if(type==='peer'){const o=document.getElementById('fe-org');if(o)fd.orgName=o.value;const ev=document.getElementById('fe-evs');if(ev)fd.evs=ev.value.split(',').map(s=>s.trim()).filter(Boolean);}
+  if(type==='super_mgr'){
+    fd.evNames=[]; fd.evDepts=[]; fd.evRoles=[];
+    for(let i=0; i<5; i++){
+      const n=document.getElementById(`fe-evn-${i}`);
+      const d=document.getElementById(`fe-evd-${i}`);
+      const r=document.getElementById(`fe-evr-${i}`);
+      if(n && n.value.trim()){
+        fd.evNames.push(n.value.trim());
+        fd.evDepts.push(d ? d.value.trim() : '');
+        fd.evRoles.push(r ? r.value.trim() : '');
+      }
+    }
+  }
+  if(type==='super_ceo'){const en=document.getElementById('fe-evn');if(en)fd.evName=en.value;const ed=document.getElementById('fe-evd');if(ed)fd.evDept=ed.value;const er=document.getElementById('fe-evr');if(er)fd.evRole=er.value;}
+  if(type==='collab'){const ev=document.getElementById('fe-evs');if(ev)fd.evs=ev.value.split(',').map(s=>s.trim()).filter(Boolean);}
+  if(type==='collab'){
+    (fd.cats||[]).forEach((cat,ci)=>{const n=document.getElementById(`fc-${ci}-name`);if(n)cat.name=n.value;const i=document.getElementById(`fc-${ci}-ind`);if(i)cat.ind=i.value;});
+    DB.s('collab_form',fd);
+  } else {
+    (fd.cats||[]).forEach((cat,ci)=>{
+      const n=document.getElementById(`fc-${ci}-name`);if(n)cat.name=n.value;
+      (cat.rows||[]).forEach((row,ri)=>{
+        const s=document.getElementById(`fc-${ci}-r${ri}-sub`);if(s)row.sub=s.value;
+        const i=document.getElementById(`fc-${ci}-r${ri}-ind`);if(i)row.ind=i.value.trim();
+      });
+    });
+    if(!tf[team])tf[team]={};tf[team][type]=fd;DB.s('team_forms',tf);
+  }
+  if(!silent)alert('저장되었습니다.');
+}
+
+// ── 개인별 양식 편집 ──
+function getPFE_uid(){return (document.getElementById('pfe-user')||{value:''}).value;}
+function getPFE_type(){return (document.getElementById('pfe-type')||{value:'peer'}).value;}
+
+function pfeOnTeamChange(){
+  const team=(document.getElementById('pfe-team')||{value:''}).value;
+  const sel=document.getElementById('pfe-user');if(!sel)return;
+  const cur=sel.value;while(sel.options.length>1)sel.remove(1);
+  if(team){
+    const users=DB.g('users',[]).filter(u=>u.team===team&&!u.isAdmin);
+    users.forEach(u=>{
+      const o=document.createElement('option');o.value=u.id;o.textContent=u.name+' ('+u.role+')';sel.appendChild(o);
+    });
+    if(cur)sel.value=cur;
+  }
+  renderPFE();
+}
+
+function getUserFormData(uid, type){
+  const uf=DB.g('user_forms',{});
+  if(uf[uid]&&uf[uid][type])return JSON.parse(JSON.stringify(uf[uid][type]));
+  const users=DB.g('users',[]);const u=users.find(x=>x.id===uid);
+  if(!u)return null;
+  const team=u.team||'';
+  if(type==='collab')return JSON.parse(JSON.stringify(DB.g('collab_form',collabDef())));
+  const tf=DB.g('team_forms',{});ensureTF(tf,team);
+  return JSON.parse(JSON.stringify(tf[team][type]));
+}
+function hasUserForm(uid,type){const uf=DB.g('user_forms',{});return !!(uf[uid]&&uf[uid][type]);}
+
+function renderPFE(){
+  const uid=getPFE_uid();
+  const type=getPFE_type();
+  const el=document.getElementById('pfe-body');
+  const actions=document.getElementById('pfe-actions');
+  if(!el)return;
+  if(!uid){el.innerHTML='<p style="font-size:16px;color:var(--tx2);padding:8px 0">개인을 선택하세요.</p>';if(actions)actions.classList.add('dn');return;}
+
+  const users=DB.g('users',[]);const u=users.find(x=>x.id===uid);if(!u)return;
+  const team=u.team||'';
+  const hasCustom=hasUserForm(uid,type);
+  const fd=getUserFormData(uid,type)||{cats:[],div:1};
+  const cats=fd.cats||[];
+
+  let h=``;
+  if(hasCustom){
+    h+=`<div class="notice ng" style="margin-bottom:12px">✅ <strong>${u.name}</strong>님은 개인 맞춤 양식이 적용되어 있습니다.</div>`;
+  } else {
+    h+=`<div class="notice ny" style="margin-bottom:12px">ℹ️ <strong>${u.name}</strong>님은 현재 <strong>팀(${team}) 양식</strong>을 사용합니다. 아래에서 수정 후 저장하면 개인 양식이 생성됩니다.</div>`;
+  }
+
+  h+=`<div style="background:#f7f9fc;border:1px solid var(--bd);border-radius:8px;padding:15px;margin-bottom:16px">`;
+  h+=`<div class="fr"><div class="fld"><label>양식 제목</label><input id="pfe-title" value="${fd.title||''}"></div>
+    <div class="fld" style="max-width:100px"><label>합계 나누기</label><input id="pfe-div" type="number" value="${fd.div||''}"></div></div>`;
+
+  if(type==='peer'){
+    h+=`<div class="fr">
+      <div class="fld" style="max-width:190px"><label>조직명</label><input id="pfe-org" value="${fd.orgName||team}"></div>
+      <div class="fld"><label>피평가자 목록 <span style="font-weight:400;color:var(--tx3)">(쉼표 구분)</span></label>
+        <input id="pfe-evs" value="${(fd.evs||[]).join(',')}" placeholder="홍길동,김영희"></div></div>`;
+  }
+  
+  if(type==='super_mgr'){
+    h+=`<div class="notice nb" style="margin-top:6px;margin-bottom:6px">최대 5명까지 피평가자(상사)를 소속/직책과 함께 개별 지정할 수 있습니다. (이름이 없는 칸은 무시됨)</div>`;
+    for(let i=0; i<5; i++){
+      const n = fd.evNames && fd.evNames[i] ? fd.evNames[i] : '';
+      const d = fd.evDepts && fd.evDepts[i] !== undefined ? fd.evDepts[i] : (i===0? (fd.evDept||team) : '');
+      const r = fd.evRoles && fd.evRoles[i] !== undefined ? fd.evRoles[i] : (i===0? (fd.evRole||'팀장') : '');
+      h+=`<div class="fr">
+        <div class="fld"><label>${i+1}. 이름</label><input id="pfe-evn-${i}" value="${n}" placeholder="이름"></div>
+        <div class="fld"><label>소속</label><input id="pfe-evd-${i}" value="${d}" placeholder="소속"></div>
+        <div class="fld"><label>직책</label><input id="pfe-evr-${i}" value="${r}" placeholder="직책"></div>
+      </div>`;
+    }
+  }
+  
+  if(type==='super_ceo'){
+    h+=`<div class="fr">
+      <div class="fld"><label>피평가자 이름</label><input id="pfe-evn" value="${fd.evName||''}" placeholder="이름"></div>
+      <div class="fld"><label>소속</label><input id="pfe-evd" value="${fd.evDept||team}"></div>
+      <div class="fld"><label>직책</label><input id="pfe-evr" value="${fd.evRole||'대표'}"></div></div>`;
+  }
+  if(type==='collab'){
+    h+=`<div class="fr"><div class="fld"><label>피평가 팀장 목록 <span style="font-weight:400;color:var(--tx3)">(쉼표 구분)</span></label>
+      <input id="pfe-evs" value="${(fd.evs||[]).join(',')}" placeholder="김철수,이영희"></div></div>`;
+  }
+  h+=`</div>`;
+
+  h+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+    <strong style="font-size:16px;color:var(--nv)">평가항목 · 지표 편집 <span style="font-size:14px;color:var(--tx3);font-weight:400">(${cats.length}개 항목)</span></strong>
+    <button class="btn add" onclick="pfeAddCat()">+ 항목 추가</button>
+  </div>`;
+
+  if(type==='collab'){
+    cats.forEach((cat,ci)=>{
+      h+=`<div class="cat-box"><div class="cat-box-hd">
+        <span class="cat-num">항목 ${ci+1}</span>
+        <input id="pfc-${ci}-name" value="${(cat.name||'').replace(/\n/g,' ')}" placeholder="항목명"
+          style="flex:1;padding:6px 9px;border:1.5px solid var(--bd);border-radius:5px;font-size:15px;font-weight:600;font-family:inherit;outline:none;color:var(--nv)">
+        <button class="btn del" onclick="pfeDelCat(${ci})">✕ 삭제</button>
+      </div>
+      <div class="fr" style="margin-bottom:0"><div class="fld"><label>평가 지표</label>
+        <input id="pfc-${ci}-ind" value="${cat.ind||''}" placeholder="평가 지표 내용"></div></div>
+      </div>`;
+    });
+  } else {
+    cats.forEach((cat,ci)=>{
+      h+=`<div class="cat-box"><div class="cat-box-hd">
+        <span class="cat-num">항목 ${ci+1}</span>
+        <input id="pfc-${ci}-name" value="${(cat.name||'').replace(/\n/g,' ')}" placeholder="항목명"
+          style="flex:1;padding:6px 9px;border:1.5px solid var(--bd);border-radius:5px;font-size:15px;font-weight:600;font-family:inherit;outline:none;color:var(--nv)">
+        <button class="btn add" onclick="pfeAddRow(${ci})">+ 지표 추가</button>
+        <button class="btn del" onclick="pfeDelCat(${ci})">✕ 항목삭제</button>
+      </div>`;
+      (cat.rows||[]).forEach((row,ri)=>{
+        const hasSub=row.sub!==undefined&&row.sub!==null;
+        h+=`<div class="ind-row">
+          <span class="ind-num">지표 ${ri+1}</span>
+          ${hasSub?`<input id="pfc-${ci}-r${ri}-sub" value="${row.sub||''}" placeholder="소항목명" style="width:100px;flex-shrink:0;padding:5px 8px;border:1.5px solid var(--bd);border-radius:5px;font-size:15px;font-family:inherit;outline:none">`:''}
+          <input id="pfc-${ci}-r${ri}-ind" value="${(row.ind||'').replace(/<[^>]*>/g,'')}" placeholder="지표 내용"
+            style="flex:1;padding:5px 8px;border:1.5px solid var(--bd);border-radius:5px;font-size:15px;font-family:inherit;outline:none">
+          <button class="btn del" style="flex-shrink:0;padding:4px 8px" onclick="pfeDelRow(${ci},${ri})">✕</button>
+        </div>`;
+      });
+      h+=`</div>`;
+    });
+  }
+  el.innerHTML=h;
+  if(actions)actions.classList.remove('dn');
+}
+
+async function _pfeSaveCurrent(silent){
+  const uid=getPFE_uid();const type=getPFE_type();
+  if(!uid)return;
+  const users=DB.g('users',[]);const u=users.find(x=>x.id===uid);if(!u)return;
+  const team=u.team||'';
+  const fd=getUserFormData(uid,type)||{cats:[],div:1};
+  const t=document.getElementById('pfe-title');if(t)fd.title=t.value;
+  const d=document.getElementById('pfe-div');if(d)fd.div=+d.value||fd.div;
+  if(type==='peer'){const o=document.getElementById('pfe-org');if(o)fd.orgName=o.value;const ev=document.getElementById('pfe-evs');if(ev)fd.evs=ev.value.split(',').map(s=>s.trim()).filter(Boolean);}
+  
+  if(type==='super_mgr'){
+    fd.evNames=[]; fd.evDepts=[]; fd.evRoles=[];
+    for(let i=0; i<5; i++){
+      const n=document.getElementById(`pfe-evn-${i}`);
+      const d=document.getElementById(`pfe-evd-${i}`);
+      const r=document.getElementById(`pfe-evr-${i}`);
+      if(n && n.value.trim()){
+        fd.evNames.push(n.value.trim());
+        fd.evDepts.push(d ? d.value.trim() : '');
+        fd.evRoles.push(r ? r.value.trim() : '');
+      }
+    }
+  }
+  
+  if(type==='super_ceo'){const en=document.getElementById('pfe-evn');if(en)fd.evName=en.value;const ed=document.getElementById('pfe-evd');if(ed)fd.evDept=ed.value;const er=document.getElementById('pfe-evr');if(er)fd.evRole=er.value;}
+  if(type==='collab'){const ev=document.getElementById('pfe-evs');if(ev)fd.evs=ev.value.split(',').map(s=>s.trim()).filter(Boolean);}
+  if(type==='collab'){
+    (fd.cats||[]).forEach((cat,ci)=>{const n=document.getElementById(`pfc-${ci}-name`);if(n)cat.name=n.value;const i=document.getElementById(`pfc-${ci}-ind`);if(i)cat.ind=i.value;});
+  } else {
+    (fd.cats||[]).forEach((cat,ci)=>{
+      const n=document.getElementById(`pfc-${ci}-name`);if(n)cat.name=n.value;
+      (cat.rows||[]).forEach((row,ri)=>{
+        const s=document.getElementById(`pfc-${ci}-r${ri}-sub`);if(s)row.sub=s.value;
+        const i=document.getElementById(`pfc-${ci}-r${ri}-ind`);if(i)row.ind=i.value.trim();
+      });
+    });
+  }
+  const uf=DB.g('user_forms',{});if(!uf[uid])uf[uid]={};uf[uid][type]=fd;DB.s('user_forms',uf);
+
+  // ── GAS: 피평가자 데이터를 구글 시트에도 저장 ──
+  await syncEvaluateesToGAS(uid, u.empNo, u.name, type, fd);
+
+  if(!silent)alert(`${u.name}님의 개인 양식이 저장되었습니다.`);
+  return fd;
+}
+async function savePForm(){await _pfeSaveCurrent(false);renderPFE();}
+
+async function pfeAddCat(){
+  await _pfeSaveCurrent(true);
+  const uid=getPFE_uid();const type=getPFE_type();
+  const fd=getUserFormData(uid,type)||{cats:[]};
+  if(type==='collab')fd.cats.push({name:'새 항목',ind:''});else fd.cats.push({name:'새 항목',rows:[{ind:''}]});
+  const uf=DB.g('user_forms',{});if(!uf[uid])uf[uid]={};uf[uid][type]=fd;DB.s('user_forms',uf);
+  renderPFE();
+}
+function pfeDelCat(ci){
+  if(!confirm('이 항목을 삭제하시겠습니까?'))return;
+  _pfeSaveCurrent(true);
+  const uid=getPFE_uid();const type=getPFE_type();
+  const fd=getUserFormData(uid,type)||{cats:[]};
+  fd.cats.splice(ci,1);
+  const uf=DB.g('user_forms',{});if(!uf[uid])uf[uid]={};uf[uid][type]=fd;DB.s('user_forms',uf);
+  renderPFE();
+}
+function pfeAddRow(ci){
+  _pfeSaveCurrent(true);
+  const uid=getPFE_uid();const type=getPFE_type();
+  const fd=getUserFormData(uid,type)||{cats:[]};
+  if(!fd.cats[ci].rows)fd.cats[ci].rows=[];fd.cats[ci].rows.push({ind:''});
+  const uf=DB.g('user_forms',{});if(!uf[uid])uf[uid]={};uf[uid][type]=fd;DB.s('user_forms',uf);
+  renderPFE();
+}
+function pfeDelRow(ci,ri){
+  if(!confirm('이 지표를 삭제하시겠습니까?'))return;
+  _pfeSaveCurrent(true);
+  const uid=getPFE_uid();const type=getPFE_type();
+  const fd=getUserFormData(uid,type)||{cats:[]};
+  fd.cats[ci].rows.splice(ri,1);
+  const uf=DB.g('user_forms',{});if(!uf[uid])uf[uid]={};uf[uid][type]=fd;DB.s('user_forms',uf);
+  renderPFE();
+}
+function resetPForm(){
+  const uid=getPFE_uid();const type=getPFE_type();
+  const users=DB.g('users',[]);const u=users.find(x=>x.id===uid);if(!u)return;
+  if(!confirm(`${u.name}님의 개인 [${FORM_LABEL[type]||type}] 양식을 삭제하고 팀 양식으로 초기화하시겠습니까?`))return;
+  const uf=DB.g('user_forms',{});
+  if(uf[uid]&&uf[uid][type]){delete uf[uid][type];if(Object.keys(uf[uid]).length===0)delete uf[uid];}
+  DB.s('user_forms',uf);
+  alert(`${u.name}님의 개인 양식이 초기화되었습니다. 이제 팀 양식이 사용됩니다.`);
+  renderPFE();
+}
+
+// ── 결과 ──
+async function renderRStats(){
+  const subs = CU&&CU.isAdmin ? await gasLoadSubmissions() : DB.g('submissions',[]);
+  const byUser={};subs.forEach(s=>{if(!byUser[s.uid])byUser[s.uid]=1;});
+  document.getElementById('r-stats').innerHTML=[
+    {v:Object.keys(byUser).length,l:'제출 인원'},
+    {v:subs.filter(s=>s.type==='peer').length,l:'동료평가'},
+    {v:subs.filter(s=>s.type==='collab').length,l:'협업평가'},
+    {v:subs.filter(s=>s.type==='super_mgr'||s.type==='super_ceo').length,l:'상사평가'},
+  ].map(s=>`<div class="scard"><div class="sv">${s.v}</div><div class="sl">${s.l}</div></div>`).join('');
+}
+async function renderResults(){
+  const subs = CU&&CU.isAdmin ? await gasLoadSubmissions() : DB.g('submissions',[]);
+  const team=(document.getElementById('rf-team')||{value:''}).value;
+  const type=(document.getElementById('rf-type')||{value:''}).value;
+  const q=((document.getElementById('rf-q')||{value:''}).value||'').toLowerCase();
+  const byUser={};
+  subs.forEach(s=>{
+    if(team&&s.team!==team)return;if(type&&s.type!==type)return;
+    if(q&&!s.name.toLowerCase().includes(q))return;
+    if(!byUser[s.uid])byUser[s.uid]={name:s.name,team:s.team,subs:[]};
+    byUser[s.uid].subs.push(s);
+  });
+  const list=Object.values(byUser);
+  let h=`<div style="font-size:15px;color:var(--tx2);margin-bottom:8px">총 ${list.length}명</div>
+  <table class="dtbl"><thead><tr><th>이름</th><th>팀</th><th>평가 유형</th><th>제출 시각</th><th>상세 / 삭제</th></tr></thead><tbody>`;
+  if(!list.length)h+=`<tr><td colspan="5" style="text-align:center;color:var(--tx2);padding:22px">제출된 평가가 없습니다.</td></tr>`;
+  list.forEach(u=>{
+    const typeLabels=u.subs.map(s=>`<span class="tag ${TAG_CLS[s.type]||'tn'}">${FORM_LABEL[s.type]||s.type}</span>`).join(' ');
+    const times=u.subs.map(s=>new Date(s.time).toLocaleString('ko-KR')).join('<br>');
+    h+=`<tr>
+      <td><strong>${u.name}</strong></td><td>${u.team||'-'}</td>
+      <td>${typeLabels}</td><td style="font-size:14px">${times}</td>
+      <td style="white-space:nowrap">
+        ${u.subs.map(s=>`<div style="display:flex;align-items:center;gap:4px;margin-bottom:5px">
+          <span class="tag ${TAG_CLS[s.type]||'tn'}" style="font-size:13px">${FORM_LABEL[s.type]||s.type}</span>
+          <button class="btn" style="font-size:13px;padding:3px 9px" onclick="showDetail('${s.id}')">점수</button>
+          <button class="btn del" style="font-size:13px;padding:3px 9px" onclick="delSub('${s.id}')">삭제</button>
+        </div>`).join('')}
+        ${u.subs.length>1?`<button class="btr" style="font-size:13px;padding:4px 9px;margin-top:2px" onclick="delAllSubs('${u.subs[0].uid}')">전체삭제</button>`:''}
+      </td>
+    </tr>`;
+  });
+  h+=`</tbody></table>`;
+  document.getElementById('r-wrap').innerHTML=h;
+}
+async function showDetail(sid){
+  const allSubs = CU&&CU.isAdmin ? await gasLoadSubmissions() : DB.g('submissions',[]);
+  const s=allSubs.find(x=>x.id===sid);if(!s)return;
+  const scores=s.scores||{};
+  let h=`<p style="font-size:15px;color:var(--tx2);margin-bottom:14px">제출: ${new Date(s.time).toLocaleString('ko-KR')}</p>
+  <table class="dtbl"><thead><tr><th>피평가자</th><th>항목</th><th>점수</th></tr></thead><tbody>`;
+  Object.entries(scores).forEach(([person,items])=>{
+    let first=true;Object.entries(items).forEach(([item,score])=>{
+      h+=`<tr><td>${first?person:''}</td><td>${item}</td><td style="text-align:center;font-weight:700;font-size:16px;color:${score>=4?'#2e7d52':score<=2?'#c0392b':'#b07800'}">${score??'-'}</td></tr>`;first=false;
+    });
+  });
+  h+=`</tbody></table>`;
+  document.getElementById('m-title').textContent=`${s.name} — ${FORM_LABEL[s.type]||s.type}`;
+  document.getElementById('m-body').innerHTML=h;
+  document.getElementById('m-ok').classList.add('dn');openModal();
+}
+async function delSub(sid){
+  const subs=CU&&CU.isAdmin?await gasLoadSubmissions():DB.g('submissions',[]);const s=subs.find(x=>x.id===sid);if(!s)return;
+  if(!confirm(`${s.name}님의 [${FORM_LABEL[s.type]||s.type}] 제출 내역을 삭제하시겠습니까?`))return;
+  await gasDeleteSub(sid);renderRStats();renderResults();
+}
+async function delAllSubs(uid){
+  const subs=CU&&CU.isAdmin?await gasLoadSubmissions():DB.g('submissions',[]);const targets=subs.filter(s=>s.uid===uid);if(!targets.length)return;
+  if(!confirm(`${targets[0].name}님의 모든 평가 제출 내역(${targets.length}건)을 삭제하시겠습니까?`))return;
+  for(const s of targets){await gasDeleteSub(s.id);}renderRStats();renderResults();
+}
+
+// ── 엑셀 ──
+// ── 관리자 화면 저장 → GAS 구글 시트에 피평가자 동기화 ──
+async function syncEvaluateesToGAS(userId, empNo, userName, type, fd) {
+  if (!GAS_URL || GAS_URL.includes('여기에')) return;
+
+  // 피평가자가 1명도 없으면 저장 안 함
+  let hasData = false;
+  if ((type==='peer'||type==='collab') && fd.evs && fd.evs.length > 0) hasData = true;
+  if (type==='super_mgr' && fd.evNames && fd.evNames.length > 0) hasData = true;
+  if (type==='super_ceo' && fd.evName) hasData = true;
+  if (!hasData) return;
+
+  // 이 사번+유형 1행만 GAS에 직접 upsert
+  // GAS가 알아서 기존 행 삭제 후 새 행 추가
+  try {
+    const payload = {
+      action: 'upsertEvaluatee',
+      empNo: String(empNo),
+      userName: String(userName),
+      type: String(type),
+      fd: fd
+    };
+    const result = await gasPost(payload);
+    if (result && result.ok) {
+      console.log(`GAS 동기화 완료: ${userName}(${empNo}) - ${type}`);
+    } else {
+      console.warn('GAS 동기화 응답 오류:', result);
+    }
+  } catch(e) {
+    console.warn('GAS 피평가자 동기화 실패:', e);
+  }
+}
+
+async function adminReloadEvaluatees(){
+  const uid=getPFE_uid();const type=getPFE_type();
+  if(!uid){alert('먼저 사용자를 선택하세요.');return}
+  const users=DB.g('users',[]);const u=users.find(x=>x.id===uid);if(!u)return;
+  const loaded=await loadEvaluateesFromGAS(u.empNo,u.id,u.team||'');
+  if(loaded){alert(`${u.name}님의 피평가자 데이터를 구글시트에서 불러왔습니다.`);renderPFE();}
+  else{alert('구글시트에서 해당 사용자의 데이터를 찾을 수 없습니다. GAS URL 설정 또는 시트 데이터를 확인하세요.');}
+}
+
+// ══════════════════════════════════════════════
+// 개인별 결과 - 거미줄(레이더) 차트
+// ══════════════════════════════════════════════
+function fillIndivSelects(){
+  const teams = DB.g('teams', []);
+  const sel = document.getElementById('indiv-team');
+  if(!sel) return;
+  while(sel.options.length > 1) sel.remove(1);
+  teams.forEach(t => {
+    const o = document.createElement('option');
+    o.value = t; o.textContent = t; sel.appendChild(o);
+  });
+}
+
+async function renderIndivList(){
+  const users = DB.g('users', []).filter(u => !u.isAdmin);
+  const q = (document.getElementById('indiv-q')||{value:''}).value.toLowerCase();
+  const team = (document.getElementById('indiv-team')||{value:''}).value;
+  const filtered = users.filter(u => {
+    if(q && !u.name.includes(q) && !(u.team||'').includes(q)) return false;
+    if(team && u.team !== team) return false;
+    return true;
+  });
+  const wrap = document.getElementById('indiv-list-wrap');
+  if(!wrap) return;
+  if(!filtered.length){ wrap.innerHTML='<p style="color:var(--tx3)">해당하는 인원이 없습니다.</p>'; return; }
+  wrap.innerHTML = filtered.map(u =>
+    `<div class="indiv-chip" onclick="showIndivChart('${u.id}')" id="chip-${u.id}">${u.name}<span style="font-size:12px;color:inherit;opacity:.7;margin-left:4px">${u.team||''}</span></div>`
+  ).join('');
+}
+
+async function showIndivChart(uid){
+  // 선택 표시
+  document.querySelectorAll('.indiv-chip').forEach(el => el.classList.remove('on'));
+  const chip = document.getElementById('chip-'+uid);
+  if(chip) chip.classList.add('on');
+
+  const users = DB.g('users', []);
+  const u = users.find(x => x.id === uid);
+  if(!u) return;
+
+  const subs = await gasLoadSubmissions();
+
+  // 이 사람을 평가한 제출 데이터 (피평가자로 포함된 것)
+  // scores = { 피평가자이름: { 항목: 점수 } }
+  // 이 사람의 이름이 피평가자로 들어간 데이터 수집
+  const myName = u.name;
+  const myTeam = u.team || '';
+
+  // 각 평가유형별 내 점수 수집
+  const myScores = {}; // { 항목: [점수들] }
+  const allScores = {}; // 전체 평균용
+  const teamScores = {}; // 팀 평균용
+
+  subs.forEach(sub => {
+    const scores = sub.scores || {};
+    // 피평가자 이름으로 찾기
+    Object.entries(scores).forEach(([person, items]) => {
+      Object.entries(items).forEach(([item, score]) => {
+        if(score === null || score === undefined) return;
+        // 전체 평균 집계
+        if(!allScores[item]) allScores[item] = [];
+        allScores[item].push(score);
+        // 팀 평균 집계
+        if(sub.team === myTeam || (scores[myName] !== undefined)) {
+          if(!teamScores[item]) teamScores[item] = [];
+          teamScores[item].push(score);
+        }
+        // 내 점수
+        if(person === myName) {
+          if(!myScores[item]) myScores[item] = [];
+          myScores[item].push(score);
+        }
+      });
+    });
+  });
+
+  // 내 점수가 없으면
+  if(Object.keys(myScores).length === 0){
+    document.getElementById('indiv-chart-card').style.display = 'block';
+    document.getElementById('indiv-chart-content').innerHTML =
+      `<h3 style="margin-bottom:12px">🕸️ ${myName}님 개인 결과</h3>
+       <div class="notice ny">아직 ${myName}님에 대한 평가 제출 데이터가 없습니다.</div>`;
+    document.getElementById('indiv-chart-card').scrollIntoView({behavior:'smooth'});
+    return;
+  }
+
+  // 평균 계산
+  const avg = obj => {
+    const arr = Object.values(obj);
+    return arr.length ? arr.reduce((a,b) => a+b, 0) / arr.length : 0;
+  };
+
+  const labels = Object.keys(myScores);
+  const myAvgs = labels.map(l => {
+    const arr = myScores[l];
+    return arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(2)*1 : 0;
+  });
+  const allAvgs = labels.map(l => {
+    const arr = allScores[l]||[];
+    return arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(2)*1 : 0;
+  });
+  const teamAvgs = labels.map(l => {
+    const arr = teamScores[l]||[];
+    return arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(2)*1 : 0;
+  });
+
+  // SVG 레이더 차트 그리기
+  const card = document.getElementById('indiv-chart-card');
+  card.style.display = 'block';
+  card.scrollIntoView({behavior:'smooth'});
+
+  const content = document.getElementById('indiv-chart-content');
+  content.innerHTML = `<h3 style="margin-bottom:16px">🕸️ ${myName}님 개인 평가 결과 (${myTeam})</h3>
+    <div class="radar-legend">
+      <span><i style="background:#1565c0;height:3px"></i> 본인 점수</span>
+      <span><i style="background:#e64a19;height:3px"></i> 전체 평균</span>
+      <span><i style="background:#2e7d52;height:3px"></i> 팀 평균</span>
+    </div>
+    <div class="radar-wrap" style="margin-top:12px">
+      <canvas id="radar-canvas" width="500" height="400"></canvas>
+    </div>
+    <div style="margin-top:16px;overflow-x:auto">
+      <table class="dtbl">
+        <thead><tr><th>평가 항목</th><th>본인 점수</th><th>팀 평균</th><th>전체 평균</th></tr></thead>
+        <tbody>${labels.map((l,i)=>`<tr>
+          <td>${l}</td>
+          <td style="text-align:center;font-weight:700;color:#1565c0">${myAvgs[i].toFixed(1)}</td>
+          <td style="text-align:center;color:#2e7d52">${teamAvgs[i].toFixed(1)}</td>
+          <td style="text-align:center;color:#e64a19">${allAvgs[i].toFixed(1)}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>`;
+
+  // 레이더 차트 Canvas 그리기
+  drawRadar('radar-canvas', labels, [
+    {label:'본인', data:myAvgs, color:'#1565c0'},
+    {label:'전체평균', data:allAvgs, color:'#e64a19'},
+    {label:'팀평균', data:teamAvgs, color:'#2e7d52'},
+  ]);
+}
+
+function drawRadar(canvasId, labels, datasets){
+  const canvas = document.getElementById(canvasId);
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W/2, cy = H/2;
+  const R = Math.min(W, H) * 0.38;
+  const N = labels.length;
+  const maxVal = 6;
+  ctx.clearRect(0, 0, W, H);
+
+  if(N < 3){ ctx.fillStyle='#666'; ctx.font='16px sans-serif'; ctx.fillText('항목이 3개 이상이어야 차트를 표시합니다.',20,H/2); return; }
+
+  const angle = i => (Math.PI * 2 * i / N) - Math.PI/2;
+  const pt = (i, val) => ({
+    x: cx + R * (val/maxVal) * Math.cos(angle(i)),
+    y: cy + R * (val/maxVal) * Math.sin(angle(i))
+  });
+
+  // 배경 그물망
+  ctx.strokeStyle = '#ddd'; ctx.lineWidth = 1;
+  for(let r = 1; r <= maxVal; r++){
+    ctx.beginPath();
+    for(let i = 0; i < N; i++){
+      const p = pt(i, r);
+      i===0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+    }
+    ctx.closePath(); ctx.stroke();
+    // 눈금 숫자
+    ctx.fillStyle='#aaa'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(r, cx, cy - R*(r/maxVal) + 4);
+  }
+  // 축 선
+  ctx.strokeStyle = '#ccc';
+  for(let i = 0; i < N; i++){
+    const p = pt(i, maxVal);
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(p.x, p.y); ctx.stroke();
+  }
+  // 라벨
+  ctx.fillStyle = '#333'; ctx.font = 'bold 11px sans-serif';
+  for(let i = 0; i < N; i++){
+    const p = pt(i, maxVal * 1.18);
+    ctx.textAlign = p.x < cx-5 ? 'right' : p.x > cx+5 ? 'left' : 'center';
+    const shortLabel = labels[i].length > 10 ? labels[i].slice(0,10)+'…' : labels[i];
+    ctx.fillText(shortLabel, p.x, p.y);
+  }
+  // 데이터셋
+  datasets.forEach(ds => {
+    ctx.beginPath();
+    ds.data.forEach((v, i) => {
+      const p = pt(i, v);
+      i===0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+    });
+    ctx.closePath();
+    ctx.strokeStyle = ds.color; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.fillStyle = ds.color + '22'; ctx.fill();
+    // 점
+    ds.data.forEach((v, i) => {
+      const p = pt(i, v);
+      ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2);
+      ctx.fillStyle = ds.color; ctx.fill();
+    });
+  });
+}
+
+async function exportExcel(){
+  const subs=CU&&CU.isAdmin?await gasLoadSubmissions():DB.g('submissions',[]);
+  const team=(document.getElementById('rf-team')||{value:''}).value;
+  const type=(document.getElementById('rf-type')||{value:''}).value;
+  const q=((document.getElementById('rf-q')||{value:''}).value||'').toLowerCase();
+  const list=subs.filter(s=>{
+    if(team&&s.team!==team)return false;if(type&&s.type!==type)return false;
+    if(q&&!s.name.toLowerCase().includes(q))return false;return true;
+  });
+  if(!list.length){alert('내보낼 데이터가 없습니다.');return}
+  loadXLSX(()=>{
+    const XLSX=window.XLSX;const wb=XLSX.utils.book_new();
+    const byUser={};list.forEach(s=>{if(!byUser[s.uid])byUser[s.uid]={name:s.name,team:s.team,types:[]};byUser[s.uid].types.push(FORM_LABEL[s.type]||s.type);});
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(Object.values(byUser).map(u=>({'이름':u.name,'팀':u.team,'제출평가':u.types.join(', ')}))),'요약(인원기준)');
+    const detailRows=[];
+    list.forEach(s=>{const scores=s.scores||{};Object.entries(scores).forEach(([person,items])=>{
+      Object.entries(items).forEach(([item,score])=>{
+        detailRows.push({'평가자':s.name,'팀':s.team||'','평가유형':FORM_LABEL[s.type]||s.type,'피평가자':person,'항목':item,'점수':score??'','합계나누기':s.div||'','제출시각':new Date(s.time).toLocaleString('ko-KR')});
+      });
+    });});
+    if(detailRows.length)XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(detailRows),'전체점수상세');
+    ['peer','collab','super_mgr','super_ceo'].forEach(k=>{
+      const typeSubs=list.filter(s=>s.type===k);if(!typeSubs.length)return;
+      const allPersons=[...new Set(typeSubs.flatMap(s=>Object.keys(s.scores||{})))];
+      const allItems=[...new Set(typeSubs.flatMap(s=>Object.values(s.scores||{}).flatMap(items=>Object.keys(items))))];
+      const rows=[];
+      typeSubs.forEach(s=>{const scores=s.scores||{};allPersons.forEach(person=>{
+        if(!scores[person])return;
+        const row={'평가자':s.name,'팀':s.team||'','피평가자':person,'합계나누기':s.div||''};
+        allItems.forEach(item=>{row[item]=scores[person]?.[item]??'';});
+        row['제출시각']=new Date(s.time).toLocaleString('ko-KR');rows.push(row);
+      });});
+      if(rows.length)XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),(FORM_LABEL[k]||k).slice(0,28));
+    });
+    XLSX.writeFile(wb,`다면평가_결과_${new Date().toISOString().slice(0,10)}.xlsx`);
+  });
+}
+function loadXLSX(cb){
+  if(window.XLSX){cb();return}
+  const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+  sc.onload=cb;sc.onerror=()=>alert('엑셀 라이브러리 로드 실패. 네트워크 상태를 확인해주세요.');
+  document.head.appendChild(sc);
+}
+
+// MODAL
+function openModal(){document.getElementById('modal').classList.remove('dn');document.getElementById('m-ok').classList.remove('dn');}
+function closeModal(){document.getElementById('modal').classList.add('dn');}
+
+// ════ INIT ════
+initData();applyYear();loadConfigFromGAS();
+document.getElementById('li-phone4').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+</script>
+</body>
+</html>
