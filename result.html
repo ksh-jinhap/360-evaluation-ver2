@@ -77,6 +77,19 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
   .score-tbl{font-size:13px}
 }
 </style>
+
+<script>
+// ── 보안: 소스보기/우클릭 차단 ──
+(function(){
+  document.addEventListener('contextmenu', function(e){ e.preventDefault(); return false; });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'F12'){ e.preventDefault(); return false; }
+    if(e.ctrlKey && e.key.toLowerCase() === 'u'){ e.preventDefault(); return false; }
+    if(e.ctrlKey && e.shiftKey && ['i','j','c'].includes(e.key.toLowerCase())){ e.preventDefault(); return false; }
+    if(e.ctrlKey && e.key.toLowerCase() === 's'){ e.preventDefault(); return false; }
+  });
+})();
+</script>
 </head>
 <body>
 
