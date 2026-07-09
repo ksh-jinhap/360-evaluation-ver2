@@ -45,7 +45,7 @@ p{font-size:15px;color:#5a7a9a;line-height:1.7;margin-bottom:24px}
     <h1>평가 데이터 초기화</h1>
     <p>기존 제출 내역을 초기화하고<br>평가를 다시 진행합니다.<br><br>
     아래 버튼을 누르면 기존 데이터가 삭제되고<br>평가 사이트로 이동합니다.</p>
-    <button class="btn" onclick="doReset()">초기화 후 평가 시작</button>
+    <button class="btn" onclick="confirmReset()">초기화 후 평가 시작</button>
   </div>
 
   <!-- 초기화 중 -->
@@ -67,6 +67,11 @@ p{font-size:15px;color:#5a7a9a;line-height:1.7;margin-bottom:24px}
 
 <script>
 const SITE_URL = 'https://ksh-jinhap.github.io/360-evaluation-ver2/';
+
+function confirmReset() {
+  if(!confirm('⚠️ 주의\n\n초기화하면 기존 제출 내역이 삭제되며\n처음부터 다시 평가를 진행해야 합니다.\n\n계속하시겠습니까?')) return;
+  doReset();
+}
 
 function doReset() {
   document.getElementById('before').style.display = 'none';
