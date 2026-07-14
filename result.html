@@ -146,7 +146,7 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
 // ════════════════════════════════════════
 // GAS URL 설정
 // ════════════════════════════════════════
-const GAS_URL = "https://script.google.com/macros/s/AKfycbypLDelQZKded7ikVlz4XOTlWz_PFSPVol3CHkFIDjDhoE2VWrRgZiMNoQ17Dvc5pDaWQ/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwZBmAvUbLRiCi_CqzL0mgSiUc0UsbSQ2kh5HVRLlw3wOZix8eo22kckKiNDhRxZIZbpg/exec";
 
 const FORM_LABEL = {
   peer:      '동료평가',
@@ -458,6 +458,41 @@ function drawRadar(canvasId, labels, datasets) {
     });
   });
 }
+
+// ── 기간 체크 ──
+async function checkPeriod(){
+  const r = await gasGet({ action: 'getConfig' });
+  const cfg = (r && r.config) ? r.config : {};
+  const enabled = cfg.periodEnabled === '1';
+  if(!enabled) return true;
+
+  const start = cfg.periodStart || '';
+  const end   = cfg.periodEnd   || '';
+  if(!start || !end) return true;
+
+  const now = new Date().toISOString().slice(0,10);
+  if(now < start || now > end){
+    document.getElementById('pg-login').innerHTML = `
+      <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;
+        background:linear-gradient(135deg,#1a3a5c 0%,#2563a8 100%)">
+        <div style="background:#fff;border-radius:20px;padding:44px 36px;max-width:400px;width:100%;
+          text-align:center;box-shadow:0 8px 40px rgba(26,58,92,.18)">
+          <div style="font-size:56px;margin-bottom:16px">📅</div>
+          <h2 style="font-size:22px;font-weight:800;color:#1a3a5c;margin-bottom:12px">조회 기간이 아닙니다</h2>
+          <p style="font-size:15px;color:#5a7a9a;line-height:1.7">
+            조회 가능 기간:<br>
+            <b style="color:#1a3a5c">\${start} ~ \${end}</b><br><br>
+            문의사항은 인사총무팀으로 연락주세요.
+          </p>
+        </div>
+      </div>`;
+    return false;
+  }
+  return true;
+}
+
+// 기간 체크 실행
+checkPeriod();
 </script>
 </body>
 </html>

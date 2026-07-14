@@ -672,7 +672,7 @@ const DB={
 // ██  Google Apps Script 연동 설정  ██
 // Apps Script 배포 후 아래 URL을 교체하세요
 // ════════════════════════════════════════════════════════
-const GAS_URL = "https://script.google.com/macros/s/AKfycbypLDelQZKded7ikVlz4XOTlWz_PFSPVol3CHkFIDjDhoE2VWrRgZiMNoQ17Dvc5pDaWQ/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwZBmAvUbLRiCi_CqzL0mgSiUc0UsbSQ2kh5HVRLlw3wOZix8eo22kckKiNDhRxZIZbpg/exec";
 
 // GAS 호출 헬퍼
 async function gasGet(params) {
@@ -2307,17 +2307,96 @@ async function showDetail(sid){
   const allSubs = CU&&CU.isAdmin ? await gasLoadSubmissions() : DB.g('submissions',[]);
   const s=allSubs.find(x=>x.id===sid);if(!s)return;
   const scores=s.scores||{};
-  let h=`<p style="font-size:15px;color:var(--tx2);margin-bottom:14px">제출: ${new Date(s.time).toLocaleString('ko-KR')}</p>
+  const isSuper = s.type==='super_mgr'||s.type==='super_ceo';
+
+  let h=`<p style="font-size:15px;color:var(--tx2);margin-bottom:14px">제출: ${new Date(s.time).toLocaleString('ko-KR')}</p>`;
+
+  // ── 점수표 ──
+  h+=`<h4 style="font-size:15px;font-weight:700;color:var(--nv);margin-bottom:10px">📊 점수</h4>
+  <div style="overflow-x:auto;margin-bottom:20px">
   <table class="dtbl"><thead><tr><th>피평가자</th><th>항목</th><th>점수</th></tr></thead><tbody>`;
   Object.entries(scores).forEach(([person,items])=>{
-    let first=true;Object.entries(items).forEach(([item,score])=>{
-      h+=`<tr><td>${first?person:''}</td><td>${item}</td><td style="text-align:center;font-weight:700;font-size:16px;color:${score>=4?'#2e7d52':score<=2?'#c0392b':'#b07800'}">${score??'-'}</td></tr>`;first=false;
+    let first=true;
+    Object.entries(items).forEach(([item,score])=>{
+      if(item.startsWith('__')) return; // 주관식 키 제외
+      h+=`<tr><td>${first?person:''}</td><td>${item}</td>
+        <td style="text-align:center;font-weight:700;font-size:16px;color:${score>=4?'#2e7d52':score<=2?'#c0392b':'#b07800'}">${score??'-'}</td></tr>`;
+      first=false;
     });
   });
-  h+=`</tbody></table>`;
+  h+=`</tbody></table></div>`;
+
+  // ── 주관식 (상사평가만) ──
+  if(isSuper){
+    h+=`<h4 style="font-size:15px;font-weight:700;color:var(--nv);margin:0 0 6px">✍️ 주관식 내용</h4>`;
+    // 1) scores에서 직접 수집 (새 제출)
+    let hasSubjInScores = false;
+    Object.entries(scores).forEach(([person,items])=>{
+      const adv=[items['__adv1']||'',items['__adv2']||'',items['__adv3']||''];
+      const imp=[items['__imp1']||'',items['__imp2']||'',items['__imp3']||''];
+      if(adv.some(v=>v)||imp.some(v=>v)){
+        hasSubjInScores=true;
+        h+=`<div style="background:#f8fafb;border:1px solid var(--bd);border-radius:8px;padding:14px;margin-bottom:10px">
+          <div style="font-weight:700;color:var(--nv);margin-bottom:10px">피평가자: ${person}</div>
+          <table class="dtbl" style="font-size:13px">
+            <thead><tr><th>구분</th><th>① 첫번째</th><th>② 두번째</th><th>③ 세번째</th></tr></thead>
+            <tbody>
+              <tr><td style="color:#2e7d52;font-weight:700">장점</td>
+                <td>${adv[0]||'<span style="color:#aaa">미작성</span>'}</td>
+                <td>${adv[1]||'<span style="color:#aaa">미작성</span>'}</td>
+                <td>${adv[2]||'<span style="color:#aaa">미작성</span>'}</td></tr>
+              <tr><td style="color:#e64a19;font-weight:700">보완점</td>
+                <td>${imp[0]||'<span style="color:#aaa">미작성</span>'}</td>
+                <td>${imp[1]||'<span style="color:#aaa">미작성</span>'}</td>
+                <td>${imp[2]||'<span style="color:#aaa">미작성</span>'}</td></tr>
+            </tbody>
+          </table>
+        </div>`;
+      }
+    });
+    if(!hasSubjInScores){
+      // 2) subjectives 시트에서 별도 제출된 것 확인
+      h+=`<div id="subj-loading" style="color:var(--tx3);font-size:14px;padding:12px">⏳ 주관식 데이터 불러오는 중...</div>`;
+    }
+  }
+
   document.getElementById('m-title').textContent=`${s.name} — ${FORM_LABEL[s.type]||s.type}`;
   document.getElementById('m-body').innerHTML=h;
-  document.getElementById('m-ok').classList.add('dn');openModal();
+  document.getElementById('m-ok').classList.add('dn');
+  openModal();
+
+  // subjectives 시트에서 별도 주관식 로드
+  if(isSuper && document.getElementById('subj-loading')){
+    const r = await gasGet({action:'getSubjectives'});
+    const subjEl = document.getElementById('subj-loading');
+    if(!subjEl) return;
+    const subjList = (r&&r.subjectives)||[];
+    const mine = subjList.filter(x=>x.evalName===s.name&&(x.evalType===s.type));
+    if(mine.length===0){
+      subjEl.textContent='주관식 내용이 없습니다. (미제출 또는 미작성)';
+    } else {
+      let sh='';
+      mine.forEach(x=>{
+        sh+=`<div style="background:#f8fafb;border:1px solid var(--bd);border-radius:8px;padding:14px;margin-bottom:10px">
+          <div style="font-weight:700;color:var(--nv);margin-bottom:10px">피평가자: ${x.person} <span style="font-size:12px;color:var(--tx3)">(${new Date(x.time).toLocaleString('ko-KR')} 제출)</span></div>
+          <table class="dtbl" style="font-size:13px">
+            <thead><tr><th>구분</th><th>① 첫번째</th><th>② 두번째</th><th>③ 세번째</th></tr></thead>
+            <tbody>
+              <tr><td style="color:#2e7d52;font-weight:700">장점</td>
+                <td>${x.adv1||'<span style="color:#aaa">미작성</span>'}</td>
+                <td>${x.adv2||'<span style="color:#aaa">미작성</span>'}</td>
+                <td>${x.adv3||'<span style="color:#aaa">미작성</span>'}</td></tr>
+              <tr><td style="color:#e64a19;font-weight:700">보완점</td>
+                <td>${x.imp1||'<span style="color:#aaa">미작성</span>'}</td>
+                <td>${x.imp2||'<span style="color:#aaa">미작성</span>'}</td>
+                <td>${x.imp3||'<span style="color:#aaa">미작성</span>'}</td></tr>
+            </tbody>
+          </table>
+        </div>`;
+      });
+      subjEl.outerHTML = sh;
+    }
+  }
 }
 async function delSub(sid){
   const subs=CU&&CU.isAdmin?await gasLoadSubmissions():DB.g('submissions',[]);const s=subs.find(x=>x.id===sid);if(!s)return;
