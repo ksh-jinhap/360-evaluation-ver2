@@ -547,14 +547,48 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--tx);
       </div>
       <div id="as-results" class="asec">
         <div class="acard">
-          <h3>⚙️ 시스템 연도 설정</h3>
-          <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-            <span style="font-size:16px;color:var(--tx2)">현재 평가 연도:</span>
+          <h3>⚙️ 시스템 설정</h3>
+
+          <!-- 연도 설정 -->
+          <div style="margin-bottom:24px">
+            <div style="font-size:15px;font-weight:700;color:var(--tx2);margin-bottom:10px">📅 평가 연도</div>
+            <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+              <span style="font-size:15px;color:var(--tx2)">현재 평가 연도:</span>
             <input id="sys-year" type="number" min="2020" max="2099" style="width:95px;padding:8px 11px;border:1.5px solid var(--bd);border-radius:6px;font-size:17px;font-weight:700;font-family:inherit;outline:none;color:var(--nv)" onkeydown="if(event.key==='Enter')saveYear()">
             <button class="btp" onclick="saveYear()">저장</button>
             <span style="font-size:14px;color:var(--tx3)">저장하면 모든 화면의 연도가 일괄 변경됩니다.</span>
           </div>
         </div>
+        <div class="acard">
+          <h3>🗓️ 평가 기간 설정</h3>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+              <input type="checkbox" id="period-enabled" onchange="togglePeriodEnabled()"
+                style="width:18px;height:18px;cursor:pointer">
+              <span style="font-size:15px;font-weight:600;color:var(--tx2)">기간 제한 활성화</span>
+            </label>
+            <span id="period-status" style="font-size:13px;padding:3px 12px;border-radius:12px;background:#f0f4fa;color:var(--tx3)">비활성화</span>
+          </div>
+          <div id="period-inputs" style="opacity:.4;pointer-events:none">
+            <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px">
+              <div>
+                <label style="font-size:13px;color:var(--tx3);display:block;margin-bottom:4px">시작일</label>
+                <input type="date" id="period-start"
+                  style="padding:8px 11px;border:1.5px solid var(--bd);border-radius:6px;font-size:15px;font-family:inherit;outline:none">
+              </div>
+              <div>
+                <label style="font-size:13px;color:var(--tx3);display:block;margin-bottom:4px">종료일</label>
+                <input type="date" id="period-end"
+                  style="padding:8px 11px;border:1.5px solid var(--bd);border-radius:6px;font-size:15px;font-family:inherit;outline:none">
+              </div>
+            </div>
+            <p style="font-size:13px;color:#e64a19;margin-bottom:12px">
+              ⚠️ 활성화 시 기간 외 접속자에게 "평가 기간이 아닙니다" 안내가 표시됩니다.
+            </p>
+          </div>
+          <button class="btn add" onclick="savePeriod()">💾 기간 설정 저장</button>
+        </div>
+
         <div class="acard">
           <h3>📊 평가 결과 조회</h3>
           <div class="scards" id="r-stats"></div>
@@ -1378,16 +1412,16 @@ function buildSuperPaper(fd, evName, personIdx, locked){
     <table class="etbl" style="border-top:0"><tr>
       <td style="width:50%;padding:11px 14px;vertical-align:top"><strong style="font-size:15px">• 리더로서의 장점:</strong>
         <div class="ta-wrap" style="margin-top:8px">
-          ① <textarea rows="2" placeholder="장점 1" style="margin-bottom:5px" ${locked?'disabled':''}></textarea>
-          ② <textarea rows="2" placeholder="장점 2" style="margin-bottom:5px" ${locked?'disabled':''}></textarea>
-          ③ <textarea rows="2" placeholder="장점 3" ${locked?'disabled':''}></textarea>
+          ① <textarea id="ta_ceo_adv1" rows="2" placeholder="장점 1" style="margin-bottom:5px" ${locked?'disabled':''}></textarea>
+          ② <textarea id="ta_ceo_adv2" rows="2" placeholder="장점 2" style="margin-bottom:5px" ${locked?'disabled':''}></textarea>
+          ③ <textarea id="ta_ceo_adv3" rows="2" placeholder="장점 3" ${locked?'disabled':''}></textarea>
         </div>
       </td>
       <td style="width:50%;padding:11px 14px;vertical-align:top"><strong style="font-size:15px">• 리더로서의 보완점:</strong>
         <div class="ta-wrap" style="margin-top:8px">
-          ① <textarea rows="2" placeholder="보완점 1" style="margin-bottom:5px" ${locked?'disabled':''}></textarea>
-          ② <textarea rows="2" placeholder="보완점 2" style="margin-bottom:5px" ${locked?'disabled':''}></textarea>
-          ③ <textarea rows="2" placeholder="보완점 3" ${locked?'disabled':''}></textarea>
+          ① <textarea id="ta_ceo_imp1" rows="2" placeholder="보완점 1" style="margin-bottom:5px" ${locked?'disabled':''}></textarea>
+          ② <textarea id="ta_ceo_imp2" rows="2" placeholder="보완점 2" style="margin-bottom:5px" ${locked?'disabled':''}></textarea>
+          ③ <textarea id="ta_ceo_imp3" rows="2" placeholder="보완점 3" ${locked?'disabled':''}></textarea>
         </div>
       </td>
     </tr></table>
@@ -1529,6 +1563,13 @@ async function submitEval(type){
       const b=document.querySelector([1,2,3,4,5,6].map(v=>`.sbtn[data-nm="s0_${ri}"].s${v}`).join(','));
       scores[evName][`${cat.name}/${row.ind.replace(/<[^>]*>/g,'').slice(0,15)}`]=b?gv(b):null;ri++;
     });});
+    // 주관식 수집
+    scores[evName]['__adv1']=document.getElementById('ta_ceo_adv1')?.value||'';
+    scores[evName]['__adv2']=document.getElementById('ta_ceo_adv2')?.value||'';
+    scores[evName]['__adv3']=document.getElementById('ta_ceo_adv3')?.value||'';
+    scores[evName]['__imp1']=document.getElementById('ta_ceo_imp1')?.value||'';
+    scores[evName]['__imp2']=document.getElementById('ta_ceo_imp2')?.value||'';
+    scores[evName]['__imp3']=document.getElementById('ta_ceo_imp3')?.value||'';
   }
   const sub = {id:Date.now().toString(),uid:CU.id,name:CU.name,team:CU.team||'',type,time:new Date().toISOString(),scores,div:fd.div||1};
   await gasSaveSubmission(sub);
@@ -1567,6 +1608,10 @@ function nav(sec){
   if(sec==='forms'){fillSelects();renderFE();}
   if(sec==='pforms'){fillSelects();pfeOnTeamChange();}
   if(sec==='results'){fillSelects();renderRStats();renderResults();const sy=document.getElementById('sys-year');if(sy)sy.value=getYear();}
+  if(sec==='results'||sec==='indiv'){}  // already handled
+  // 설정 탭 진입 시 기간 설정 로드
+  const sysEl=document.getElementById('as-results');
+  if(sec==='results')loadPeriodSettings();
   if(sec==='indiv'){fillIndivSelects();renderIndivList();}
 }
 function fillSelects(){
@@ -2330,6 +2375,114 @@ async function adminReloadEvaluatees(){
 // ══════════════════════════════════════════════
 // 개인별 결과 - 거미줄(레이더) 차트
 // ══════════════════════════════════════════════
+
+// ════ 평가 기간 설정 ════
+function togglePeriodEnabled(){
+  const enabled = document.getElementById('period-enabled').checked;
+  const inputs  = document.getElementById('period-inputs');
+  const status  = document.getElementById('period-status');
+  if(enabled){
+    inputs.style.opacity = '1';
+    inputs.style.pointerEvents = 'auto';
+    status.textContent = '활성화';
+    status.style.background = '#e8f5e9';
+    status.style.color = '#2e7d52';
+  } else {
+    inputs.style.opacity = '.4';
+    inputs.style.pointerEvents = 'none';
+    status.textContent = '비활성화';
+    status.style.background = '#f0f4fa';
+    status.style.color = 'var(--tx3)';
+  }
+}
+
+async function savePeriod(){
+  const enabled = document.getElementById('period-enabled').checked;
+  const start   = document.getElementById('period-start').value;
+  const end     = document.getElementById('period-end').value;
+
+  if(enabled && (!start || !end)){
+    alert('시작일과 종료일을 모두 입력해주세요.');
+    return;
+  }
+  if(enabled && start > end){
+    alert('종료일이 시작일보다 빠릅니다.');
+    return;
+  }
+
+  // GAS config에 저장
+  await gasGet({ action:'setConfig', key:'periodEnabled', value: enabled ? '1' : '0' });
+  await gasGet({ action:'setConfig', key:'periodStart',   value: start });
+  await gasGet({ action:'setConfig', key:'periodEnd',     value: end });
+
+  // localStorage에도 캐시
+  DB.s('periodEnabled', enabled ? '1' : '0');
+  DB.s('periodStart',   start);
+  DB.s('periodEnd',     end);
+
+  alert(enabled
+    ? `✅ 기간 제한이 활성화되었습니다.\n기간: ${start} ~ ${end}`
+    : '✅ 기간 제한이 비활성화되었습니다.'
+  );
+}
+
+async function loadPeriodSettings(){
+  // GAS에서 기간 설정 로드
+  const r = await gasGet({ action: 'getConfig' });
+  if(!r || !r.config) return;
+  const cfg = r.config;
+
+  const enabled = cfg.periodEnabled === '1';
+  const start   = cfg.periodStart || '';
+  const end     = cfg.periodEnd   || '';
+
+  const chk = document.getElementById('period-enabled');
+  const ps   = document.getElementById('period-start');
+  const pe   = document.getElementById('period-end');
+  if(chk){ chk.checked = enabled; togglePeriodEnabled(); }
+  if(ps)  ps.value = start;
+  if(pe)  pe.value = end;
+
+  // localStorage 캐시 업데이트
+  DB.s('periodEnabled', enabled ? '1' : '0');
+  if(start) DB.s('periodStart', start);
+  if(end)   DB.s('periodEnd',   end);
+}
+
+// 기간 체크 (index.html 일반 사용자용)
+async function checkPeriod(){
+  // GAS에서 최신 설정 확인
+  const r = await gasGet({ action: 'getConfig' });
+  const cfg = (r && r.config) ? r.config : {};
+  const enabled = cfg.periodEnabled === '1';
+  if(!enabled) return true; // 비활성화면 항상 허용
+
+  const start = cfg.periodStart || '';
+  const end   = cfg.periodEnd   || '';
+  if(!start || !end) return true;
+
+  const now   = new Date().toISOString().slice(0,10);
+  if(now < start || now > end){
+    // 기간 외 접속 차단 화면
+    document.getElementById('pg-login').innerHTML = `
+      <div class="login-wrap" style="min-height:100vh;display:flex;align-items:center;justify-content:center;
+        background:linear-gradient(135deg,#1a3a5c 0%,#2563a8 100%)">
+        <div style="background:#fff;border-radius:20px;padding:44px 36px;max-width:400px;width:100%;
+          text-align:center;box-shadow:0 8px 40px rgba(26,58,92,.18)">
+          <div style="font-size:56px;margin-bottom:16px">📅</div>
+          <h2 style="font-size:22px;font-weight:800;color:#1a3a5c;margin-bottom:12px">평가 기간이 아닙니다</h2>
+          <p style="font-size:15px;color:#5a7a9a;line-height:1.7">
+            평가 가능 기간:<br>
+            <b style="color:#1a3a5c">${start} ~ ${end}</b><br><br>
+            문의사항은 인사총무팀으로 연락주세요.
+          </p>
+        </div>
+      </div>`;
+    return false;
+  }
+  return true;
+}
+
 function fillIndivSelects(){
   const teams = DB.g('teams', []);
   const sel = document.getElementById('indiv-team');
@@ -2558,7 +2711,8 @@ async function exportExcel(){
     ['peer','collab','super_mgr','super_ceo'].forEach(k=>{
       const typeSubs=list.filter(s=>s.type===k);if(!typeSubs.length)return;
       const allPersons=[...new Set(typeSubs.flatMap(s=>Object.keys(s.scores||{})))];
-      const allItems=[...new Set(typeSubs.flatMap(s=>Object.values(s.scores||{}).flatMap(items=>Object.keys(items))))];
+      // 주관식 키 제외한 점수 항목만
+      const allItems=[...new Set(typeSubs.flatMap(s=>Object.values(s.scores||{}).flatMap(items=>Object.keys(items).filter(i=>!i.startsWith('__')))))];
       const rows=[];
       typeSubs.forEach(s=>{const scores=s.scores||{};allPersons.forEach(person=>{
         if(!scores[person])return;
@@ -2567,6 +2721,26 @@ async function exportExcel(){
         row['제출시각']=new Date(s.time).toLocaleString('ko-KR');rows.push(row);
       });});
       if(rows.length)XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),(FORM_LABEL[k]||k).slice(0,28));
+    });
+
+    // 주관식 별도 시트 (상사평가)
+    ['super_mgr','super_ceo'].forEach(k=>{
+      const typeSubs=list.filter(s=>s.type===k);if(!typeSubs.length)return;
+      const subjRows=[];
+      typeSubs.forEach(s=>{
+        const scores=s.scores||{};
+        Object.entries(scores).forEach(([person,items])=>{
+          const hasSubj=Object.keys(items).some(i=>i.startsWith('__'));
+          if(!hasSubj)return;
+          subjRows.push({
+            '평가자':s.name,'팀':s.team||'','피평가자':person,
+            '장점1':items['__adv1']||'','장점2':items['__adv2']||'','장점3':items['__adv3']||'',
+            '보완점1':items['__imp1']||'','보완점2':items['__imp2']||'','보완점3':items['__imp3']||'',
+            '제출시각':new Date(s.time).toLocaleString('ko-KR')
+          });
+        });
+      });
+      if(subjRows.length)XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(subjRows),(FORM_LABEL[k]||k).slice(0,20)+'_주관식');
     });
     XLSX.writeFile(wb,`다면평가_결과_${new Date().toISOString().slice(0,10)}.xlsx`);
   });
@@ -2584,6 +2758,8 @@ function closeModal(){document.getElementById('modal').classList.add('dn');}
 
 // ════ INIT ════
 initData();applyYear();loadConfigFromGAS();
+// 일반 사용자 접속 시 기간 체크 (관리자는 제외)
+checkPeriod();
 document.getElementById('li-phone4').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
 </script>
 </body>
