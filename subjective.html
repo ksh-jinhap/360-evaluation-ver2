@@ -123,7 +123,7 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
 </div>
 
 <script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycbwZBmAvUbLRiCi_CqzL0mgSiUc0UsbSQ2kh5HVRLlw3wOZix8eo22kckKiNDhRxZIZbpg/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwDSspYAJCSshM_DwsK3WfGNE_j8rlWZcgtk1VzD1c2XmRZbmeyzzkp5m0LSXg-VZFyXg/exec";
 
 const FORM_LABEL = {
   super_mgr: '상사평가 (상사용)',
@@ -137,22 +137,45 @@ function hp(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);
 function digits(s){return String(s||'').replace(/\D/g,'')}
 function authKey(e,p){return hp(digits(e).padStart(6,'0')+'|'+digits(p).padStart(4,'0'))}
 
-// ── 로그인 ──
-function doLogin(){
+// ── 로그인 (localStorage + GAS 인증) ──
+async function doLogin(){
   const name   = document.getElementById('li-name').value.trim();
   const empNo  = digits(document.getElementById('li-emp').value);
   const phone4 = digits(document.getElementById('li-phone4').value);
   const errEl  = document.getElementById('li-err');
+  const btn    = document.getElementById('btn-login');
 
   if(!name||empNo.length!==6||phone4.length!==4){
     errEl.textContent='이름, 사번 6자리, 휴대폰 뒷자리 4자리를 모두 입력해주세요.';
     return;
   }
 
+  btn.disabled=true; btn.textContent='⏳ 확인 중...';
+  errEl.textContent='';
+
+  // 1. localStorage에서 먼저 찾기 (평가 제출한 동일 브라우저)
   const users = JSON.parse(localStorage.getItem('ev26_users')||'[]');
   const key   = authKey(empNo, phone4);
-  const u     = users.find(u => u.name===name && u.auth===key);
+  let u = users.find(x => x.name===name && x.auth===key);
 
+  // 2. localStorage에 없으면 GAS 인증
+  if(!u){
+    try {
+      const url = GAS_URL + '?' + new URLSearchParams({
+        action: 'authUser',
+        name: name,
+        empNo: empNo,
+        phone4: phone4
+      });
+      const res  = await fetch(url);
+      const data = await res.json();
+      if(data && data.ok){
+        u = { id: data.id||empNo, name: data.name||name, empNo: empNo, team: data.team||'', forms: data.forms||[] };
+      }
+    } catch(e){ console.warn('GAS 인증 오류:', e); }
+  }
+
+  btn.disabled=false; btn.textContent='내용 확인하기';
   if(!u){ errEl.textContent='로그인 정보가 일치하지 않습니다.'; return; }
 
   CU = u;
@@ -184,7 +207,8 @@ function showResult(){
   const cards = document.getElementById('subj-cards');
 
   if(superSubs.length===0){
-    cards.innerHTML=`<div class="no-data"><div class="ico">📭</div><p>상사평가 제출 내역이 없습니다.<br><span style="font-size:13px;color:#e64a19">※ 평가를 제출한 브라우저에서 접속해야 합니다.</span></p></div>`;
+    // localStorage에 데이터 없으면 GAS에서 피평가자 목록 불러오기
+    loadFromGAS();
     return;
   }
 
@@ -256,6 +280,76 @@ function showResult(){
   cards.innerHTML=html;
   document.getElementById('subj-count').textContent=SUBJ_ITEMS.length;
   document.getElementById('submit-bar').style.display='flex';
+}
+
+
+// ── GAS에서 피평가자 목록 불러오기 ──
+async function loadFromGAS(){
+  const cards = document.getElementById('subj-cards');
+  cards.innerHTML = '<div style="text-align:center;padding:30px;color:var(--tx3)">⏳ 피평가자 정보 불러오는 중...</div>';
+
+  try {
+    const url  = GAS_URL + '?' + new URLSearchParams({ action:'getEvaluatees', empNo: CU.empNo||CU.id||'' });
+    const res  = await fetch(url);
+    const data = await res.json();
+
+    const superRows = (data.rows||[]).filter(r => r.evalType==='super_mgr'||r.evalType==='super_ceo');
+
+    if(superRows.length===0){
+      cards.innerHTML=`<div class="no-data"><div class="ico">📋</div>
+        <p>상사평가 대상이 없습니다.<br>
+        <span style="font-size:13px;color:var(--tx3)">관리자에게 문의해주세요.</span></p></div>`;
+      return;
+    }
+
+    let html=''; let ci=0;
+    superRows.forEach(row=>{
+      (row.evList||[]).forEach(ev=>{
+        SUBJ_ITEMS.push({type:row.evalType, person:ev.name, cardIdx:ci});
+        html += buildCard(ci, ev.name, row.evalType, '','','','','','');
+        ci++;
+      });
+    });
+
+    cards.innerHTML = html;
+    document.getElementById('subj-count').textContent = SUBJ_ITEMS.length;
+    document.getElementById('submit-bar').style.display = 'flex';
+  } catch(e){
+    cards.innerHTML=`<div class="no-data"><div class="ico">⚠️</div>
+      <p>데이터를 불러오지 못했습니다.<br>잠시 후 다시 시도해주세요.</p></div>`;
+  }
+}
+
+function buildCard(ci, person, type, adv1, adv2, adv3, imp1, imp2, imp3){
+  return `
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">피평가자: <b>${person}</b></div>
+      <div class="badge">${FORM_LABEL[type]||type}</div>
+    </div>
+    <div class="ta-group">
+      <div class="ta-group-title adv-color">💚 리더로서의 장점</div>
+      <div class="ta-grid">
+        <div class="ta-wrap"><label>① 첫 번째</label>
+          <textarea id="adv1_${ci}" placeholder="장점 1">${adv1}</textarea></div>
+        <div class="ta-wrap"><label>② 두 번째</label>
+          <textarea id="adv2_${ci}" placeholder="장점 2">${adv2}</textarea></div>
+        <div class="ta-wrap"><label>③ 세 번째</label>
+          <textarea id="adv3_${ci}" placeholder="장점 3">${adv3}</textarea></div>
+      </div>
+    </div>
+    <div class="ta-group">
+      <div class="ta-group-title imp-color">🔶 리더로서의 보완점</div>
+      <div class="ta-grid">
+        <div class="ta-wrap"><label>① 첫 번째</label>
+          <textarea id="imp1_${ci}" placeholder="보완점 1">${imp1}</textarea></div>
+        <div class="ta-wrap"><label>② 두 번째</label>
+          <textarea id="imp2_${ci}" placeholder="보완점 2">${imp2}</textarea></div>
+        <div class="ta-wrap"><label>③ 세 번째</label>
+          <textarea id="imp3_${ci}" placeholder="보완점 3">${imp3}</textarea></div>
+      </div>
+    </div>
+  </div>`;
 }
 
 // ── 최종 제출 ──
