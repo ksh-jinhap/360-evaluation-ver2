@@ -67,6 +67,14 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
   .submit-bar{flex-direction:column;align-items:stretch}
   .btn-submit{text-align:center}
 }
+
+.closed-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#1a3a5c 0%,#2563a8 100%)}
+.closed-box{background:#fff;border-radius:20px;padding:48px 36px;max-width:420px;width:100%;
+  text-align:center;box-shadow:0 8px 40px rgba(26,58,92,.18)}
+.closed-ico{font-size:60px;margin-bottom:16px}
+.closed-title{font-size:22px;font-weight:800;color:#1a3a5c;margin-bottom:12px}
+.closed-msg{font-size:15px;color:#5a7a9a;line-height:1.8}
 </style>
 </head>
 <body>
@@ -394,6 +402,46 @@ async function doSubmit(){
     btn.disabled=false; btn.textContent='📨 주관식 내용 최종 제출';
   }
 }
+
+
+// ── 마감 체크 (접속 시 자동 실행) ──
+async function checkClosed(){
+  try {
+    const url = GAS_URL + '?' + new URLSearchParams({ action: 'getConfig' });
+    const res  = await fetch(url);
+    const data = await res.json();
+    const cfg  = (data && data.config) ? data.config : {};
+
+    const isClosed  = cfg.subjClosed === '1';
+    const closeDate = cfg.subjCloseDate || '';
+    const today     = new Date().toISOString().slice(0,10);
+
+    // 버튼으로 마감했거나 날짜가 지났으면 마감 표시
+    if(isClosed || (closeDate && today > closeDate)){
+      const msg = closeDate
+        ? `주관식 제출 기한(<b>${closeDate}</b>)이 마감되었습니다.`
+        : '관리자에 의해 주관식 제출이 마감되었습니다.';
+
+      document.body.innerHTML = `
+        <div class="closed-wrap">
+          <div class="closed-box">
+            <div class="closed-ico">🔒</div>
+            <div class="closed-title">제출 기한 마감</div>
+            <div class="closed-msg">${msg}<br><br>
+              문의사항은 인사총무팀으로 연락해주세요.
+            </div>
+          </div>
+        </div>`;
+      return false;
+    }
+  } catch(e){ console.warn('마감 체크 실패:', e); }
+  return true;
+}
+
+// 페이지 로드 시 마감 체크
+window.addEventListener('DOMContentLoaded', async ()=>{
+  await checkClosed();
+});
 
 // 우클릭/F12 차단
 (function(){

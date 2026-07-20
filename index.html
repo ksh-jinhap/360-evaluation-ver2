@@ -560,6 +560,41 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--tx);
           </div>
         </div>
         <div class="acard">
+          <h3>✍️ 주관식 제출 마감 설정</h3>
+          <p style="font-size:13px;color:var(--tx3);margin-bottom:16px">
+            주관식 제출 마감 설정 시 <b>subjective.html</b> 접속 시 마감 안내가 표시됩니다.
+          </p>
+
+          <!-- ON/OFF 버튼 -->
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+              <input type="checkbox" id="subj-closed" onchange="toggleSubjClosed()"
+                style="width:18px;height:18px;cursor:pointer">
+              <span style="font-size:15px;font-weight:600;color:var(--tx2)">즉시 마감 (ON/OFF)</span>
+            </label>
+            <span id="subj-closed-status"
+              style="font-size:13px;padding:3px 12px;border-radius:12px;background:#f0f4fa;color:var(--tx3)">
+              비활성화
+            </span>
+          </div>
+
+          <!-- 날짜 설정 -->
+          <div style="margin-bottom:16px">
+            <label style="font-size:13px;color:var(--tx3);display:block;margin-bottom:6px">
+              📅 마감일 설정 (해당 날짜 이후 자동 마감)
+            </label>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <input type="date" id="subj-close-date"
+                style="padding:8px 11px;border:1.5px solid var(--bd);border-radius:6px;
+                  font-size:15px;font-family:inherit;outline:none">
+              <span style="font-size:13px;color:var(--tx3)">날짜를 비우면 날짜 마감 없음</span>
+            </div>
+          </div>
+
+          <button class="btn add" onclick="saveSubjClosed()">💾 마감 설정 저장</button>
+        </div>
+
+        <div class="acard">
           <h3>🗓️ 평가 기간 설정</h3>
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
@@ -1611,7 +1646,7 @@ function nav(sec){
   if(sec==='results'||sec==='indiv'){}  // already handled
   // 설정 탭 진입 시 기간 설정 로드
   const sysEl=document.getElementById('as-results');
-  if(sec==='results')loadPeriodSettings();
+  if(sec==='results'){loadPeriodSettings();loadSubjClosedSetting();}
   if(sec==='indiv'){fillIndivSelects();renderIndivList();}
 }
 function fillSelects(){
@@ -2560,6 +2595,48 @@ async function checkPeriod(){
     return false;
   }
   return true;
+}
+
+
+// ── 주관식 마감 설정 ──
+function toggleSubjClosed(){
+  const enabled = document.getElementById('subj-closed').checked;
+  const status  = document.getElementById('subj-closed-status');
+  if(enabled){
+    status.textContent='마감됨';
+    status.style.background='#fdecea';
+    status.style.color='#c62828';
+  } else {
+    status.textContent='비활성화';
+    status.style.background='#f0f4fa';
+    status.style.color='var(--tx3)';
+  }
+}
+
+async function saveSubjClosed(){
+  const closed    = document.getElementById('subj-closed').checked;
+  const closeDate = document.getElementById('subj-close-date').value;
+
+  await gasGet({ action:'setConfig', key:'subjClosed',    value: closed ? '1' : '0' });
+  await gasGet({ action:'setConfig', key:'subjCloseDate', value: closeDate });
+
+  alert(closed
+    ? '✅ 주관식 제출이 즉시 마감되었습니다.'
+    : closeDate
+      ? `✅ 마감일이 ${closeDate}로 설정되었습니다.`
+      : '✅ 주관식 마감이 해제되었습니다.'
+  );
+}
+
+async function loadSubjClosedSetting(){
+  const r = await gasGet({ action: 'getConfig' });
+  if(!r || !r.config) return;
+  const cfg = r.config;
+
+  const chk  = document.getElementById('subj-closed');
+  const date = document.getElementById('subj-close-date');
+  if(chk){ chk.checked = cfg.subjClosed === '1'; toggleSubjClosed(); }
+  if(date) date.value = cfg.subjCloseDate || '';
 }
 
 function fillIndivSelects(){
