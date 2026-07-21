@@ -707,7 +707,7 @@ const DB={
 // ██  Google Apps Script 연동 설정  ██
 // Apps Script 배포 후 아래 URL을 교체하세요
 // ════════════════════════════════════════════════════════
-const GAS_URL = "https://script.google.com/macros/s/AKfycbwDSspYAJCSshM_DwsK3WfGNE_j8rlWZcgtk1VzD1c2XmRZbmeyzzkp5m0LSXg-VZFyXg/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbx3Y7R8BBn647S5m0HfY0w10DF83x_MnzBQeYutnqBtrRFUbE-HK_n8mWgsQEgzNSUzTw/exec";
 
 // GAS 호출 헬퍼
 async function gasGet(params) {
@@ -2524,10 +2524,14 @@ async function savePeriod(){
     return;
   }
 
-  // GAS config에 저장
+  // GAS config에 저장 (GET 방식)
   await gasGet({ action:'setConfig', key:'periodEnabled', value: enabled ? '1' : '0' });
   await gasGet({ action:'setConfig', key:'periodStart',   value: start });
   await gasGet({ action:'setConfig', key:'periodEnd',     value: end });
+  // localStorage 캐시도 업데이트
+  DB.s('periodEnabled', enabled ? '1' : '0');
+  DB.s('periodStart', start);
+  DB.s('periodEnd', end);
 
   // localStorage에도 캐시
   DB.s('periodEnabled', enabled ? '1' : '0');
@@ -2565,9 +2569,6 @@ async function loadPeriodSettings(){
 
 // 기간 체크 (index.html 일반 사용자용)
 async function checkPeriod(){
-  // 관리자는 항상 통과
-  if(CU && CU.isAdmin) return true;
-
   const r = await gasGet({ action: 'getConfig' });
   const cfg = (r && r.config) ? r.config : {};
   const today = new Date().toISOString().slice(0,10);
@@ -2645,6 +2646,9 @@ async function saveSubjClosed(){
 
   await gasGet({ action:'setConfig', key:'subjClosed',    value: closed ? '1' : '0' });
   await gasGet({ action:'setConfig', key:'subjCloseDate', value: closeDate });
+  // localStorage 캐시도 업데이트
+  DB.s('subjClosed', closed ? '1' : '0');
+  DB.s('subjCloseDate', closeDate);
 
   alert(closed
     ? '✅ 주관식 제출이 즉시 마감되었습니다.'
@@ -2944,8 +2948,9 @@ initData();applyYear();loadConfigFromGAS();
 (async()=>{
   const loginEl = document.getElementById('pg-login');
   if(loginEl) loginEl.style.visibility='hidden';
-  await checkPeriod();
-  if(loginEl) loginEl.style.visibility='visible';
+  const ok = await checkPeriod();
+  console.log('기간 체크 결과:', ok ? '접속 허용' : '접속 차단');
+  if(ok && loginEl) loginEl.style.visibility='visible';
 })();
 document.getElementById('li-phone4').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
 </script>
