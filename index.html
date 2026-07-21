@@ -2565,36 +2565,62 @@ async function loadPeriodSettings(){
 
 // 기간 체크 (index.html 일반 사용자용)
 async function checkPeriod(){
-  // GAS에서 최신 설정 확인
+  // 관리자는 항상 통과
+  if(CU && CU.isAdmin) return true;
+
   const r = await gasGet({ action: 'getConfig' });
   const cfg = (r && r.config) ? r.config : {};
+  const today = new Date().toISOString().slice(0,10);
+
+  // 1. 즉시 마감 체크 (periodEnabled ON/OFF)
   const enabled = cfg.periodEnabled === '1';
-  if(!enabled) return true; // 비활성화면 항상 허용
+  if(enabled){
+    const start = cfg.periodStart || '';
+    const end   = cfg.periodEnd   || '';
+    if(start && end && (today < start || today > end)){
+      showPeriodBlock(start, end);
+      return false;
+    }
+  }
 
-  const start = cfg.periodStart || '';
-  const end   = cfg.periodEnd   || '';
-  if(!start || !end) return true;
-
-  const now   = new Date().toISOString().slice(0,10);
-  if(now < start || now > end){
-    // 기간 외 접속 차단 화면
-    document.getElementById('pg-login').innerHTML = `
-      <div class="login-wrap" style="min-height:100vh;display:flex;align-items:center;justify-content:center;
-        background:linear-gradient(135deg,#1a3a5c 0%,#2563a8 100%)">
-        <div style="background:#fff;border-radius:20px;padding:44px 36px;max-width:400px;width:100%;
-          text-align:center;box-shadow:0 8px 40px rgba(26,58,92,.18)">
-          <div style="font-size:56px;margin-bottom:16px">📅</div>
-          <h2 style="font-size:22px;font-weight:800;color:#1a3a5c;margin-bottom:12px">평가 기간이 아닙니다</h2>
-          <p style="font-size:15px;color:#5a7a9a;line-height:1.7">
-            평가 가능 기간:<br>
-            <b style="color:#1a3a5c">${start} ~ ${end}</b><br><br>
-            문의사항은 인사총무팀으로 연락주세요.
-          </p>
-        </div>
-      </div>`;
+  // 2. 주관식 마감과 별개로 평가 자체 마감 체크
+  // subjClosed가 ON이면 평가도 마감
+  const subjClosed    = cfg.subjClosed === '1';
+  const subjCloseDate = cfg.subjCloseDate || '';
+  if(subjClosed || (subjCloseDate && today >= subjCloseDate)){
+    showPeriodBlock('', '', true);
     return false;
   }
+
   return true;
+}
+
+function showPeriodBlock(start, end, isClosed){
+  const loginEl = document.getElementById('pg-login');
+  if(!loginEl) return;
+
+  let msg = '';
+  if(isClosed){
+    msg = '평가 및 주관식 제출 기간이 마감되었습니다.';
+  } else if(start && end){
+    msg = `평가 가능 기간: <b style="color:#1a3a5c">${start} ~ ${end}</b>`;
+  } else {
+    msg = '현재 평가 기간이 아닙니다.';
+  }
+
+  loginEl.innerHTML = `
+    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(135deg,#1a3a5c 0%,#2563a8 100%)">
+      <div style="background:#fff;border-radius:20px;padding:44px 36px;max-width:400px;width:100%;
+        text-align:center;box-shadow:0 8px 40px rgba(26,58,92,.18)">
+        <div style="font-size:56px;margin-bottom:16px">🔒</div>
+        <h2 style="font-size:22px;font-weight:800;color:#1a3a5c;margin-bottom:12px">접속 불가</h2>
+        <p style="font-size:15px;color:#5a7a9a;line-height:1.7">
+          ${msg}<br><br>
+          문의사항은 인사총무팀으로 연락주세요.
+        </p>
+      </div>
+    </div>`;
 }
 
 
@@ -2914,8 +2940,13 @@ function closeModal(){document.getElementById('modal').classList.add('dn');}
 
 // ════ INIT ════
 initData();applyYear();loadConfigFromGAS();
-// 일반 사용자 접속 시 기간 체크 (관리자는 제외)
-checkPeriod();
+// 접속 시 기간/마감 체크 — 로그인 화면 숨기고 체크 후 표시
+(async()=>{
+  const loginEl = document.getElementById('pg-login');
+  if(loginEl) loginEl.style.visibility='hidden';
+  await checkPeriod();
+  if(loginEl) loginEl.style.visibility='visible';
+})();
 document.getElementById('li-phone4').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
 </script>
 </body>
