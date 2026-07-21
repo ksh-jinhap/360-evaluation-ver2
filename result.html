@@ -286,6 +286,8 @@ function renderCards(type) {
   mySubs.forEach(sub => {
     Object.entries(sub.scores).forEach(([item, score]) => {
       if (score === null || score === undefined) return;
+      if (item.startsWith('__')) return;
+      if (EXCLUDE_ITEMS.includes(item)) return;
       if (!myScores[item]) myScores[item] = [];
       myScores[item].push(Number(score));
     });
@@ -297,6 +299,8 @@ function renderCards(type) {
       if (typeof items !== 'object') return;
       Object.entries(items).forEach(([item, score]) => {
         if (score === null || score === undefined) return;
+        if (item.startsWith('__')) return;
+        if (EXCLUDE_ITEMS.includes(item)) return;
         if (!allScores[item]) allScores[item] = [];
         allScores[item].push(Number(score));
         if (sub.team === myTeam) {
@@ -310,6 +314,8 @@ function renderCards(type) {
     if (sc && typeof Object.values(sc)[0] === 'number') {
       Object.entries(sc).forEach(([item, score]) => {
         if (score === null || score === undefined) return;
+        if (item.startsWith('__')) return;
+        if (EXCLUDE_ITEMS.includes(item)) return;
         if (!allScores[item]) allScores[item] = [];
         allScores[item].push(Number(score));
         if (sub.team === myTeam) {
@@ -321,7 +327,16 @@ function renderCards(type) {
   });
 
   const avgArr = arr => arr && arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length) : 0;
-  const labels  = Object.keys(myScores);
+
+  // 항목명 정리: "/" 기준 앞부분만 사용
+  const EXCLUDE_ITEMS = ['업무수행능력/실행력']; // 제외할 항목
+  const cleanLabel = (label) => {
+    if(!label) return label;
+    const parts = label.split('/');
+    return parts[0].trim();
+  };
+  const rawLabels = Object.keys(myScores);
+  const labels    = rawLabels.map(cleanLabel);
   const myAvgs  = labels.map(l => avgArr(myScores[l]));
   const allAvgs = labels.map(l => avgArr(allScores[l]));
   const teamAvgs= labels.map(l => avgArr(teamScores[l]));
