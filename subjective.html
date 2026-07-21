@@ -147,6 +147,8 @@ function authKey(e,p){return hp(digits(e).padStart(6,'0')+'|'+digits(p).padStart
 
 // ── 로그인 (localStorage + GAS 인증) ──
 async function doLogin(){
+  // 마감 상태면 로그인 차단
+  if(IS_CLOSED){ showClosedScreen(''); return; }
   const name   = document.getElementById('li-name').value.trim();
   const empNo  = digits(document.getElementById('li-emp').value);
   const phone4 = digits(document.getElementById('li-phone4').value);
@@ -404,10 +406,28 @@ async function doSubmit(){
 }
 
 
-// ── 마감 체크 (접속 시 자동 실행) ──
+// ── 마감 체크 ──
+let IS_CLOSED = false; // 전역 마감 상태
+
+function showClosedScreen(closeDate){
+  const msg = closeDate
+    ? `주관식 제출 기한(<b>${closeDate}</b>)이 마감되었습니다.`
+    : '관리자에 의해 주관식 제출이 마감되었습니다.';
+  document.body.innerHTML = `
+    <div class="closed-wrap">
+      <div class="closed-box">
+        <div class="closed-ico">🔒</div>
+        <div class="closed-title">제출 기한 마감</div>
+        <div class="closed-msg">${msg}<br><br>
+          문의사항은 인사총무팀으로 연락해주세요.
+        </div>
+      </div>
+    </div>`;
+}
+
 async function checkClosed(){
   try {
-    const url = GAS_URL + '?' + new URLSearchParams({ action: 'getConfig' });
+    const url  = GAS_URL + '?' + new URLSearchParams({ action: 'getConfig' });
     const res  = await fetch(url);
     const data = await res.json();
     const cfg  = (data && data.config) ? data.config : {};
@@ -416,31 +436,27 @@ async function checkClosed(){
     const closeDate = cfg.subjCloseDate || '';
     const today     = new Date().toISOString().slice(0,10);
 
-    // 버튼으로 마감했거나 날짜가 지났으면 마감 표시
-    if(isClosed || (closeDate && today > closeDate)){
-      const msg = closeDate
-        ? `주관식 제출 기한(<b>${closeDate}</b>)이 마감되었습니다.`
-        : '관리자에 의해 주관식 제출이 마감되었습니다.';
-
-      document.body.innerHTML = `
-        <div class="closed-wrap">
-          <div class="closed-box">
-            <div class="closed-ico">🔒</div>
-            <div class="closed-title">제출 기한 마감</div>
-            <div class="closed-msg">${msg}<br><br>
-              문의사항은 인사총무팀으로 연락해주세요.
-            </div>
-          </div>
-        </div>`;
+    // 즉시마감 ON 이거나 마감날짜가 오늘 포함 이전이면 마감
+    if(isClosed || (closeDate && today >= closeDate)){
+      IS_CLOSED = true;
+      showClosedScreen(closeDate);
       return false;
     }
-  } catch(e){ console.warn('마감 체크 실패:', e); }
+  } catch(e){ console.warn('마감 체크 실패 (계속 진행):', e); }
+  IS_CLOSED = false;
   return true;
 }
 
-// 페이지 로드 시 마감 체크
+// 페이지 로드 시 마감 체크 — 로그인 화면 숨기고 체크 후 표시
 window.addEventListener('DOMContentLoaded', async ()=>{
-  await checkClosed();
+  // 로그인 화면 잠깐 숨기기
+  const loginEl = document.getElementById('pg-login');
+  if(loginEl) loginEl.style.visibility = 'hidden';
+
+  const ok = await checkClosed();
+
+  // 마감 아니면 로그인 화면 표시
+  if(ok && loginEl) loginEl.style.visibility = 'visible';
 });
 
 // 우클릭/F12 차단
