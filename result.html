@@ -155,6 +155,33 @@ const FORM_LABEL = {
   super_ceo: '상사평가 (법인대표용)'
 };
 
+const ITEM_MAP = {
+  '적극성/업무에 임하는 자세가': '적극성',
+  '책임감/맡은 일은 끝까지 완수': '책임감',
+  '협조성/소속부서 및 타부서에': '협조성',
+  '규율성/조직의 규정과 규칙을': '규율성',
+  '업무지식/담당업무 지식 및 관련': '업무지식',
+  '실행력/난관에 부딪히면 해결방': '실행력',
+  '업무수행능력/이해판단력': '이해판단력',
+  '업무수행능력/의사소통': '의사소통',
+  '업무수행능력/창의력': '창의력',
+  '업무수행능력/업무수행': '업무수행',
+  '대인관계/매사 표정이 밝고, 언': '대인관계',
+};
+const EXCLUDE_ITEMS = ['업무수행능력/실행력'];
+const cleanLabel = (label) => {
+  if (!label) return label;
+  // 정확히 매핑되는 항목
+  if (ITEM_MAP[label]) return ITEM_MAP[label];
+  // 부분 매칭 (슬라이싱된 키 대응)
+  for (const [key, val] of Object.entries(ITEM_MAP)) {
+    if (label.startsWith(key.slice(0,8)) || key.startsWith(label.slice(0,8))) return val;
+  }
+  // fallback: "/" 기준 뒷부분이 있으면 뒷부분, 없으면 앞부분
+  const parts = label.split('/');
+  return parts.length > 1 ? parts[1].trim() : parts[0].trim();
+};
+
 let CU = null; // 현재 로그인 사용자
 let ALL_SUBS = []; // 전체 제출 데이터 (팀/전체 평균용)
 let MY_SUBS  = []; // 내 피평가 데이터
@@ -297,6 +324,8 @@ function renderCards(type) {
       if (typeof items !== 'object') return;
       Object.entries(items).forEach(([item, score]) => {
         if (score === null || score === undefined) return;
+        if (item.startsWith('__')) return;
+        if (EXCLUDE_ITEMS.some(ex => item.startsWith(ex.slice(0,8)) || ex.startsWith(item.slice(0,8)))) return;
         if (!allScores[item]) allScores[item] = [];
         allScores[item].push(Number(score));
         if (sub.team === myTeam) {
@@ -310,6 +339,8 @@ function renderCards(type) {
     if (sc && typeof Object.values(sc)[0] === 'number') {
       Object.entries(sc).forEach(([item, score]) => {
         if (score === null || score === undefined) return;
+        if (item.startsWith('__')) return;
+        if (EXCLUDE_ITEMS.some(ex => item.startsWith(ex.slice(0,8)) || ex.startsWith(item.slice(0,8)))) return;
         if (!allScores[item]) allScores[item] = [];
         allScores[item].push(Number(score));
         if (sub.team === myTeam) {
@@ -321,7 +352,7 @@ function renderCards(type) {
   });
 
   const avgArr = arr => arr && arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length) : 0;
-  const labels  = Object.keys(myScores);
+  const labels  = Object.keys(myScores).map(cleanLabel);
   const myAvgs  = labels.map(l => avgArr(myScores[l]));
   const allAvgs = labels.map(l => avgArr(allScores[l]));
   const teamAvgs= labels.map(l => avgArr(teamScores[l]));
