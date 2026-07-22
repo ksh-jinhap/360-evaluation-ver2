@@ -155,6 +155,14 @@ const FORM_LABEL = {
   super_ceo: '상사평가 (법인대표용)'
 };
 
+// 제외 항목 및 항목명 정리
+const EXCLUDE_ITEMS = ['업무수행능력/실행력'];
+const cleanLabel = (label) => {
+  if(!label) return label;
+  const idx = label.indexOf('/');
+  return idx > -1 ? label.slice(0, idx).trim() : label.trim();
+};
+
 let CU = null; // 현재 로그인 사용자
 let ALL_SUBS = []; // 전체 제출 데이터 (팀/전체 평균용)
 let MY_SUBS  = []; // 내 피평가 데이터
@@ -327,16 +335,7 @@ function renderCards(type) {
   });
 
   const avgArr = arr => arr && arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length) : 0;
-
-  // 항목명 정리: "/" 기준 앞부분만 사용
-  const EXCLUDE_ITEMS = ['업무수행능력/실행력']; // 제외할 항목
-  const cleanLabel = (label) => {
-    if(!label) return label;
-    const parts = label.split('/');
-    return parts[0].trim();
-  };
-  const rawLabels = Object.keys(myScores);
-  const labels    = rawLabels.map(cleanLabel);
+  const labels = Object.keys(myScores).map(cleanLabel);
   const myAvgs  = labels.map(l => avgArr(myScores[l]));
   const allAvgs = labels.map(l => avgArr(allScores[l]));
   const teamAvgs= labels.map(l => avgArr(teamScores[l]));
