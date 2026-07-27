@@ -155,6 +155,7 @@ const FORM_LABEL = {
   super_ceo: '상사평가 (법인대표용)'
 };
 
+// 항목명 매핑 (원본키 → 표시명)
 const ITEM_MAP = {
   '적극성/업무에 임하는 자세가': '적극성',
   '책임감/맡은 일은 끝까지 완수': '책임감',
@@ -168,19 +169,27 @@ const ITEM_MAP = {
   '업무수행능력/업무수행': '업무수행',
   '대인관계/매사 표정이 밝고, 언': '대인관계',
 };
+// 제외할 원본 항목명 (표시 안 함)
 const EXCLUDE_ITEMS = ['업무수행능력/실행력'];
-const cleanLabel = (label) => {
-  if (!label) return label;
-  // 정확히 매핑되는 항목
-  if (ITEM_MAP[label]) return ITEM_MAP[label];
-  // 부분 매칭 (슬라이싱된 키 대응)
+
+// 원본 키 → 표시명 변환
+function cleanLabel(item) {
+  if (!item) return item;
+  if (ITEM_MAP[item]) return ITEM_MAP[item];
+  // 부분 매칭 (앞 5글자 기준)
   for (const [key, val] of Object.entries(ITEM_MAP)) {
-    if (label.startsWith(key.slice(0,8)) || key.startsWith(label.slice(0,8))) return val;
+    if (item.slice(0,5) === key.slice(0,5)) return val;
   }
-  // fallback: "/" 기준 뒷부분이 있으면 뒷부분, 없으면 앞부분
-  const parts = label.split('/');
+  // fallback: "/" 뒤 또는 앞
+  const parts = item.split('/');
   return parts.length > 1 ? parts[1].trim() : parts[0].trim();
-};
+}
+
+// 제외 항목 여부 체크
+function isExcluded(item) {
+  if (item.startsWith('__')) return true;
+  return EXCLUDE_ITEMS.some(ex => item.slice(0,5) === ex.slice(0,5) && item.includes('/실행력'));
+}
 
 let CU = null; // 현재 로그인 사용자
 let ALL_SUBS = []; // 전체 제출 데이터 (팀/전체 평균용)
@@ -295,8 +304,8 @@ function selectTab(type, el) {
 
 // ── 카드 렌더링 ──
 function renderCards(type) {
-  const mySubs  = MY_SUBS.filter(s => s.type === type);
-  const allSubs = ALL_SUBS.filter(s => s.type === type);
+  const mySubs   = MY_SUBS.filter(s => s.type === type);
+  const allSubs  = ALL_SUBS.filter(s => s.type === type);
   const container = document.getElementById('result-cards');
 
   if (mySubs.length === 0) {
@@ -304,61 +313,73 @@ function renderCards(type) {
     return;
   }
 
-  // 항목별 내 점수 집계
-  const myScores  = {}; // { 항목: [점수들] }
-  const allScores = {}; // 전체 평균
-  const teamScores = {}; // 팀 평균 (내 팀)
   const myTeam = mySubs[0]?.team || '';
 
+  // 원본 키 기준으로 점수 집계
+  const myRaw   = {}; // { 원본키: [점수] }
+  const allRaw  = {}; // { 원본키: [점수] }
+  const teamRaw = {}; // { 원본키: [점수] }
+
+  // 내 점수
   mySubs.forEach(sub => {
-    Object.entries(sub.scores).forEach(([item, score]) => {
+    Object.entries(sub.scores || {}).forEach(([item, score]) => {
+      if (isExcluded(item)) return;
       if (score === null || score === undefined) return;
-      if (!myScores[item]) myScores[item] = [];
-      myScores[item].push(Number(score));
+      if (!myRaw[item]) myRaw[item] = [];
+      myRaw[item].push(Number(score));
     });
   });
 
-  // 전체 / 팀 평균 (ALL_SUBS에서 같은 type의 scores 수집)
+  // 전체/팀 평균
   allSubs.forEach(sub => {
-    Object.entries(sub.scores || {}).forEach(([person, items]) => {
-      if (typeof items !== 'object') return;
-      Object.entries(items).forEach(([item, score]) => {
-        if (score === null || score === undefined) return;
-        if (item.startsWith('__')) return;
-        if (EXCLUDE_ITEMS.some(ex => item.startsWith(ex.slice(0,8)) || ex.startsWith(item.slice(0,8)))) return;
-        if (!allScores[item]) allScores[item] = [];
-        allScores[item].push(Number(score));
-        if (sub.team === myTeam) {
-          if (!teamScores[item]) teamScores[item] = [];
-          teamScores[item].push(Number(score));
-        }
-      });
-    });
-    // 직접 scores가 항목:점수인 경우도 처리
     const sc = sub.scores || {};
-    if (sc && typeof Object.values(sc)[0] === 'number') {
-      Object.entries(sc).forEach(([item, score]) => {
-        if (score === null || score === undefined) return;
-        if (item.startsWith('__')) return;
-        if (EXCLUDE_ITEMS.some(ex => item.startsWith(ex.slice(0,8)) || ex.startsWith(item.slice(0,8)))) return;
-        if (!allScores[item]) allScores[item] = [];
-        allScores[item].push(Number(score));
+    // scores가 { 피평가자: { 항목: 점수 } } 구조
+    Object.entries(sc).forEach(([personOrItem, val]) => {
+      if (typeof val === 'object' && val !== null) {
+        Object.entries(val).forEach(([item, score]) => {
+          if (isExcluded(item)) return;
+          if (score === null || score === undefined) return;
+          if (!allRaw[item]) allRaw[item] = [];
+          allRaw[item].push(Number(score));
+          if (sub.team === myTeam) {
+            if (!teamRaw[item]) teamRaw[item] = [];
+            teamRaw[item].push(Number(score));
+          }
+        });
+      } else if (typeof val === 'number') {
+        // scores가 { 항목: 점수 } 구조
+        const item = personOrItem;
+        if (isExcluded(item)) return;
+        if (!allRaw[item]) allRaw[item] = [];
+        allRaw[item].push(Number(val));
         if (sub.team === myTeam) {
-          if (!teamScores[item]) teamScores[item] = [];
-          teamScores[item].push(Number(score));
+          if (!teamRaw[item]) teamRaw[item] = [];
+          teamRaw[item].push(Number(val));
         }
-      });
+      }
+    });
+  });
+
+  const avgArr = arr => arr && arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length) : null;
+
+  // 원본 키 목록 → 표시명으로 변환 (중복 제거)
+  const rawKeys = Object.keys(myRaw);
+  const seen = new Set();
+  const items = []; // { rawKey, label }
+  rawKeys.forEach(k => {
+    const label = cleanLabel(k);
+    if (!seen.has(label)) {
+      seen.add(label);
+      items.push({ rawKey: k, label });
     }
   });
 
-  const avgArr = arr => arr && arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length) : 0;
-  const labels  = Object.keys(myScores).map(cleanLabel);
-  const myAvgs  = labels.map(l => avgArr(myScores[l]));
-  const allAvgs = labels.map(l => avgArr(allScores[l]));
-  const teamAvgs= labels.map(l => avgArr(teamScores[l]));
+  const labels   = items.map(i => i.label);
+  const myAvgs   = items.map(i => avgArr(myRaw[i.rawKey]) || 0);
+  const allAvgs  = items.map(i => avgArr(allRaw[i.rawKey]));
+  const teamAvgs = items.map(i => avgArr(teamRaw[i.rawKey]));
 
   container.innerHTML = `
-    <!-- 척도 설명 -->
     <div class="card">
       <h3>📊 ${FORM_LABEL[type]||type} 결과 <span style="font-size:13px;font-weight:400;color:var(--tx3)">(${mySubs.length}명 평가)</span></h3>
       <div class="scale-wrap">
@@ -369,8 +390,6 @@ function renderCards(type) {
         <div class="scale-chip sc2">2 부정</div>
         <div class="scale-chip sc1">1 매우부정</div>
       </div>
-
-      <!-- 거미줄 차트 -->
       <div class="radar-wrap">
         <canvas id="radar-cv" width="520" height="420"></canvas>
       </div>
@@ -380,8 +399,6 @@ function renderCards(type) {
         <span><i style="background:#2e7d52"></i> 팀 평균</span>
       </div>
     </div>
-
-    <!-- 점수표 -->
     <div class="card">
       <h3>📋 항목별 점수</h3>
       <div style="overflow-x:auto">
@@ -395,12 +412,12 @@ function renderCards(type) {
             </tr>
           </thead>
           <tbody>
-            ${labels.map((l,i) => `
+            ${items.map((item,i) => `
               <tr>
-                <td>${l}</td>
+                <td>${item.label}</td>
                 <td class="score-my">${myAvgs[i].toFixed(2)}</td>
-                <td class="score-team">${teamAvgs[i] ? teamAvgs[i].toFixed(2) : '-'}</td>
-                <td class="score-all">${allAvgs[i] ? allAvgs[i].toFixed(2) : '-'}</td>
+                <td class="score-team">${allAvgs[i] !== null ? allAvgs[i].toFixed(2) : '-'}</td>
+                <td class="score-all">${teamAvgs[i] !== null ? teamAvgs[i].toFixed(2) : '-'}</td>
               </tr>`).join('')}
           </tbody>
         </table>
@@ -408,87 +425,10 @@ function renderCards(type) {
     </div>
   `;
 
-  // 차트 그리기
   setTimeout(() => drawRadar('radar-cv', labels, [
-    { label:'본인', data: myAvgs,   color:'#1565c0' },
-    { label:'전체평균', data: allAvgs,  color:'#e64a19' },
-    { label:'팀평균',   data: teamAvgs, color:'#2e7d52' },
+    { label:'본인', data: myAvgs,                           color:'#1565c0' },
+    { label:'전체평균', data: allAvgs.map(v=>v||0),         color:'#e64a19' },
+    { label:'팀평균',   data: teamAvgs.map(v=>v||0),        color:'#2e7d52' },
   ]), 50);
 }
 
-// ── 레이더 차트 ──
-function drawRadar(canvasId, labels, datasets) {
-  const canvas = document.getElementById(canvasId);
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  const cx = W/2, cy = H/2;
-  const R  = Math.min(W,H) * 0.36;
-  const N  = labels.length;
-  const maxVal = 6;
-  ctx.clearRect(0, 0, W, H);
-
-  if (N < 3) {
-    ctx.fillStyle = '#888'; ctx.font = '15px sans-serif';
-    ctx.fillText('항목이 3개 이상이어야 차트를 표시합니다.', 20, H/2);
-    return;
-  }
-
-  const angle = i => (Math.PI*2*i/N) - Math.PI/2;
-  const pt = (i, val) => ({
-    x: cx + R*(val/maxVal)*Math.cos(angle(i)),
-    y: cy + R*(val/maxVal)*Math.sin(angle(i))
-  });
-
-  // 배경 그물망
-  for (let r = 1; r <= maxVal; r++) {
-    ctx.beginPath();
-    ctx.strokeStyle = r === maxVal ? '#b0bcd0' : '#dde3ee';
-    ctx.lineWidth = r === maxVal ? 1.5 : 1;
-    for (let i = 0; i < N; i++) {
-      const p = pt(i, r);
-      i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
-    }
-    ctx.closePath(); ctx.stroke();
-    // 눈금
-    ctx.fillStyle = '#aab'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText(r, cx + 6, cy - R*(r/maxVal) + 4);
-  }
-
-  // 축 선
-  for (let i = 0; i < N; i++) {
-    const p = pt(i, maxVal);
-    ctx.beginPath(); ctx.strokeStyle = '#c8d0de'; ctx.lineWidth = 1;
-    ctx.moveTo(cx, cy); ctx.lineTo(p.x, p.y); ctx.stroke();
-  }
-
-  // 라벨
-  for (let i = 0; i < N; i++) {
-    const p = pt(i, maxVal * 1.2);
-    ctx.fillStyle = '#2a3a5a'; ctx.font = 'bold 11px sans-serif';
-    ctx.textAlign = p.x < cx-5 ? 'right' : p.x > cx+5 ? 'left' : 'center';
-    const lbl = labels[i].length > 12 ? labels[i].slice(0,12)+'…' : labels[i];
-    ctx.fillText(lbl, p.x, p.y + 4);
-  }
-
-  // 데이터
-  datasets.forEach(ds => {
-    if (!ds.data || ds.data.every(v => v===0)) return;
-    ctx.beginPath();
-    ds.data.forEach((v, i) => {
-      const p = pt(i, v);
-      i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
-    });
-    ctx.closePath();
-    ctx.strokeStyle = ds.color; ctx.lineWidth = 2.5; ctx.stroke();
-    ctx.fillStyle = ds.color + '28'; ctx.fill();
-    ds.data.forEach((v, i) => {
-      const p = pt(i, v);
-      ctx.beginPath(); ctx.arc(p.x, p.y, 4.5, 0, Math.PI*2);
-      ctx.fillStyle = ds.color; ctx.fill();
-    });
-  });
-}
-</script>
-</body>
-</html>
