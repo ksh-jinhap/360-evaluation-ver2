@@ -49,6 +49,9 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
 
 /* 레이더 */
 .radar-wrap{position:relative;width:100%;max-width:520px;margin:0 auto}
+.radar-wrap canvas{display:block;width:100%;height:auto;cursor:crosshair}
+.radar-tooltip{display:none;position:absolute;pointer-events:none;z-index:20;background:rgba(26,42,58,.96);color:#fff;padding:8px 10px;border-radius:7px;font-size:12px;line-height:1.45;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+.radar-tooltip strong{font-size:12px;font-weight:800}
 .radar-legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;font-size:14px;justify-content:center}
 .radar-legend span{display:flex;align-items:center;gap:6px}
 .radar-legend i{display:inline-block;width:22px;height:3px;border-radius:2px}
@@ -377,8 +380,10 @@ function renderCards(type) {
   const mySubs  = MY_SUBS.filter(s => s.type === type);
   const allSubs = ALL_SUBS.filter(s => s.type === type);
   const container = document.getElementById('result-cards');
-  const isSuper = type === 'super_mgr' || type === 'super_ceo';
-  const avgGroupLabel = isSuper ? '본부 평균' : '팀 평균';
+  const isSuperMgr = type === 'super_mgr';
+  const isSuperCeo = type === 'super_ceo';
+  const avgGroupLabel = isSuperMgr ? '본부 평균' : '팀 평균';
+  const showGroupAverage = !isSuperCeo;
 
   if (mySubs.length === 0) {
     container.innerHTML = '<div class="no-data">해당 유형의 평가 결과가 없습니다.</div>';
@@ -452,12 +457,13 @@ function renderCards(type) {
         <div class="scale-chip sc1">1 매우부정</div>
       </div>
       <div class="radar-wrap">
-        <canvas id="radar-cv" width="520" height="420"></canvas>
+        <canvas id="radar-cv" width="520" height="420" aria-label="평가 점수 레이더 차트"></canvas>
+        <div class="radar-tooltip" id="radar-tooltip" role="status" aria-live="polite"></div>
       </div>
       <div class="radar-legend">
         <span><i style="background:#1565c0"></i> 본인 평균</span>
         <span><i style="background:#e64a19"></i> 전체 평균</span>
-        <span><i style="background:#2e7d52"></i> ${avgGroupLabel}</span>
+        ${showGroupAverage ? `<span><i style="background:#2e7d52"></i> ${avgGroupLabel}</span>` : ''}
       </div>
     </div>
     <div class="card">
@@ -468,7 +474,7 @@ function renderCards(type) {
             <tr>
               <th>평가 항목</th>
               <th style="text-align:center;color:#1565c0">본인 평균</th>
-              <th style="text-align:center;color:#2e7d52">${avgGroupLabel}</th>
+              ${showGroupAverage ? `<th style="text-align:center;color:#2e7d52">${avgGroupLabel}</th>` : ''}
               <th style="text-align:center;color:#e64a19">전체 평균</th>
             </tr>
           </thead>
@@ -477,7 +483,7 @@ function renderCards(type) {
               <tr>
                 <td>${item.label}</td>
                 <td class="score-my">${myAvgs[i].toFixed(2)}</td>
-                <td class="score-team">${teamAvgs[i]!==null ? teamAvgs[i].toFixed(2) : '-'}</td>
+                ${showGroupAverage ? `<td class="score-team">${teamAvgs[i]!==null ? teamAvgs[i].toFixed(2) : '-'}</td>` : ''}
                 <td class="score-all">${allAvgs[i]!==null ? allAvgs[i].toFixed(2) : '-'}</td>
               </tr>`).join('')}
           </tbody>
@@ -485,11 +491,18 @@ function renderCards(type) {
       </div>
     </div>`;
 
-  setTimeout(() => drawRadar('radar-cv', labels, [
-    { label:'본인',     data: myAvgs,               color:'#1565c0' },
-    { label:'전체평균', data: allAvgs.map(v=>v||0),  color:'#e64a19' },
-    { label:avgGroupLabel.replace(' ', ''), data: teamAvgs.map(v=>v||0), color:'#2e7d52' },
-  ]), 50);
+  const radarDatasets = [
+    { label:'본인 평균', data: myAvgs,              color:'#1565c0' },
+    { label:'전체 평균', data: allAvgs.map(v=>v||0), color:'#e64a19' },
+  ];
+  if (showGroupAverage) {
+    radarDatasets.push({
+      label: avgGroupLabel,
+      data: teamAvgs.map(v=>v||0),
+      color:'#2e7d52'
+    });
+  }
+  setTimeout(() => drawRadar('radar-cv', labels, radarDatasets), 50);
 }
 
 function drawRadar(canvasId, labels, datasets) {
@@ -547,6 +560,7 @@ function drawRadar(canvasId, labels, datasets) {
   }
 
   // 데이터
+  const hoverPoints = [];
   datasets.forEach(ds => {
     if (!ds.data || ds.data.every(v => v===0)) return;
     ctx.beginPath();
@@ -558,12 +572,81 @@ function drawRadar(canvasId, labels, datasets) {
     ctx.strokeStyle = ds.color; ctx.lineWidth = 2.5; ctx.stroke();
     ctx.fillStyle = ds.color + '28'; ctx.fill();
     ds.data.forEach((v, i) => {
+      if (!Number.isFinite(v) || v <= 0) return;
       const p = pt(i, v);
       ctx.beginPath(); ctx.arc(p.x, p.y, 4.5, 0, Math.PI*2);
       ctx.fillStyle = ds.color; ctx.fill();
+      hoverPoints.push({
+        x: p.x, y: p.y, value: v, itemIndex: i,
+        itemLabel: labels[i], seriesLabel: ds.label
+      });
     });
   });
+
+  // 데이터 점에 마우스를 올리면 항목명과 점수를 표시
+  const tooltip = document.getElementById('radar-tooltip');
+  const wrap = canvas.parentElement;
+  const escapeHtml = value => String(value).replace(/[&<>"']/g, ch => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  }[ch]));
+
+  const showTooltip = (clientX, clientY) => {
+    if (!tooltip || !wrap) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (clientX - rect.left) * scaleX;
+    const y = (clientY - rect.top) * scaleY;
+    const hitRadius = 15 * Math.max(scaleX, scaleY);
+
+    let nearest = null;
+    let nearestDist = Infinity;
+    hoverPoints.forEach(point => {
+      const dist = Math.hypot(point.x - x, point.y - y);
+      if (dist <= hitRadius && dist < nearestDist) {
+        nearest = point;
+        nearestDist = dist;
+      }
+    });
+
+    if (!nearest) {
+      tooltip.style.display = 'none';
+      canvas.style.cursor = 'crosshair';
+      return;
+    }
+
+    const sameItemPoints = hoverPoints.filter(point => point.itemIndex === nearest.itemIndex);
+    const scoreLines = sameItemPoints
+      .map(point => `${escapeHtml(point.seriesLabel)}: ${Number(point.value).toFixed(2)}점`)
+      .join('<br>');
+    tooltip.innerHTML = `<strong>${escapeHtml(nearest.itemLabel)}</strong><br>${scoreLines}`;
+    tooltip.style.display = 'block';
+    canvas.style.cursor = 'pointer';
+
+    const wrapRect = wrap.getBoundingClientRect();
+    const pointerX = clientX - wrapRect.left;
+    const pointerY = clientY - wrapRect.top;
+    const maxLeft = Math.max(6, wrap.clientWidth - tooltip.offsetWidth - 6);
+    const maxTop = Math.max(6, wrap.clientHeight - tooltip.offsetHeight - 6);
+    tooltip.style.left = `${Math.min(pointerX + 12, maxLeft)}px`;
+    tooltip.style.top = `${Math.max(6, Math.min(pointerY - tooltip.offsetHeight / 2, maxTop))}px`;
+  };
+
+  canvas.addEventListener('mousemove', e => showTooltip(e.clientX, e.clientY));
+  canvas.addEventListener('mouseleave', () => {
+    if (tooltip) tooltip.style.display = 'none';
+    canvas.style.cursor = 'crosshair';
+  });
+  canvas.addEventListener('touchstart', e => {
+    const touch = e.touches[0];
+    if (touch) showTooltip(touch.clientX, touch.clientY);
+  }, {passive:true});
+  canvas.addEventListener('touchmove', e => {
+    const touch = e.touches[0];
+    if (touch) showTooltip(touch.clientX, touch.clientY);
+  }, {passive:true});
 }
+
 </script>
 </body>
 </html>
