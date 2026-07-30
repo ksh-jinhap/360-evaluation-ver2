@@ -48,7 +48,7 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
 .card h3{font-size:17px;font-weight:700;color:var(--nv);margin-bottom:16px}
 
 /* 레이더 */
-.radar-wrap{position:relative;width:100%;max-width:520px;margin:0 auto}
+.radar-wrap{position:relative;width:100%;max-width:820px;margin:0 auto}
 .radar-wrap canvas{display:block;width:100%;height:auto;cursor:crosshair}
 .radar-tooltip{display:none;position:absolute;pointer-events:none;z-index:20;background:rgba(26,42,58,.96);color:#fff;padding:8px 10px;border-radius:7px;font-size:12px;line-height:1.45;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.2)}
 .radar-tooltip strong{font-size:12px;font-weight:800}
@@ -457,7 +457,7 @@ function renderCards(type) {
         <div class="scale-chip sc1">1 매우부정</div>
       </div>
       <div class="radar-wrap">
-        <canvas id="radar-cv" width="520" height="420" aria-label="평가 점수 레이더 차트"></canvas>
+        <canvas id="radar-cv" width="820" height="620" aria-label="평가 점수 레이더 차트"></canvas>
         <div class="radar-tooltip" id="radar-tooltip" role="status" aria-live="polite"></div>
       </div>
       <div class="radar-legend">
@@ -510,8 +510,9 @@ function drawRadar(canvasId, labels, datasets) {
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height;
-  const cx = W/2, cy = H/2;
-  const R  = Math.min(W,H) * 0.36;
+  const cx = W/2, cy = H/2 - 8;
+  // 긴 항목명이 잘리지 않도록 차트 반경을 줄이고 라벨 영역을 넓힘
+  const R  = Math.min(W,H) * 0.30;
   const N  = labels.length;
   const maxVal = 6;
   ctx.clearRect(0, 0, W, H);
@@ -550,13 +551,57 @@ function drawRadar(canvasId, labels, datasets) {
     ctx.moveTo(cx, cy); ctx.lineTo(p.x, p.y); ctx.stroke();
   }
 
-  // 라벨
+  // 라벨: 전체 문구를 2줄까지 표시하고 글자 크기를 확대
+  const splitLabelLines = (label, maxChars = 10) => {
+    const value = String(label || '').trim();
+    if (value.length <= maxChars) return [value];
+
+    const words = value.split(/\s+/).filter(Boolean);
+    const lines = [];
+    let current = '';
+
+    words.forEach(word => {
+      if (word.length > maxChars) {
+        if (current) { lines.push(current); current = ''; }
+        for (let start = 0; start < word.length; start += maxChars) {
+          lines.push(word.slice(start, start + maxChars));
+        }
+        return;
+      }
+
+      const candidate = current ? `${current} ${word}` : word;
+      if (candidate.length <= maxChars) {
+        current = candidate;
+      } else {
+        if (current) lines.push(current);
+        current = word;
+      }
+    });
+    if (current) lines.push(current);
+
+    // 예상보다 길게 나뉘는 경우에도 내용을 생략하지 않고 두 줄에 균등 배치
+    if (lines.length > 2) {
+      const midpoint = Math.ceil(value.length / 2);
+      let splitAt = value.lastIndexOf(' ', midpoint);
+      if (splitAt < Math.floor(value.length * 0.35)) splitAt = midpoint;
+      return [value.slice(0, splitAt).trim(), value.slice(splitAt).trim()];
+    }
+    return lines;
+  };
+
   for (let i = 0; i < N; i++) {
-    const p = pt(i, maxVal * 1.2);
-    ctx.fillStyle = '#2a3a5a'; ctx.font = 'bold 11px sans-serif';
-    ctx.textAlign = p.x < cx-5 ? 'right' : p.x > cx+5 ? 'left' : 'center';
-    const lbl = labels[i].length > 12 ? labels[i].slice(0,12)+'…' : labels[i];
-    ctx.fillText(lbl, p.x, p.y + 4);
+    const p = pt(i, maxVal * 1.34);
+    const lines = splitLabelLines(labels[i], 10);
+    const lineHeight = 20;
+    const startY = p.y - ((lines.length - 1) * lineHeight) / 2;
+
+    ctx.fillStyle = '#2a3a5a';
+    ctx.font = "bold 16px 'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif";
+    ctx.textAlign = p.x < cx-8 ? 'right' : p.x > cx+8 ? 'left' : 'center';
+    ctx.textBaseline = 'middle';
+    lines.forEach((line, lineIndex) => {
+      ctx.fillText(line, p.x, startY + lineIndex * lineHeight);
+    });
   }
 
   // 데이터
