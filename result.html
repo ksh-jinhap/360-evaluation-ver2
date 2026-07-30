@@ -100,7 +100,7 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
       <label>주민번호 뒷 3자리</label>
       <input type="password" id="li-jumin" placeholder="숫자 3자리" maxlength="3" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
-    <button class="btn-login" id="btn-login" onclick="doLogin()">조회하기</button>
+    <button type="button" class="btn-login" id="btn-login" onclick="doLogin()">조회하기</button>
     <div class="login-err" id="li-err"></div>
     <div class="login-notice">해당 평가는 모두 익명으로 진행되었습니다.<br>본인의 결과만 조회 가능합니다.</div>
   </div>
@@ -169,8 +169,7 @@ const ITEM_MAP = {
   '업무수행능력/창의력': '창의력',
   '업무수행능력/업무수행': '업무수행',
   '대인관계/매사 표정이 밝고, 언': '대인관계',
-  // ── 상사평가 항목 (실제 키: "카테고리
-및XX/세부항목") ──
+  // ── 상사평가 항목 (실제 키: "카테고리 및 XX/세부항목") ──
   '충고와 조언, 질책을 적절히': '조직관리 및 소통 Ⅰ',
   '면담 또는 관찰을 통해 부하': '조직관리 및 소통 Ⅱ',
   '조직내 상사, 동료, 부하직': '조직관리 및 소통 Ⅲ',
@@ -233,11 +232,26 @@ let CUR_TYPE = ''; // 현재 선택 탭
 // ── GAS 호출 ──
 async function gasGet(params) {
   if (!GAS_URL || GAS_URL.includes('여기에')) return null;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15000);
+
   try {
-    const url = GAS_URL + '?' + new URLSearchParams(params);
-    const res = await fetch(url);
+    const url = GAS_URL + '?' + new URLSearchParams(params).toString();
+    const res = await fetch(url, {
+      method: 'GET',
+      cache: 'no-store',
+      signal: controller.signal
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return await res.json();
-  } catch(e) { console.warn('GAS GET 실패:', e); return null; }
+  } catch(e) {
+    console.warn('GAS GET 실패:', e);
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 async function gasPost(body) {
   if (!GAS_URL || GAS_URL.includes('여기에')) return null;
@@ -263,34 +277,56 @@ async function doLogin() {
     errEl.textContent = '이름, 사번, 주민번호 뒷 3자리를 모두 입력해주세요.';
     return;
   }
-  if (empNo.length !== 6) { errEl.textContent = '사번은 6자리입니다.'; return; }
-  if (jumin3.length !== 3) { errEl.textContent = '주민번호 뒷 3자리를 입력해주세요.'; return; }
-
-  errEl.textContent = '';
-  btn.disabled = true;
-  btn.textContent = '⏳ 확인 중...';
-
-  const auth = await gasGet({ action: 'authMember', empNo: empNo, name: encodeURIComponent(name), jumin3: jumin3 });
-  if (!auth || !auth.ok) {
-    errEl.textContent = (auth && auth.error) || '인증 실패. 다시 확인해주세요.';
-    btn.disabled = false; btn.textContent = '조회하기';
+  if (!/^\d{6}$/.test(empNo)) {
+    errEl.textContent = '사번은 숫자 6자리입니다.';
+    return;
+  }
+  if (!/^\d{3}$/.test(jumin3)) {
+    errEl.textContent = '주민번호 뒷 3자리는 숫자 3자리입니다.';
     return;
   }
 
-  CU = { name: auth.name, empNo: auth.empNo };
-  btn.textContent = '⏳ 결과 불러오는 중...';
+  errEl.textContent = '';
+  btn.disabled = true;
+  btn.textContent = '확인 중...';
 
-  // 내 결과 + 전체 제출 로드
-  const [myRes, allRes] = await Promise.all([
-    gasGet({ action: 'getSubmissionsFor', empNo: empNo }),
-    gasGet({ action: 'getSubmissions' })
-  ]);
+  try {
+    const auth = await gasGet({
+      action: 'authMember',
+      empNo: empNo,
+      name: name,
+      jumin3: jumin3
+    });
 
-  MY_SUBS  = (myRes && myRes.submissions)  || [];
-  ALL_SUBS = (allRes && allRes.submissions) || [];
+    if (!auth || !auth.ok) {
+      errEl.textContent = (auth && auth.error) || '인증에 실패했습니다. 입력값 또는 서버 연결을 확인해주세요.';
+      return;
+    }
 
-  btn.disabled = false; btn.textContent = '조회하기';
-  showResult();
+    CU = { name: auth.name, empNo: auth.empNo };
+    btn.textContent = '결과 불러오는 중...';
+
+    const [myRes, allRes] = await Promise.all([
+      gasGet({ action: 'getSubmissionsFor', empNo: empNo }),
+      gasGet({ action: 'getSubmissions' })
+    ]);
+
+    if (!myRes || !allRes) {
+      errEl.textContent = '평가 결과를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.';
+      CU = null;
+      return;
+    }
+
+    MY_SUBS  = myRes.submissions  || [];
+    ALL_SUBS = allRes.submissions || [];
+    showResult();
+  } catch (e) {
+    console.error('조회 처리 실패:', e);
+    errEl.textContent = '조회 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '조회하기';
+  }
 }
 
 function doLogout() {
