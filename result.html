@@ -370,14 +370,6 @@ function selectTab(type, el) {
   el.classList.add('on');
   CUR_TYPE = type;
   renderCards(type);
-  // 상사평가일 때 "팀 평균" → "본부 평균"
-  setTimeout(()=>{
-    const isSuper = type === 'super_mgr' || type === 'super_ceo';
-    const label = isSuper ? '본부 평균' : '팀 평균';
-    document.querySelectorAll('.team-avg-label').forEach(el => el.textContent = label);
-    const th = document.getElementById('th-team-avg');
-    if(th) th.textContent = label;
-  }, 100);
 }
 
 // ── 카드 렌더링 ──
@@ -385,6 +377,8 @@ function renderCards(type) {
   const mySubs  = MY_SUBS.filter(s => s.type === type);
   const allSubs = ALL_SUBS.filter(s => s.type === type);
   const container = document.getElementById('result-cards');
+  const isSuper = type === 'super_mgr' || type === 'super_ceo';
+  const avgGroupLabel = isSuper ? '본부 평균' : '팀 평균';
 
   if (mySubs.length === 0) {
     container.innerHTML = '<div class="no-data">해당 유형의 평가 결과가 없습니다.</div>';
@@ -463,7 +457,7 @@ function renderCards(type) {
       <div class="radar-legend">
         <span><i style="background:#1565c0"></i> 본인 평균</span>
         <span><i style="background:#e64a19"></i> 전체 평균</span>
-        <span><i style="background:#2e7d52"></i> <span class="team-avg-label">팀 평균</span></span>
+        <span><i style="background:#2e7d52"></i> ${avgGroupLabel}</span>
       </div>
     </div>
     <div class="card">
@@ -474,7 +468,7 @@ function renderCards(type) {
             <tr>
               <th>평가 항목</th>
               <th style="text-align:center;color:#1565c0">본인 평균</th>
-              <th style="text-align:center;color:#2e7d52" id="th-team-avg">팀 평균</th>
+              <th style="text-align:center;color:#2e7d52">${avgGroupLabel}</th>
               <th style="text-align:center;color:#e64a19">전체 평균</th>
             </tr>
           </thead>
@@ -494,7 +488,7 @@ function renderCards(type) {
   setTimeout(() => drawRadar('radar-cv', labels, [
     { label:'본인',     data: myAvgs,               color:'#1565c0' },
     { label:'전체평균', data: allAvgs.map(v=>v||0),  color:'#e64a19' },
-    { label:'팀평균',   data: teamAvgs.map(v=>v||0), color:'#2e7d52' },
+    { label:avgGroupLabel.replace(' ', ''), data: teamAvgs.map(v=>v||0), color:'#2e7d52' },
   ]), 50);
 }
 
