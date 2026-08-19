@@ -249,6 +249,13 @@ async function doLogin() {
   btn.textContent = '인증 중...';
 
   try {
+    // 먼저 GAS와 스프레드시트 연결 상태를 확인합니다.
+    const health = await gasJsonp({action: 'health'}, 12000);
+    if (!health || !health.ok) {
+      const prefix = health && health.stage ? `[${health.stage}] ` : '';
+      throw new Error(prefix + ((health && health.error) || 'GAS 연결 점검에 실패했습니다.'));
+    }
+
     const nonceRes = await gasJsonp({action: 'getAuthNonce'});
     if (!nonceRes || !nonceRes.ok || !nonceRes.nonce) {
       throw new Error((nonceRes && nonceRes.error) || '인증 준비에 실패했습니다.');
@@ -264,7 +271,8 @@ async function doLogin() {
     });
 
     if (!auth || !auth.ok || !auth.token) {
-      errEl.textContent = (auth && auth.error) || '인증에 실패했습니다.';
+      const prefix = auth && auth.stage ? `[${auth.stage}] ` : '';
+      errEl.textContent = prefix + ((auth && auth.error) || '인증에 실패했습니다.');
       return;
     }
 
