@@ -236,6 +236,68 @@ function isExcluded(item) {
   return EXCLUDE_ITEMS.some(ex => clean.includes(ex) || (clean.includes('/실행력') && clean.includes('업무수행능력')));
 }
 
+
+const SCOPE_LABEL = {
+  1: '본인',
+  2: '같은 팀',
+  3: '같은 실',
+  4: '같은 본부',
+  5: '같은 총괄',
+  6: '전체'
+};
+
+function toLevel(value) {
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 1 && n <= 6 ? Math.floor(n) : 1;
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  }[ch]));
+}
+
+function normalizeScores(scores) {
+  if (!scores) return {};
+  if (typeof scores === 'string') {
+    try { return JSON.parse(scores) || {}; } catch(e) { return {}; }
+  }
+  return (typeof scores === 'object' && !Array.isArray(scores)) ? scores : {};
+}
+
+function normalizeSubmission(sub) {
+  const row = sub && typeof sub === 'object' ? sub : {};
+  return {
+    ...row,
+    type: String(row.type || row.formType || '').trim(),
+    targetEmpNo: String(row.targetEmpNo || row.empNo || '').trim(),
+    targetName: String(row.targetName || row.name || '').trim(),
+    chonggwal: String(row.chonggwal || row.totalOrg || '').trim(),
+    bonbu: String(row.bonbu || row.division || '').trim(),
+    sil: String(row.sil || row.office || '').trim(),
+    team: String(row.team || row.targetTeam || '').trim(),
+    branch: String(row.branch || row.salesOffice || '').trim(),
+    scores: normalizeScores(row.scores)
+  };
+}
+
+function forEachScore(scores, callback) {
+  const obj = normalizeScores(scores);
+  Object.entries(obj).forEach(([key, val]) => {
+    if (val && typeof val === 'object' && !Array.isArray(val)) {
+      Object.entries(val).forEach(([item, score]) => callback(item, score));
+    } else {
+      callback(key, val);
+    }
+  });
+}
+
+function toScoreNumber(value) {
+  if (value === null || value === undefined || value === '') return null;
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
 let CU = null; // 현재 로그인 사용자
 let ALL_SUBS = []; // 전체 제출 데이터 (팀/전체 평균용)
 let MY_SUBS  = []; // 내 피평가 데이터
@@ -286,7 +348,7 @@ async function doLogin() {
   const btn    = document.getElementById('btn-login');
 
   if (!name || !empNo || !jumin3) {
-    errEl.textContent = '이름, 사번, 주민번호 뒷 3자리를 모두 입력해주세요.';
+    errEl.textContent = '이름, 사번, 인증값 3자리를 모두 입력해주세요.';
     return;
   }
   if (!/^\d{6}$/.test(empNo)) {
@@ -294,7 +356,7 @@ async function doLogin() {
     return;
   }
   if (!/^\d{3}$/.test(jumin3)) {
-    errEl.textContent = '주민번호 뒷 3자리는 숫자 3자리입니다.';
+    errEl.textContent = '인증값은 숫자 3자리입니다.';
     return;
   }
 
@@ -310,27 +372,51 @@ async function doLogin() {
       jumin3: jumin3
     });
 
-    if (!auth || !auth.ok) {
+    if (!auth || !auth.ok || !auth.token) {
       errEl.textContent = (auth && auth.error) || '인증에 실패했습니다. 입력값 또는 서버 연결을 확인해주세요.';
       return;
     }
 
-    CU = { name: auth.name, empNo: auth.empNo };
+    const authLevel = toLevel(auth.level || auth.authLevel || auth.scopeLevel || 1);
+    CU = {
+      name: String(auth.name || name).trim(),
+      empNo: String(auth.empNo || empNo).trim(),
+      token: auth.token,
+      level: authLevel,
+      scopeLabel: auth.scopeLabel || SCOPE_LABEL[authLevel] || '본인',
+      org: auth.org || {
+        chonggwal: auth.chonggwal || '',
+        bonbu: auth.bonbu || '',
+        sil: auth.sil || '',
+        team: auth.team || '',
+        branch: auth.branch || ''
+      }
+    };
+
     btn.textContent = '결과 불러오는 중...';
+    const result = await gasGet({ action: 'getResultData', token: CU.token });
 
-    const [myRes, allRes] = await Promise.all([
-      gasGet({ action: 'getSubmissionsFor', empNo: empNo }),
-      gasGet({ action: 'getSubmissions' })
-    ]);
-
-    if (!myRes || !allRes) {
-      errEl.textContent = '평가 결과를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.';
+    if (!result || !result.ok) {
+      errEl.textContent = (result && result.error) || '평가 결과를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.';
       CU = null;
       return;
     }
 
-    MY_SUBS  = myRes.submissions  || [];
-    ALL_SUBS = allRes.submissions || [];
+    if (result.member) {
+      CU = {
+        ...CU,
+        name: result.member.name || CU.name,
+        empNo: result.member.empNo || CU.empNo,
+        level: toLevel(result.member.level || CU.level),
+        scopeLabel: result.scopeLabel || result.member.scopeLabel || CU.scopeLabel,
+        org: result.member.org || CU.org
+      };
+    } else if (result.scopeLabel) {
+      CU.scopeLabel = result.scopeLabel;
+    }
+
+    MY_SUBS  = (result.mySubmissions || result.mySubs || []).map(normalizeSubmission);
+    ALL_SUBS = (result.scopeSubmissions || result.allSubmissions || result.submissions || []).map(normalizeSubmission);
     showResult();
   } catch (e) {
     console.error('조회 처리 실패:', e);
@@ -357,10 +443,14 @@ function showResult() {
   document.getElementById('pg-result').style.display = 'block';
   document.getElementById('top-name').textContent = CU.name + '님';
   document.getElementById('res-name').textContent = CU.name + '님의 평가 결과';
-  document.getElementById('res-sub').textContent = `사번: ${CU.empNo} | 총 ${MY_SUBS.length}건의 평가 결과`;
+
+  const org = CU.org || {};
+  const orgParts = [org.chonggwal, org.bonbu, org.sil, org.team, org.branch].filter(Boolean);
+  const orgText = orgParts.length ? ` | 소속: ${orgParts.join(' / ')}` : '';
+  document.getElementById('res-sub').textContent = `사번: ${CU.empNo} | 조회범위: ${CU.scopeLabel || '본인'} | 결과 ${MY_SUBS.length}건${orgText}`;
 
   // 평가유형 탭 생성
-  const types = [...new Set(MY_SUBS.map(s => s.type))];
+  const types = [...new Set(MY_SUBS.map(s => s.type).filter(Boolean))];
   const tabBar = document.getElementById('type-tabs');
   if (types.length === 0) {
     tabBar.innerHTML = '';
@@ -370,8 +460,11 @@ function showResult() {
   }
 
   tabBar.innerHTML = types.map((t, i) =>
-    `<button class="tab-btn${i===0?' on':''}" onclick="selectTab('${t}',this)">${FORM_LABEL[t]||t}</button>`
+    `<button type="button" class="tab-btn${i===0?' on':''}" data-type="${escapeHtml(t)}">${escapeHtml(FORM_LABEL[t]||t)}</button>`
   ).join('');
+  tabBar.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => selectTab(btn.dataset.type, btn));
+  });
 
   CUR_TYPE = types[0];
   renderCards(CUR_TYPE);
@@ -391,51 +484,44 @@ function renderCards(type) {
   const container = document.getElementById('result-cards');
   const isSuperMgr = type === 'super_mgr';
   const isSuperCeo = type === 'super_ceo';
-  const avgGroupLabel = isSuperMgr ? '본부 평균' : '팀 평균';
-  const showGroupAverage = !isSuperCeo;
   const showSuperCriteria = isSuperMgr || isSuperCeo;
+  const level = toLevel(CU?.level || 1);
+  const scopeLabel = CU?.scopeLabel || SCOPE_LABEL[level] || '본인';
+  const scopeAverageLabel = scopeLabel === '전체' ? '전체 평균' : `${scopeLabel} 평균`;
+  const showScopeAverage = level >= 2;
+  const showTeamAverage = level >= 3 && !isSuperCeo;
+  const teamAverageLabel = '같은 팀 평균';
 
   if (mySubs.length === 0) {
     container.innerHTML = '<div class="no-data">해당 유형의 평가 결과가 없습니다.</div>';
     return;
   }
 
-  const myTeam = mySubs[0]?.team || '';
-  const myRaw = {}, allRaw = {}, teamRaw = {};
+  const myTeam = mySubs[0]?.team || CU?.org?.team || '';
+  const myRaw = {}, scopeRaw = {}, teamRaw = {};
 
-  // 내 점수 집계 (원본 키 기준)
+  // 내 점수 집계
   mySubs.forEach(sub => {
-    Object.entries(sub.scores || {}).forEach(([item, score]) => {
+    forEachScore(sub.scores, (item, score) => {
       if (isExcluded(item)) return;
-      if (score === null || score === undefined) return;
+      const n = toScoreNumber(score);
+      if (n === null) return;
       if (!myRaw[item]) myRaw[item] = [];
-      myRaw[item].push(Number(score));
+      myRaw[item].push(n);
     });
   });
 
-  // 전체/팀 평균 집계
+  // 조회범위/같은 팀 평균 집계
   allSubs.forEach(sub => {
-    Object.entries(sub.scores || {}).forEach(([personOrItem, val]) => {
-      if (typeof val === 'object' && val !== null) {
-        Object.entries(val).forEach(([item, score]) => {
-          if (isExcluded(item)) return;
-          if (score === null || score === undefined) return;
-          if (!allRaw[item]) allRaw[item] = [];
-          allRaw[item].push(Number(score));
-          if (sub.team === myTeam) {
-            if (!teamRaw[item]) teamRaw[item] = [];
-            teamRaw[item].push(Number(score));
-          }
-        });
-      } else if (typeof val === 'number') {
-        const item = personOrItem;
-        if (isExcluded(item)) return;
-        if (!allRaw[item]) allRaw[item] = [];
-        allRaw[item].push(Number(val));
-        if (sub.team === myTeam) {
-          if (!teamRaw[item]) teamRaw[item] = [];
-          teamRaw[item].push(Number(val));
-        }
+    forEachScore(sub.scores, (item, score) => {
+      if (isExcluded(item)) return;
+      const n = toScoreNumber(score);
+      if (n === null) return;
+      if (!scopeRaw[item]) scopeRaw[item] = [];
+      scopeRaw[item].push(n);
+      if (myTeam && sub.team === myTeam) {
+        if (!teamRaw[item]) teamRaw[item] = [];
+        teamRaw[item].push(n);
       }
     });
   });
@@ -450,14 +536,19 @@ function renderCards(type) {
     if (!seen.has(label)) { seen.add(label); items.push({ rawKey: k, label }); }
   });
 
-  const labels   = items.map(i => i.label);
-  const myAvgs   = items.map(i => avg(myRaw[i.rawKey]) || 0);
-  const allAvgs  = items.map(i => avg(allRaw[i.rawKey]));
-  const teamAvgs = items.map(i => avg(teamRaw[i.rawKey]));
+  if (items.length === 0) {
+    container.innerHTML = '<div class="no-data">표시할 점수 항목이 없습니다.</div>';
+    return;
+  }
+
+  const labels     = items.map(i => i.label);
+  const myAvgs     = items.map(i => avg(myRaw[i.rawKey]) || 0);
+  const scopeAvgs  = items.map(i => avg(scopeRaw[i.rawKey]));
+  const teamAvgs   = items.map(i => avg(teamRaw[i.rawKey]));
 
   container.innerHTML = `
     <div class="card">
-      <h3>📊 ${FORM_LABEL[type]||type} 결과 <span style="font-size:13px;font-weight:400;color:var(--tx3)">(${mySubs.length}명 평가)</span></h3>
+      <h3>📊 ${escapeHtml(FORM_LABEL[type]||type)} 결과 <span style="font-size:13px;font-weight:400;color:var(--tx3)">(${mySubs.length}명 평가)</span></h3>
       <div class="scale-wrap">
         <div class="scale-chip sc6">6 매우긍정</div>
         <div class="scale-chip sc5">5 긍정</div>
@@ -472,8 +563,8 @@ function renderCards(type) {
       </div>
       <div class="radar-legend">
         <span><i style="background:#1565c0"></i> 본인 평균</span>
-        <span><i style="background:#e64a19"></i> 전체 평균</span>
-        ${showGroupAverage ? `<span><i style="background:#2e7d52"></i> ${avgGroupLabel}</span>` : ''}
+        ${showTeamAverage ? `<span><i style="background:#2e7d52"></i> ${escapeHtml(teamAverageLabel)}</span>` : ''}
+        ${showScopeAverage ? `<span><i style="background:#e64a19"></i> ${escapeHtml(scopeAverageLabel)}</span>` : ''}
       </div>
       ${showSuperCriteria ? `
         <div class="criteria-guide">
@@ -492,17 +583,17 @@ function renderCards(type) {
             <tr>
               <th>평가 항목</th>
               <th style="text-align:center;color:#1565c0">본인 평균</th>
-              ${showGroupAverage ? `<th style="text-align:center;color:#2e7d52">${avgGroupLabel}</th>` : ''}
-              <th style="text-align:center;color:#e64a19">전체 평균</th>
+              ${showTeamAverage ? `<th style="text-align:center;color:#2e7d52">${escapeHtml(teamAverageLabel)}</th>` : ''}
+              ${showScopeAverage ? `<th style="text-align:center;color:#e64a19">${escapeHtml(scopeAverageLabel)}</th>` : ''}
             </tr>
           </thead>
           <tbody>
             ${items.map((item,i) => `
               <tr>
-                <td>${item.label}</td>
+                <td>${escapeHtml(item.label)}</td>
                 <td class="score-my">${myAvgs[i].toFixed(2)}</td>
-                ${showGroupAverage ? `<td class="score-team">${teamAvgs[i]!==null ? teamAvgs[i].toFixed(2) : '-'}</td>` : ''}
-                <td class="score-all">${allAvgs[i]!==null ? allAvgs[i].toFixed(2) : '-'}</td>
+                ${showTeamAverage ? `<td class="score-team">${teamAvgs[i]!==null ? teamAvgs[i].toFixed(2) : '-'}</td>` : ''}
+                ${showScopeAverage ? `<td class="score-all">${scopeAvgs[i]!==null ? scopeAvgs[i].toFixed(2) : '-'}</td>` : ''}
               </tr>`).join('')}
           </tbody>
         </table>
@@ -510,14 +601,20 @@ function renderCards(type) {
     </div>`;
 
   const radarDatasets = [
-    { label:'본인 평균', data: myAvgs,              color:'#1565c0' },
-    { label:'전체 평균', data: allAvgs.map(v=>v||0), color:'#e64a19' },
+    { label:'본인 평균', data: myAvgs, color:'#1565c0' }
   ];
-  if (showGroupAverage) {
+  if (showTeamAverage) {
     radarDatasets.push({
-      label: avgGroupLabel,
+      label: teamAverageLabel,
       data: teamAvgs.map(v=>v||0),
       color:'#2e7d52'
+    });
+  }
+  if (showScopeAverage) {
+    radarDatasets.push({
+      label: scopeAverageLabel,
+      data: scopeAvgs.map(v=>v||0),
+      color:'#e64a19'
     });
   }
   setTimeout(() => drawRadar('radar-cv', labels, radarDatasets), 50);
