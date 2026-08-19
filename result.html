@@ -253,7 +253,7 @@ async function doLogin() {
     const health = await gasJsonp({action: 'health'}, 12000);
     if (!health || !health.ok) {
       const prefix = health && health.stage ? `[${health.stage}] ` : '';
-      throw new Error(prefix + ((health && health.error) || 'GAS 연결 점검에 실패했습니다.'));
+      throw new Error(prefix + ((health && health.error) || 'GAS 연결 또는 평가 데이터 확인에 실패했습니다.'));
     }
 
     const nonceRes = await gasJsonp({action: 'getAuthNonce'});
