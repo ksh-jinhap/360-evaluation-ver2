@@ -69,7 +69,7 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
 .score-all{color:#e64a19;text-align:center}
 .score-tbl.compare-wide{min-width:900px}
 .diff-cell{text-align:center;font-weight:700;white-space:nowrap}
-.diff-pos{color:#2e7d52}.diff-neg{color:#c62828}.diff-neutral{color:var(--tx3)}
+.diff-pos{color:#c62828}.diff-neg{color:#1565c0}.diff-neutral{color:var(--tx3)}
 .status-badge{display:inline-flex;align-items:center;justify-content:center;min-width:48px;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:800;white-space:nowrap}
 .status-strength{background:#e8f5e9;color:#1b5e20}
 .status-improve{background:#ffebee;color:#b71c1c}
@@ -499,8 +499,8 @@ function formatDiff(v) {
 function diffClass(v) {
   if (v === null || v === undefined || !Number.isFinite(Number(v))) return 'diff-neutral';
   const n = Number(v);
-  if (n >= COMPARE_GAP_THRESHOLD) return 'diff-pos';
-  if (n <= -COMPARE_GAP_THRESHOLD) return 'diff-neg';
+  if (n > 0) return 'diff-pos';
+  if (n < 0) return 'diff-neg';
   return 'diff-neutral';
 }
 
@@ -602,16 +602,6 @@ function renderComparisonCards(options) {
     </div>
     <div class="card">
       <h3>📋 항목별 점수 비교</h3>
-      <div class="analysis-summary">
-        <span class="analysis-chip strength">강점 ${strengthRows.length}개</span>
-        <span class="analysis-chip improve">보완 ${improveRows.length}개</span>
-        <span class="analysis-chip similar">유사 ${similarRows.length}개</span>
-        <span class="analysis-rule">판정 기준: ${escapeHtml(groupLegend)}·전체 평균 대비 ±${COMPARE_GAP_THRESHOLD.toFixed(2)}점</span>
-      </div>
-      <div class="analysis-highlights">
-        <div class="analysis-box"><strong>강점 항목</strong>${strengthTop.length ? escapeHtml(strengthTop.join(', ')) : '뚜렷한 강점 항목 없음'}</div>
-        <div class="analysis-box"><strong>보완 항목</strong>${improveTop.length ? escapeHtml(improveTop.join(', ')) : '뚜렷한 보완 항목 없음'}</div>
-      </div>
       <div style="overflow-x:auto">
         <table class="score-tbl compare-wide">
           <thead><tr>
@@ -621,21 +611,18 @@ function renderComparisonCards(options) {
             <th style="text-align:center;color:#e64a19">전체 평균</th>
             <th style="text-align:center">개인-${escapeHtml(groupLegend.replace(' 평균',''))}</th>
             <th style="text-align:center">개인-전체</th>
-            <th style="text-align:center">분석</th>
           </tr></thead>
           <tbody>${rows.map(row => `
-            <tr class="${row.status === 'strength' ? 'row-strength' : row.status === 'improve' ? 'row-improve' : ''}">
+            <tr>
               <td>${escapeHtml(row.label)}</td>
               <td class="score-my">${formatScore(row.personalAvg)}</td>
               <td class="score-team">${formatScore(row.teamAvg)}</td>
               <td class="score-all">${formatScore(row.overallAvg)}</td>
               <td class="diff-cell ${diffClass(row.teamDiff)}">${formatDiff(row.teamDiff)}</td>
               <td class="diff-cell ${diffClass(row.overallDiff)}">${formatDiff(row.overallDiff)}</td>
-              <td style="text-align:center"><span class="status-badge status-${row.status}">${statusLabel(row.status)}</span></td>
             </tr>`).join('')}</tbody>
         </table>
       </div>
-      <div class="analysis-note">※ 강점·보완 표시는 상대 비교를 위한 참고값입니다. 비교 가능한 평균이 1개뿐인 항목은 해당 평균을 기준으로 판정합니다.</div>
     </div>`;
 
   setTimeout(() => drawRadar(canvasId, labels, [
