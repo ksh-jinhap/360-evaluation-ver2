@@ -583,6 +583,11 @@ function renderComparisonCards(options) {
         <canvas id="${escapeHtml(canvasId)}" width="520" height="420"></canvas>
         <div class="radar-tooltip" id="${escapeHtml(canvasId)}-tooltip"></div>
       </div>
+      <div class="radar-legend">
+        <span><i style="background:#1565c0"></i> ${escapeHtml(personalLegend)}</span>
+        <span><i style="background:#2e7d52"></i> ${escapeHtml(groupLegend)}</span>
+        <span><i style="background:#e64a19"></i> 전체 평균</span>
+      </div>
       ${(type === 'super_mgr' || type === 'super_ceo') ? `
         <div style="width:100%;margin:20px auto 8px;text-align:center;overflow-x:auto">
           <img
@@ -594,11 +599,6 @@ function renderComparisonCards(options) {
           >
         </div>
       ` : ''}
-      <div class="radar-legend">
-        <span><i style="background:#1565c0"></i> ${escapeHtml(personalLegend)}</span>
-        <span><i style="background:#2e7d52"></i> ${escapeHtml(groupLegend)}</span>
-        <span><i style="background:#e64a19"></i> 전체 평균</span>
-      </div>
     </div>
     <div class="card">
       <h3>📋 항목별 점수 비교</h3>
