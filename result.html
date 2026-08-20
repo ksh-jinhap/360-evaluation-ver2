@@ -52,6 +52,12 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
 .radar-legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;font-size:14px;justify-content:center}
 .radar-legend span{display:flex;align-items:center;gap:6px}
 .radar-legend i{display:inline-block;width:22px;height:3px;border-radius:2px}
+.radar-tooltip{display:none;position:absolute;z-index:20;min-width:170px;max-width:260px;
+  padding:10px 12px;border-radius:9px;background:rgba(18,31,49,.94);color:#fff;
+  font-size:12px;line-height:1.55;box-shadow:0 6px 18px rgba(0,0,0,.2);pointer-events:none}
+.radar-tooltip strong{display:block;font-size:13px;margin-bottom:4px}
+.radar-tooltip .tip-row{display:flex;justify-content:space-between;gap:12px;white-space:nowrap}
+.radar-tooltip .tip-value{font-weight:800}
 
 /* 점수표 */
 .score-tbl{width:100%;border-collapse:collapse;font-size:14px;margin-top:16px}
@@ -61,6 +67,26 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
 .score-my{font-weight:700;color:#1565c0;text-align:center}
 .score-team{color:#2e7d52;text-align:center}
 .score-all{color:#e64a19;text-align:center}
+.score-tbl.compare-wide{min-width:900px}
+.diff-cell{text-align:center;font-weight:700;white-space:nowrap}
+.diff-pos{color:#2e7d52}.diff-neg{color:#c62828}.diff-neutral{color:var(--tx3)}
+.status-badge{display:inline-flex;align-items:center;justify-content:center;min-width:48px;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:800;white-space:nowrap}
+.status-strength{background:#e8f5e9;color:#1b5e20}
+.status-improve{background:#ffebee;color:#b71c1c}
+.status-similar{background:#eef2f7;color:#52667c}
+.row-strength td:first-child{font-weight:700;color:#1b5e20}
+.row-improve td:first-child{font-weight:700;color:#b71c1c}
+.analysis-summary{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 14px}
+.analysis-chip{padding:6px 10px;border-radius:8px;font-size:12px;font-weight:800}
+.analysis-chip.strength{background:#e8f5e9;color:#1b5e20}
+.analysis-chip.improve{background:#ffebee;color:#b71c1c}
+.analysis-chip.similar{background:#eef2f7;color:#52667c}
+.analysis-rule{font-size:12px;color:var(--tx3);margin-left:auto}
+.analysis-highlights{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.analysis-box{border:1px solid var(--bd);background:#fafcff;border-radius:9px;padding:10px 12px;font-size:12px;line-height:1.6;color:var(--tx2)}
+.analysis-box strong{color:var(--nv);margin-right:4px}
+.analysis-note{font-size:11px;color:var(--tx3);margin-top:10px;line-height:1.5}
+.scope-badge{display:inline-flex;padding:4px 9px;border-radius:999px;background:#eef4fb;color:var(--nv2);font-size:12px;font-weight:800;margin-left:6px}
 
 /* no-data */
 .no-data{text-align:center;padding:40px 20px;color:var(--tx3);font-size:15px}
@@ -75,6 +101,9 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
   .login-box{padding:32px 20px 28px;margin:16px}
   .result-inner{padding:16px 10px 40px}
   .score-tbl{font-size:13px}
+  .analysis-highlights{grid-template-columns:1fr}
+  .analysis-rule{width:100%;margin-left:0}
+  .radar-tooltip{font-size:11px;max-width:220px}
 }
 
 /* 팀원 결과 조회 */
@@ -144,7 +173,7 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;b
     <div id="team-tab-wrap" style="display:none">
       <button id="team-tab-btn" class="tab-btn"
         onclick="showTeamView()" style="background:#fff3e0;border-color:#e65100;color:#e65100">
-        👥 우리 팀 결과
+        <span id="team-tab-btn-label">👥 조직 구성원 결과</span>
       </button>
     </div>
   </div>
@@ -315,7 +344,7 @@ async function doLogin() {
 }
 
 function doLogout() {
-  CU = null; MY_SUBS = []; ALL_SUBS = []; MY_COMPARISON = {}; MY_TEAM_LABEL = '팀 평균'; MY_MEMBER = null; CUR_TYPE = '';
+  CU = null; MY_SUBS = []; ALL_SUBS = []; MY_COMPARISON = {}; MY_TEAM_LABEL = '팀 평균'; MY_MEMBER = null; CUR_TYPE = ''; TEAM_MEMBERS = []; TEAM_ACCESS = null; CUR_MEMBER = null;
   document.getElementById('pg-login').style.display = 'flex';
   document.getElementById('pg-result').style.display = 'none';
   document.getElementById('li-name').value = '';
@@ -331,6 +360,9 @@ function showResult() {
   document.getElementById('top-name').textContent = CU.name + '님';
   document.getElementById('res-name').textContent = CU.name + '님의 평가 결과';
   document.getElementById('res-sub').textContent = `사번: ${CU.empNo} | 총 ${MY_SUBS.length}건의 평가 결과`;
+
+  // 권한레벨 2 이상 구성원 조회 탭은 본인 평가결과 유무와 관계없이 확인합니다.
+  checkTeamViewAccess();
 
   // 평가유형 탭 생성
   const types = [...new Set(MY_SUBS.map(s => s.type))];
@@ -348,9 +380,6 @@ function showResult() {
 
   CUR_TYPE = types[0];
   renderCards(CUR_TYPE);
-
-  // 팀 조회 권한 체크 (레벨 2 이상이면 탭 표시)
-  checkTeamViewAccess();
 }
 
 function selectTab(type, el) {
@@ -452,6 +481,55 @@ function formatScore(v) {
   return Number.isFinite(Number(v)) ? Number(v).toFixed(2) : '-';
 }
 
+const COMPARE_GAP_THRESHOLD = 0.30;
+
+function scoreDiff(a, b) {
+  if (a === null || a === undefined || a === '' || b === null || b === undefined || b === '') return null;
+  const aa = Number(a), bb = Number(b);
+  return Number.isFinite(aa) && Number.isFinite(bb) ? aa - bb : null;
+}
+
+function formatDiff(v) {
+  if (v === null || v === undefined || !Number.isFinite(Number(v))) return '-';
+  const n = Number(v);
+  if (Math.abs(n) < 0.005) return '0.00';
+  return `${n > 0 ? '+' : ''}${n.toFixed(2)}`;
+}
+
+function diffClass(v) {
+  if (v === null || v === undefined || !Number.isFinite(Number(v))) return 'diff-neutral';
+  const n = Number(v);
+  if (n >= COMPARE_GAP_THRESHOLD) return 'diff-pos';
+  if (n <= -COMPARE_GAP_THRESHOLD) return 'diff-neg';
+  return 'diff-neutral';
+}
+
+function analyzeComparisonRow(row) {
+  const teamDiff = scoreDiff(row.personalAvg, row.teamAvg);
+  const overallDiff = scoreDiff(row.personalAvg, row.overallAvg);
+  const diffs = [teamDiff, overallDiff].filter(v => v !== null);
+  let status = 'similar';
+  if (diffs.length && diffs.every(v => v >= COMPARE_GAP_THRESHOLD)) status = 'strength';
+  else if (diffs.length && diffs.every(v => v <= -COMPARE_GAP_THRESHOLD)) status = 'improve';
+  return {...row, teamDiff, overallDiff, status};
+}
+
+function statusLabel(status) {
+  return status === 'strength' ? '강점' : status === 'improve' ? '보완' : '유사';
+}
+
+function topAnalysisLabels(rows, status, limit = 3) {
+  return rows.filter(r => r.status === status)
+    .sort((a,b) => {
+      const ad = [a.teamDiff,a.overallDiff].filter(v=>v!==null);
+      const bd = [b.teamDiff,b.overallDiff].filter(v=>v!==null);
+      const av = ad.length ? ad.reduce((x,y)=>x+y,0)/ad.length : 0;
+      const bv = bd.length ? bd.reduce((x,y)=>x+y,0)/bd.length : 0;
+      return status === 'strength' ? bv-av : av-bv;
+    })
+    .slice(0, limit).map(r => r.label);
+}
+
 function renderComparisonCards(options) {
   const {
     container,
@@ -470,18 +548,23 @@ function renderComparisonCards(options) {
     return;
   }
 
-  const rows = buildComparisonRows(type, comparison, subs);
+  const rows = buildComparisonRows(type, comparison, subs).map(analyzeComparisonRow);
   if (!rows.length) {
     container.innerHTML = '<div class="no-data">표시할 점수 항목이 없습니다.</div>';
     return;
   }
 
   const labels = rows.map(r => r.label);
-  const personalAvgs = rows.map(r => r.personalAvg ?? 0);
-  const teamAvgs = rows.map(r => r.teamAvg ?? 0);
-  const overallAvgs = rows.map(r => r.overallAvg ?? 0);
+  const personalAvgs = rows.map(r => r.personalAvg);
+  const teamAvgs = rows.map(r => r.teamAvg);
+  const overallAvgs = rows.map(r => r.overallAvg);
   const personalLegend = personLabel || '본인 평균';
   const groupLegend = teamLabel || '팀 평균';
+  const strengthRows = rows.filter(r => r.status === 'strength');
+  const improveRows = rows.filter(r => r.status === 'improve');
+  const similarRows = rows.filter(r => r.status === 'similar');
+  const strengthTop = topAnalysisLabels(rows, 'strength');
+  const improveTop = topAnalysisLabels(rows, 'improve');
 
   container.innerHTML = `
     <div class="card">
@@ -496,7 +579,10 @@ function renderComparisonCards(options) {
         <div class="scale-chip sc2">2 부정</div>
         <div class="scale-chip sc1">1 매우부정</div>
       </div>
-      <div class="radar-wrap"><canvas id="${escapeHtml(canvasId)}" width="520" height="420"></canvas></div>
+      <div class="radar-wrap">
+        <canvas id="${escapeHtml(canvasId)}" width="520" height="420"></canvas>
+        <div class="radar-tooltip" id="${escapeHtml(canvasId)}-tooltip"></div>
+      </div>
       <div class="radar-legend">
         <span><i style="background:#1565c0"></i> ${escapeHtml(personalLegend)}</span>
         <span><i style="background:#2e7d52"></i> ${escapeHtml(groupLegend)}</span>
@@ -505,23 +591,40 @@ function renderComparisonCards(options) {
     </div>
     <div class="card">
       <h3>📋 항목별 점수 비교</h3>
+      <div class="analysis-summary">
+        <span class="analysis-chip strength">강점 ${strengthRows.length}개</span>
+        <span class="analysis-chip improve">보완 ${improveRows.length}개</span>
+        <span class="analysis-chip similar">유사 ${similarRows.length}개</span>
+        <span class="analysis-rule">판정 기준: ${escapeHtml(groupLegend)}·전체 평균 대비 ±${COMPARE_GAP_THRESHOLD.toFixed(2)}점</span>
+      </div>
+      <div class="analysis-highlights">
+        <div class="analysis-box"><strong>강점 항목</strong>${strengthTop.length ? escapeHtml(strengthTop.join(', ')) : '뚜렷한 강점 항목 없음'}</div>
+        <div class="analysis-box"><strong>보완 항목</strong>${improveTop.length ? escapeHtml(improveTop.join(', ')) : '뚜렷한 보완 항목 없음'}</div>
+      </div>
       <div style="overflow-x:auto">
-        <table class="score-tbl">
+        <table class="score-tbl compare-wide">
           <thead><tr>
             <th>평가 항목</th>
             <th style="text-align:center;color:#1565c0">${escapeHtml(personalLegend)}</th>
             <th style="text-align:center;color:#2e7d52">${escapeHtml(groupLegend)}</th>
             <th style="text-align:center;color:#e64a19">전체 평균</th>
+            <th style="text-align:center">개인-${escapeHtml(groupLegend.replace(' 평균',''))}</th>
+            <th style="text-align:center">개인-전체</th>
+            <th style="text-align:center">분석</th>
           </tr></thead>
           <tbody>${rows.map(row => `
-            <tr>
+            <tr class="${row.status === 'strength' ? 'row-strength' : row.status === 'improve' ? 'row-improve' : ''}">
               <td>${escapeHtml(row.label)}</td>
               <td class="score-my">${formatScore(row.personalAvg)}</td>
               <td class="score-team">${formatScore(row.teamAvg)}</td>
               <td class="score-all">${formatScore(row.overallAvg)}</td>
+              <td class="diff-cell ${diffClass(row.teamDiff)}">${formatDiff(row.teamDiff)}</td>
+              <td class="diff-cell ${diffClass(row.overallDiff)}">${formatDiff(row.overallDiff)}</td>
+              <td style="text-align:center"><span class="status-badge status-${row.status}">${statusLabel(row.status)}</span></td>
             </tr>`).join('')}</tbody>
         </table>
       </div>
+      <div class="analysis-note">※ 강점·보완 표시는 상대 비교를 위한 참고값입니다. 비교 가능한 평균이 1개뿐인 항목은 해당 평균을 기준으로 판정합니다.</div>
     </div>`;
 
   setTimeout(() => drawRadar(canvasId, labels, [
@@ -551,7 +654,31 @@ function renderCards(type) {
 // 팀원 결과 조회
 // ══════════════════════════════════════════
 let TEAM_MEMBERS = [];
+let TEAM_ACCESS = null;
 let CUR_MEMBER = null;
+
+const ACCESS_UI = {
+  2: {tabLabel:'팀 구성원 결과', heading:'팀 구성원 평가 결과', scopeLabel:'같은 팀', groupField:'team', groupLabel:'팀'},
+  3: {tabLabel:'실 구성원 결과', heading:'실 구성원 평가 결과', scopeLabel:'같은 실', groupField:'team', groupLabel:'팀'},
+  4: {tabLabel:'본부 구성원 결과', heading:'본부 구성원 평가 결과', scopeLabel:'같은 본부', groupField:'sil', groupLabel:'실'},
+  5: {tabLabel:'총괄 구성원 결과', heading:'총괄 구성원 평가 결과', scopeLabel:'같은 총괄', groupField:'bonbu', groupLabel:'본부'},
+  6: {tabLabel:'전체 구성원 결과', heading:'전체 구성원 평가 결과', scopeLabel:'전체', groupField:'chongGwal', groupLabel:'총괄'}
+};
+
+function getAccessUi(level) {
+  const n = Number(level);
+  return (TEAM_ACCESS && TEAM_ACCESS.scopeMeta) || ACCESS_UI[n] || ACCESS_UI[2];
+}
+
+function memberGroupValue(member, meta) {
+  const field = (meta && meta.groupField) || 'team';
+  return String((member && member[field]) || '').trim() || '기타';
+}
+
+function memberSubLabel(member) {
+  if (!member) return '';
+  return [member.team, member.sil, member.bonbu, member.chongGwal, member.yongupso].find(v => String(v||'').trim()) || '';
+}
 
 async function checkTeamViewAccess() {
   try {
@@ -562,8 +689,16 @@ async function checkTeamViewAccess() {
     const data = await res.json();
 
     if (data && data.ok && data.level >= 2 && data.members && data.members.length > 0) {
+      TEAM_ACCESS = data;
       TEAM_MEMBERS = data.members;
+      const meta = getAccessUi(data.level);
+      const labelEl = document.getElementById('team-tab-btn-label');
+      if (labelEl) labelEl.textContent = `👥 ${meta.tabLabel}`;
       document.getElementById('team-tab-wrap').style.display = 'block';
+    } else {
+      TEAM_ACCESS = data || null;
+      TEAM_MEMBERS = [];
+      document.getElementById('team-tab-wrap').style.display = 'none';
     }
   } catch(e) { console.warn('팀 권한 체크 실패:', e); }
 }
@@ -591,42 +726,45 @@ function hideTeamView() {
 
 function renderTeamList() {
   const wrap = document.getElementById('team-view');
+  const level = TEAM_ACCESS ? Number(TEAM_ACCESS.level || 2) : 2;
+  const meta = getAccessUi(level);
 
-  // 팀/실/본부별 그룹핑
   const groups = {};
   TEAM_MEMBERS.forEach(m => {
-    const groupKey = m.team || m.sil || m.bonbu || '기타';
+    const groupKey = memberGroupValue(m, meta);
     if (!groups[groupKey]) groups[groupKey] = [];
     groups[groupKey].push(m);
   });
 
-  let html = `<div class="card">
-    <h3>👥 팀원 평가 결과 조회</h3>
-    <p style="font-size:14px;color:var(--tx3);margin-bottom:16px">
-      이름을 클릭하면 해당 팀원의 평가 결과를 확인할 수 있습니다.<br>
-      <span style="color:#e64a19">※ 평가자 정보는 익명으로 처리됩니다.</span>
-    </p>
-    <div class="member-list">`;
+  const groupEntries = Object.entries(groups).sort((a,b) => a[0].localeCompare(b[0], 'ko'));
+  groupEntries.forEach(([,members]) => members.sort((a,b) => String(a.name||'').localeCompare(String(b.name||''), 'ko')));
 
-  Object.entries(groups).forEach(([groupName, members]) => {
-    if (Object.keys(groups).length > 1) {
-      html += `</div><div class="org-group">
-        <div class="org-group-title">📂 ${groupName}</div>
-        <div class="member-list">`;
-    }
+  let html = `<div class="card">
+    <h3>👥 ${escapeHtml(meta.heading)} <span class="scope-badge">조회범위: ${escapeHtml(meta.scopeLabel)}</span></h3>
+    <p style="font-size:14px;color:var(--tx3);margin-bottom:16px">
+      이름을 클릭하면 조회 권한 범위 안에서 해당 구성원의 평가 결과를 확인할 수 있습니다.<br>
+      <span style="color:#e64a19">※ 평가자 정보는 익명으로 처리됩니다.</span>
+    </p>`;
+
+  groupEntries.forEach(([groupName, members]) => {
+    html += `<div class="org-group">
+      <div class="org-group-title">📂 ${escapeHtml(meta.groupLabel)} · ${escapeHtml(groupName)}</div>
+      <div class="member-list">`;
     members.forEach(m => {
-      html += `<div class="member-chip" id="chip-${m.empNo}"
-        onclick="loadMemberResult('${m.empNo}','${m.name}')">
-        ${m.name}
-        <span class="chip-team">${m.team||m.sil||m.bonbu||''}</span>
-      </div>`;
+      html += `<button type="button" class="member-chip" data-emp="${escapeHtml(m.empNo)}" data-name="${escapeHtml(m.name)}">
+        ${escapeHtml(m.name)}
+        <span class="chip-team">${escapeHtml(memberSubLabel(m))}</span>
+      </button>`;
     });
-    if (Object.keys(groups).length > 1) html += `</div></div><div class="member-list">`;
+    html += `</div></div>`;
   });
 
-  html += `</div></div>
-  <div id="member-result-wrap"></div>`;
+  html += `</div><div id="member-result-wrap"></div>`;
   wrap.innerHTML = html;
+
+  wrap.querySelectorAll('.member-chip').forEach(btn => {
+    btn.addEventListener('click', () => loadMemberResult(btn.dataset.emp || '', btn.dataset.name || ''));
+  });
 }
 
 async function loadMemberResult(empNo, name) {
@@ -640,7 +778,7 @@ async function loadMemberResult(empNo, name) {
 
   try {
     const url = GAS_URL + '?' + new URLSearchParams({
-      action: 'getMemberResult', empNo: empNo
+      action: 'getMemberResult', empNo: empNo, viewerEmpNo: CU && CU.empNo ? CU.empNo : ''
     });
     const res  = await fetch(url);
     const data = await res.json();
@@ -679,14 +817,17 @@ function renderMemberResult(data) {
       ${orgText ? `<div style="font-size:13px;color:var(--tx3);margin-bottom:14px">소속: ${escapeHtml(orgText)}</div>` : ''}
       <div class="tab-bar" id="member-type-tabs" style="margin-bottom:0">
         ${types.map((t,i) => `
-          <button class="tab-btn${i===0?' on':''}"
-            onclick="renderMemberCards('${escapeHtml(t)}',this,'${escapeHtml(data.name)}')">
+          <button type="button" class="tab-btn${i===0?' on':''}" data-type="${escapeHtml(t)}">
             ${escapeHtml(FORM_LABEL[t]||t)}
           </button>`).join('')}
       </div>
     </div>
     <div id="member-cards"></div>`;
 
+  const memberTabs = wrap.querySelectorAll('#member-type-tabs .tab-btn');
+  memberTabs.forEach(btn => {
+    btn.addEventListener('click', () => renderMemberCards(btn.dataset.type || '', btn, data.name));
+  });
   if (types.length > 0) renderMemberCards(types[0], null, data.name);
 }
 
@@ -721,11 +862,15 @@ function drawRadar(canvasId, labels, datasets) {
   const R  = Math.min(W,H) * 0.36;
   const N  = labels.length;
   const maxVal = 6;
+  const tooltip = document.getElementById(canvasId + '-tooltip');
+  const wrap = canvas.parentElement;
+  const hoverPoints = [];
   ctx.clearRect(0, 0, W, H);
 
   if (N < 3) {
     ctx.fillStyle = '#888'; ctx.font = '15px sans-serif';
     ctx.fillText('항목이 3개 이상이어야 차트를 표시합니다.', 20, H/2);
+    if (tooltip) tooltip.style.display = 'none';
     return;
   }
 
@@ -745,7 +890,6 @@ function drawRadar(canvasId, labels, datasets) {
       i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
     }
     ctx.closePath(); ctx.stroke();
-    // 눈금
     ctx.fillStyle = '#aab'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(r, cx + 6, cy - R*(r/maxVal) + 4);
   }
@@ -768,22 +912,80 @@ function drawRadar(canvasId, labels, datasets) {
 
   // 데이터
   datasets.forEach(ds => {
-    if (!ds.data || ds.data.every(v => v===0)) return;
+    const values = (ds.data || []).map(v => {
+      if (v === null || v === undefined || v === '') return null;
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
+    });
+    if (!values.length || values.every(v => v === null || v === 0)) return;
+
     ctx.beginPath();
-    ds.data.forEach((v, i) => {
-      const p = pt(i, v);
+    values.forEach((v, i) => {
+      const plotValue = v === null ? 0 : v;
+      const p = pt(i, plotValue);
       i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
     });
     ctx.closePath();
     ctx.strokeStyle = ds.color; ctx.lineWidth = 2.5; ctx.stroke();
     ctx.fillStyle = ds.color + '28'; ctx.fill();
-    ds.data.forEach((v, i) => {
+
+    values.forEach((v, i) => {
+      if (v === null || v <= 0) return;
       const p = pt(i, v);
       ctx.beginPath(); ctx.arc(p.x, p.y, 4.5, 0, Math.PI*2);
       ctx.fillStyle = ds.color; ctx.fill();
+      hoverPoints.push({x:p.x, y:p.y, itemIndex:i});
     });
   });
+
+  function hideTooltip() {
+    if (tooltip) tooltip.style.display = 'none';
+  }
+
+  function showTooltip(clientX, clientY) {
+    if (!tooltip || !wrap || !hoverPoints.length) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (clientX - rect.left) * scaleX;
+    const y = (clientY - rect.top) * scaleY;
+    const hitRadius = 18 * Math.max(scaleX, scaleY);
+
+    let nearest = null;
+    let nearestDist = Infinity;
+    hoverPoints.forEach(p => {
+      const d = Math.hypot(p.x - x, p.y - y);
+      if (d <= hitRadius && d < nearestDist) { nearest = p; nearestDist = d; }
+    });
+    if (!nearest) { hideTooltip(); return; }
+
+    const idx = nearest.itemIndex;
+    const rows = datasets.map(ds => {
+      const raw = ds.data ? ds.data[idx] : null;
+      const n = raw === null || raw === undefined || raw === '' ? null : Number(raw);
+      return {label: ds.label, value: Number.isFinite(n) ? n : null};
+    }).filter(r => r.value !== null);
+
+    tooltip.innerHTML = `<strong>${escapeHtml(labels[idx] || '')}</strong>` +
+      rows.map(r => `<div class="tip-row"><span>${escapeHtml(r.label)}</span><span class="tip-value">${r.value.toFixed(2)}점</span></div>`).join('');
+    tooltip.style.display = 'block';
+
+    const wrapRect = wrap.getBoundingClientRect();
+    const px = clientX - wrapRect.left + 12;
+    const py = clientY - wrapRect.top - 12;
+    const maxLeft = Math.max(6, wrap.clientWidth - tooltip.offsetWidth - 6);
+    const maxTop = Math.max(6, wrap.clientHeight - tooltip.offsetHeight - 6);
+    tooltip.style.left = `${Math.max(6, Math.min(px, maxLeft))}px`;
+    tooltip.style.top = `${Math.max(6, Math.min(py, maxTop))}px`;
+  }
+
+  canvas.onmousemove = e => showTooltip(e.clientX, e.clientY);
+  canvas.onmouseleave = hideTooltip;
+  canvas.ontouchstart = e => { const t = e.touches && e.touches[0]; if (t) showTooltip(t.clientX, t.clientY); };
+  canvas.ontouchmove = e => { const t = e.touches && e.touches[0]; if (t) showTooltip(t.clientX, t.clientY); };
+  canvas.ontouchend = () => setTimeout(hideTooltip, 1200);
 }
+
 </script>
 </body>
 </html>
