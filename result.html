@@ -321,12 +321,12 @@ async function doLogin() {
     return;
   }
 
-  CU = { name: auth.name, empNo: auth.empNo };
+  CU = { name: auth.name, empNo: auth.empNo, sessionToken: auth.sessionToken || '' };
   btn.textContent = '⏳ 결과 불러오는 중...';
 
   // 내 결과 + 비교 집계 로드
   // 비교값(개인/팀/전체)은 GAS에서 피평가자의 조직 기준으로 계산합니다.
-  const myRes = await gasGet({ action: 'getSubmissionsFor', empNo: empNo });
+  const myRes = await gasGet({ action: 'getSubmissionsFor', empNo: empNo, sessionToken: CU.sessionToken });
   if (!myRes || myRes.ok === false) {
     errEl.textContent = (myRes && myRes.error) || '평가 결과를 불러오지 못했습니다.';
     btn.disabled = false; btn.textContent = '조회하기';
@@ -344,6 +344,10 @@ async function doLogin() {
 }
 
 function doLogout() {
+  // 서버의 임시 조회 세션도 함께 폐기합니다. 화면 전환은 즉시 처리합니다.
+  if (CU && CU.sessionToken && CU.empNo) {
+    gasGet({ action:'logoutMember', empNo:CU.empNo, sessionToken:CU.sessionToken }).catch(()=>{});
+  }
   CU = null; MY_SUBS = []; ALL_SUBS = []; MY_COMPARISON = {}; MY_TEAM_LABEL = '팀 평균'; MY_MEMBER = null; CUR_TYPE = ''; TEAM_MEMBERS = []; TEAM_ACCESS = null; CUR_MEMBER = null;
   document.getElementById('pg-login').style.display = 'flex';
   document.getElementById('pg-result').style.display = 'none';
@@ -681,7 +685,7 @@ function memberSubLabel(member) {
 async function checkTeamViewAccess() {
   try {
     const url = GAS_URL + '?' + new URLSearchParams({
-      action: 'getTeamMembers', empNo: CU.empNo || CU.id || ''
+      action: 'getTeamMembers', empNo: CU.empNo || CU.id || '', sessionToken: CU.sessionToken || ''
     });
     const res  = await fetch(url);
     const data = await res.json();
@@ -766,23 +770,51 @@ function renderTeamList() {
 }
 
 async function loadMemberResult(empNo, name) {
-  // 칩 선택 표시
+  empNo = String(empNo || '').trim();
+
+  // [동명이인 보호 1] 이름이 아니라 사번으로 현재 조회 가능 목록의 구성원인지 확인
+  const normalizedEmpNo = empNo.replace(/^0+/, '');
+  const allowedMember = TEAM_MEMBERS.find(m => String(m.empNo || '').trim().replace(/^0+/, '') === normalizedEmpNo);
+  if (!allowedMember) {
+    const wrap = document.getElementById('member-result-wrap');
+    if (wrap) wrap.innerHTML = `<div class="no-data">조회 권한이 없는 구성원입니다.</div>`;
+    return;
+  }
+
+  // 화면 표시용 이름도 조회 가능 목록의 동일 사번 구성원 정보를 사용
+  name = String(allowedMember.name || name || '').trim();
+
+  // 칩 선택 표시: id가 아니라 data-emp(사번) 기준
   document.querySelectorAll('.member-chip').forEach(c => c.classList.remove('on'));
-  const chip = document.getElementById('chip-'+empNo);
-  if(chip) chip.classList.add('on');
+  const chip = Array.from(document.querySelectorAll('.member-chip'))
+    .find(c => String(c.dataset.emp || '').trim().replace(/^0+/, '') === normalizedEmpNo);
+  if (chip) chip.classList.add('on');
 
   const wrap = document.getElementById('member-result-wrap');
-  wrap.innerHTML = `<div class="member-loading">⏳ ${name}님의 평가 결과를 불러오는 중...</div>`;
+  wrap.innerHTML = `<div class="member-loading">⏳ ${escapeHtml(name)}님의 평가 결과를 불러오는 중...</div>`;
 
   try {
     const url = GAS_URL + '?' + new URLSearchParams({
-      action: 'getMemberResult', empNo: empNo, viewerEmpNo: CU && CU.empNo ? CU.empNo : ''
+      action: 'getMemberResult',
+      empNo: empNo,
+      viewerEmpNo: CU && CU.empNo ? String(CU.empNo).trim() : '',
+      sessionToken: CU && CU.sessionToken ? CU.sessionToken : ''
     });
     const res  = await fetch(url);
     const data = await res.json();
 
     if (!data || !data.ok) {
-      wrap.innerHTML = `<div class="no-data">데이터를 불러오지 못했습니다.</div>`;
+      wrap.innerHTML = `<div class="no-data">${escapeHtml((data && data.error) || '데이터를 불러오지 못했습니다.')}</div>`;
+      return;
+    }
+
+    // [동명이인 보호 2] 서버가 반환한 대상도 반드시 요청한 사번과 같아야 함
+    const returnedEmpNo = String(
+      (data.member && data.member.empNo) || data.empNo || ''
+    ).trim();
+    if (!returnedEmpNo || returnedEmpNo.replace(/^0+/, '') !== normalizedEmpNo) {
+      console.warn('조회 대상 사번 불일치 차단', { requested: empNo, returned: returnedEmpNo });
+      wrap.innerHTML = `<div class="no-data">조회 대상 정보가 일치하지 않아 결과 표시를 차단했습니다.</div>`;
       return;
     }
 
